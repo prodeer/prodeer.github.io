@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
+先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。
+每一次挑战，都是成长的机会。我期待在不断变化的世界中，对技术的热爱与追求永远不变。
+  </content></entry><entry><title>Go的定时器之Time.Ticker</title><url>/post/golang/time-ticker/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag></tags><content type="html"><![CDATA[  一、引子 面试官问了一道题：每秒钟调用一次proc并保证程序不退出。
+package main func main() { } func proc() { panic(&amp;#34;ok&amp;#34;) } 这道题考察的知识点主要有：
+定时执行任务 捕获 panic 错误 这里主要学习、了解 Time.Ticker 的实现，其源代码基于 Go 1.17.9 版本，主要在 src/time/tick.go 文件中，包含了一个结构体和四个函数。
+二、Time.Ticker Ticker 是一个周期触发定时的计时器，它会按照一个时间间隔往 channel 发送系统当前时间，而 channel 的接收者可以以固定的时间间隔从 channel 中读取事件。
+2.1 结构体 type Ticker struct { C &amp;lt;-chan Time // The channel on which the ticks are delivered. r runtimeTimer } //注：该结构体在src/time/sleep.go中 type runtimeTimer struct { pp uintptr when int64 period int64 f func(any, uintptr) // NOTE: must not be closure arg any seq uintptr nextwhen int64 status uint32 } 可以看到这个结构体包含了一个只读的通道 C，并每隔一段时间向其传递&amp;quot;tick&amp;quot;。
+2.2 NewTicker() NewTicker() 主要包含两步：
+创建一个 Ticker，主要包括其中的 C 属性和 r 属性。r 属性是 runtimeTimer 类型。
+调用 startTimer 函数，启动 Ticker。
+如果 d &amp;lt;= 0 会 panic。
+func NewTicker(d Duration) *Ticker { if d &amp;lt;= 0 { panic(errors.New(&amp;#34;non-positive interval for NewTicker&amp;#34;)) } c := make(chan Time, 1) t := &amp;amp;Ticker{ C: c, r: …  ]]></content></entry><entry><title>Go的WaitGroup源码分析</title><url>/post/golang/waitgroup-sourcecode/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>源代码</tag></tags><content type="html">  WaitGroup 是开发中经常用到的并发控制手段，其源代码在 src/sync/waitgroup.go 文件中，定义了 1 个结构体和 4 个方法：
+WaitGroup{}：结构体。 state()：内部方法，在 Add()、Wait() 中调用。 Add()：添加任务数、改变任务数。 Done()：完成任务，其实就是 Add(-1)。 Wait()：阻塞等待所有任务的完成。 以下源代码基于 Go 1.17.5 版本，有删减。
+$ go version go version go1.17.5 darwin/amd64 在学习之前可以先了解一些概念：
+结构体对齐相关的内容，可参考 之前的笔记 。 信号量函数有两个： runtime_Semacquire 表示增加一个信号量，并挂起当前 goroutine。在 Wait() 里用到。 runtime_Semrelease 表示减少一个信号量，并唤醒 sema 上其中一个正在等待的 goroutine。在 Add() 里用到。 unsafe.Pointer 用于各种指针相互转换； uintptr 是 golang 的内置类型，能存储指针的整型，其底层类型是 int，可以和 unsafe.Pointer 相互转换。 一、结构体 1.1 state1 数组的组成 type WaitGroup struct { // 表示 `WaitGroup` 是不可复制的，只能用指针传递，保证全局唯一。 noCopy noCopy // state1 = state（*unit64） + sema（*unit32） // state = counter + waiter state1 [3]uint32 } state1 是一个 uint32 数组，包含了counter 总数、waiter 等待数 和 sema 信号量，其中：
+counter：通过 Add() 设置的子 goroutine 的计数值。 waiter：通过 Wait() 陷入阻塞的 waiter 数。 sema：信号量。 1.2 state 和 sema 的位置 实际上，counter 和 waiter 合在一起，当成一个 64 位的整数来使用，所以 state1 数组又可以看成由 *unit64 的 state 和 *unit32 的 sema 组成，即：
+state1 …  </content></entry><entry><title>归档</title><url>/archives/archives/</url><categories/><tags/><content type="html">    </content></entry></search>

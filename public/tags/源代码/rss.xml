@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>源代码 on 呦呦鹿鸣</title><link>//localhost:1313/tags/%E6%BA%90%E4%BB%A3%E7%A0%81/</link><description>Recent content in 源代码 on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 01 Apr 2022 09:00:20 +0800</lastBuildDate><atom:link href="//localhost:1313/tags/%E6%BA%90%E4%BB%A3%E7%A0%81/rss.xml" rel="self" type="application/rss+xml"/><item><title>Go的WaitGroup源码分析</title><link>//localhost:1313/post/golang/waitgroup-sourcecode/</link><pubDate>Fri, 01 Apr 2022 09:00:20 +0800</pubDate><guid>//localhost:1313/post/golang/waitgroup-sourcecode/</guid><description>&lt;p>&lt;code>WaitGroup&lt;/code> 是开发中经常用到的并发控制手段，其源代码在 &lt;code>src/sync/waitgroup.go&lt;/code> 文件中，定义了 1 个结构体和 4 个方法：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;code>WaitGroup{}&lt;/code>&lt;/strong>：结构体。&lt;/li>
+&lt;li>&lt;strong>&lt;code>state()&lt;/code>&lt;/strong>：内部方法，在 &lt;code>Add()&lt;/code>、&lt;code>Wait()&lt;/code> 中调用。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Add()&lt;/code>&lt;/strong>：添加任务数、改变任务数。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Done()&lt;/code>&lt;/strong>：完成任务，其实就是 &lt;code>Add(-1)&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Wait()&lt;/code>&lt;/strong>：阻塞等待所有任务的完成。&lt;/li>
+&lt;/ul>
+&lt;p>以下源代码基于 &lt;code>Go 1.17.5&lt;/code> 版本，有删减。&lt;/p></description></item></channel></rss>
