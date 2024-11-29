@@ -1,15 +1,36 @@
 +++
 date = '2022-11-28T20:37:58+08:00'
-draft = false
 title = '车辆激活（扫码激活）的实现'
 categories = ['系统设计']
+draft = false
+mermaid = true
 +++
 
 ### 一、业务场景
 车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。
 
 ### 二、激活流程图
-![车辆激活流程图](/vehicle-active-1.jpeg)
+{{< mermaid bc="#white" >}}
+sequenceDiagram
+    participant Car as 车端
+    participant Cloud as 云端
+    participant MQTT as MQTT网关
+    participant OwnerApp as 车主App
+
+    Car->>Cloud: 1.1 请求生成二维码ID
+    Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
+    MQTT->>Car: 1.3 接收二维码ID
+    Car->>Car: 1.4 生成二维码并显示在大屏幕上
+    OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
+    OwnerApp->>Cloud: 2.2 将二维码ID发给云端
+    Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
+    OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
+    OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
+    Cloud->>Cloud: 3.2 将二维码状态更新为“已确认”
+    Cloud->>MQTT: 3.3 通过MQTT下发激活指令
+    MQTT->>Car: 3.4 下发激活指令
+    Car->>Car: 4.1 车端CDC接收指令并进行本地激活
+{{< /mermaid >}}
 
 ### 三、激活流程
 
@@ -57,8 +78,31 @@ categories = ['系统设计']
 * 至此，车端云端的数据可以保持一致。
 
 新的激活流程如下：
-![车辆激活流程图](/vehicle-active-2.jpeg)
-![车辆激活流程图](/vehicle-active-3.png)
+{{< mermaid bc="#white" >}}
+sequenceDiagram
+    participant Car as 车端
+    participant Cloud as 云端
+    participant MQTT as MQTT网关
+    participant OwnerApp as 车主App
+
+    Car->>Cloud: 1.1 请求生成二维码ID
+    Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
+    MQTT->>Car: 1.3 接收二维码ID
+    Car->>Car: 1.4 生成二维码并显示在大屏幕上
+    OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
+    OwnerApp->>Cloud: 2.2 将二维码ID发给云端
+    Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
+    OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
+    OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
+    Cloud->>MQTT: 3.2 通过MQTT下发激活安全码
+    MQTT->>Car: 3.3 下发激活安全码
+    Car->>Cloud: 4.1 车端上报激活
+    Cloud->>Cloud: 4.2 （车辆未激活时）更新车辆激活状态
+    Clout->>MQTT: 4.3 通过MQTT下发激活结果
+    MQTT->>Car: 4.4 下发激活结果
+{{< /mermaid >}}
+
+![车辆激活流程图](/vehicle-active.png)
 
 #### 4.2 二维码密度过大问题
 
