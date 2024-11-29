@@ -1,6 +1,6 @@
 +++
 date = '2022-11-29T14:52:01+08:00'
-draft = true
+draft = false
 title = '单例模式（Singleton Pattern）'
 categories = ['设计模式']
 +++
