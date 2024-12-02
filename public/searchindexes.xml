@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
 先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。
 每一次挑战，都是成长的机会。我期待在不断变化的世界中，对技术的热爱与追求永远不变。
-  </content></entry><entry><title>用Golang实现一个消息队列</title><url>/post/golang/implement-queue/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>消息队列</tag></tags><content type="html"><![CDATA[  Go的channel是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。
+  </content></entry><entry><title>认识MQTT（二）：RabbitMQ支持MQTT</title><url>/post/mq/rabbitmq-support-mqtt/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  RabbitMQ是通过插件的形式支持MQTT协议的，使用时，需要在RabbitMQ集群上启用rabbitmq_mqtt插件。
+一、如何配置RabbitMQ以支持MQTT的QoS级别 MQTT QoS级别在RabbitMQ中不需要特别的配置，因为rabbitmq_mqtt插件会自动处理QoS级别。MQTT客户端在发布消息时指定QoS级别，RabbitMQ会根据这个级别处理消息。
+AMQP和MQTT的QoS映射：
+MQTT QoS 0对应于“至多一次”的消息传递，AMQP中没有直接对应的QoS级别。 MQTT QoS 1对应于“至少一次”的消息传递，AMQP中可以通过消息确认机制实现。 MQTT QoS 2对应于“只有一次”的消息传递，AMQP中可以通过事务或具有唯一消息ID的队列实现。 graph LR A[1. 配置RabbitMQ以支持MQTT QoS] --&gt; B[启用MQTT插件] A --&gt; C[2. 配置持久化] A --&gt; D[3. 配置手动消息确认] A --&gt; E[4. 配置死信队列] A --&gt; F[5. 配置集群和高可用性] A --&gt; G[6. 配置TLS/SSL] B --&gt; B1[&#34;启用命令：rabbitmq-plugins enable rabbitmq_mqtt&#34;] C --&gt; C1[&#34;设置消息和队列持久化&#34;] D --&gt; D1[&#34;确保客户端确认消息&#34;] E --&gt; E1[&#34;配置DLX（死信交换机）&#34;] F --&gt; F1[&#34;跨多个节点部署RabbitMQ&#34;] G --&gt; G1[&#34;配置TLS/SSL以加密传输&#34;] 二、如何确保RabbitMQ中的MQTT消息不会被丢失 确保RabbitMQ中MQTT消息不丢失，需要综合考虑消息的持久性、网络通信的可靠性、消息确认机制等多个方面。
+graph LR A[确保RabbitMQ中MQTT消息不丢失] A --&gt; B[1. 消息持久化] B --&gt; B1[&#34;持久化队列 - 队列持久化策略&#34;] B --&gt; B2[&#34;持久化消息 - 消息持久化标记&#34;] A --&gt; C[2. 网络通信的可靠性] C --&gt; C1[&#34;使用TLS/SSL - 加密传输层&#34;] A --&gt; D[3. 消息确认机制] D --&gt; D1[&#34;手动确认 - 消费者确认消息处理完成&#34;] A --&gt; E[4. 配置死信队列] E --&gt; …  ]]></content></entry><entry><title>认识MQTT（一）：MQTT是什么</title><url>/post/mq/mqtt-introduction/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  和车打交道后，接触到了MQTT，第一次听到这个词时，我还疑心自己是不是听错了，问Leader是不是MQ，得到了“不是”的答复，遂有此文，总结一下我所了解的MQTT。
+一、MQTT的应用场景 graph LR subgraph 车辆集群 A1[车辆1] A2[车辆2] A3[车辆3] end B[MQTT Broker] subgraph 服务器集群 C[业务服务器] D[TSP平台] E[终端应用] end A1 --&gt;|发布/订阅消息| B A2 --&gt;|发布/订阅消息| B A3 --&gt;|发布/订阅消息| B B --&gt;|发布/订阅消息| C B --&gt;|发布/订阅消息| D B --&gt;|发布/订阅消息| E MQTT在车联网中主要应用在以下几个方面：
+车辆实时监控：通过MQTT协议，车辆可以实时将其位置、速度、状态等信息发布到一个或多个监控中心。监控中心可以订阅这些信息并进行实时监控和分析，以提供实时的车辆位置跟踪和监控。
+车辆远程控制：通过MQTT协议，车辆可以接收来自远程控制中心的指令，并执行相应的操作，如开关车门、启动引擎、调整车辆参数等，这样可以实现远程监控和控制车辆的功能。
+车辆数据采集与共享：通过MQTT协议，车辆可以将其传感器和系统收集到的数据发布到一个或多个数据中心。数据中心可以订阅这些数据，并进行分析和共享，以支持车辆管理、故障诊断、预测维护等功能。
+车辆交互和通信：通过使用MQTT协议，车辆可以与其他车辆、交通设施和智能交通系统进行实时交互和通信。例如，车辆可以发布其位置和行驶意图，以提供给其他车辆和交通设施，从而实现车辆之间的协同行驶和交通流优化。
+在数据传输、设备管理、远程控制和车辆间通信等方面，MQTT以轻量级、低能耗、开放性、可靠性、异步通信、灵活性和实时性等优势成为车联网领域理想的通信协议。
+二、什么是MQTT 上面的应用场景中，可以看到MQTT是一个协议，而我们知道MQ是一个中间件，二者在定义上就有了区别。
+MQTT（Message Queuing Telemetry Transport）：一种应用层的消息协议，独立于传输层协议，可以运行在TCP/TLS或UDP上。
+MQ（Message Queue）：通常指消息队列，如RabbitMQ、ActiveMQ等，实现了特定的消息传递协议，如AMQP、STOMP等。
+三、MQTT和MQ …  ]]></content></entry><entry><title>用Golang实现一个消息队列</title><url>/post/golang/implement-queue/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>消息队列</tag></tags><content type="html"><![CDATA[  Go的channel是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。
 一、设计消息队列的基本结构 定义一个Message结构体来存储消息的ID和负载，一个Queue结构体来管理消息队列。
 type Message struct { ID string Payload interface{} } type Queue struct { messages []Message mutex sync.Mutex cond *sync.Cond } func NewQueue() *Queue { q := &amp;Queue{} q.cond = sync.NewCond(&amp;q.mutex) return q } 二、实现生产者和消费者 生产者负责生成消息并将其添加到队列中，消费者从队列中读取消息并进行处理。为了确保线程安全和条件等待，可以使用sync.Mutex和sync.Cond。
 func (q *Queue) Produce(msg Message) { q.mutex.Lock() defer q.mutex.Unlock() q.messages = append(q.messages, msg) q.cond.Signal() } func (q *Queue) Consume() Message { q.mutex.Lock() defer q.mutex.Unlock() for len(q.messages) == 0 { q.cond.Wait() } msg := q.messages[0] q.messages = q.messages[1:] return msg } 三、并发处理 使用goroutine可以实现并发生产和消费，用来模拟生产者和消费者的行为。

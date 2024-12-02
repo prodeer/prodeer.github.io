@@ -6,4 +6,6 @@
 &lt;li>&lt;strong>&lt;code>Done()&lt;/code>&lt;/strong>：完成任务，其实就是 &lt;code>Add(-1)&lt;/code>。&lt;/li>
 &lt;li>&lt;strong>&lt;code>Wait()&lt;/code>&lt;/strong>：阻塞等待所有任务的完成。&lt;/li>
 &lt;/ul>
-&lt;p>以下源代码基于 &lt;code>Go 1.17.5&lt;/code> 版本，有删减。&lt;/p></description></item></channel></rss>
+&lt;p>以下源代码基于 &lt;code>Go 1.17.5&lt;/code> 版本，有删减。&lt;/p></description></item><item><title>Go的Channel发送和接收</title><link>//localhost:1313/post/golang/channel/</link><pubDate>Tue, 24 Aug 2021 01:46:00 +0800</pubDate><guid>//localhost:1313/post/golang/channel/</guid><description>&lt;p>先来看一道面试题：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>对已经关闭的 chan 进行读写，会怎么样？为什么？
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在上一篇学习 Go 协程的文章中，知道 go 关键字可以用来开启一个 goroutine 进行任务处理，但多个任务之间如果需要通信，就需要用到通道（channel）了。&lt;/p></description></item><item><title>Go的Waitgroup和锁</title><link>//localhost:1313/post/golang/waitgroup/</link><pubDate>Tue, 18 May 2021 00:13:00 +0800</pubDate><guid>//localhost:1313/post/golang/waitgroup/</guid><description>&lt;p>学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。&lt;/p></description></item></channel></rss>
