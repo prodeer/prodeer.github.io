@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
 先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。
 每一次挑战，都是成长的机会。我期待在不断变化的世界中，对技术的热爱与追求永远不变。
-  </content></entry><entry><title>认识MQTT（二）：RabbitMQ支持MQTT</title><url>/post/mq/rabbitmq-support-mqtt/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  RabbitMQ是通过插件的形式支持MQTT协议的，使用时，需要在RabbitMQ集群上启用rabbitmq_mqtt插件。
+  </content></entry><entry><title>Golang实现工厂模式（Factory Pattern）</title><url>/post/desiginpattern/factory-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  工厂模式（Factory Pattern）是一种创建型设计模式，用于处理对象的创建。在工厂模式中，创建对象的任务被推迟到子类中，这些子类被称为工厂方法。这种模式的主要目的是将对象的创建和使用分离，使得在不知道具体类的情况下也能创建对象。
+一、使用场景 数据库连接：在应用程序中，可能需要连接不同类型的数据库（如MySQL、PostgreSQL等），每种数据库的连接方式可能不同。根据不同的数据库类型，创建相应的数据库连接对象。
+日志记录器：在应用程序中，可能需要根据不同的环境（开发、测试、生产）使用不同的日志记录器。根据不同的环境，创建相应的日志记录器对象。
+支付网关：电子商务平台可能需要支持多种支付方式（如PayPal、Stripe、信用卡等）。根据不同的支付方式，创建相应的支付处理对象。
+二、优点 封装性：工厂模式隐藏了对象创建的细节，使得客户端代码只需要关心对象的接口，而不需要知道具体的实现类。
+代码解耦：工厂模式将对象的创建和使用分离，降低了系统的耦合度，使得修改和扩展更加容易。
+扩展性：当需要添加新的产品类时，只需要添加新的具体产品类和相应的工厂类，而不需要修改现有的代码，符合开闭原则。
+代码重用：通过使用工厂模式，可以重用现有的代码来创建对象，而不需要每次都重新编写创建逻辑。
+控制反转：对象的创建被委托给工厂类，而不是由客户端代码直接创建。
+减少错误：由于对象的创建逻辑被封装在工厂类中，减少了在客户端代码中直接创建对象时可能发生的错误。
+易于测试：工厂模式使得替换对象变得更加容易，因此在单元测试中可以轻松地使用mock对象。 三、缺点 增加复杂性和维护成本：因为需要额外的工厂类，尤其是当产品类的数量很多时，可能会增加系统的复杂性和维护成本。
+可能违反单一职责原则：如果工厂类过于复杂，可能会违反单一职责原则，即一个类应该只有一个引起它变化的原因。
+四、实现方式 简单工厂模式 工厂方法模式 抽象工厂模式 建造者模式 原型模式 单例工厂模式 定义 一个工厂类封装创建对象的逻辑。 定义创建对象的接口，由子类决定实例化哪个类。 提供一个接口用于创建一系列相关或依赖对象的家族。 分离复杂对象的构建和表示，通过指定的构建过程创建不同的表示。 使用原型实例指定创建对象的种类，通过拷贝这些原型创建新的对象。 确保一个类只有一个实例，并提供一个全局访问点。 优点 简单直观，易于 …  </content></entry><entry><title>认识MQTT（二）：RabbitMQ支持MQTT</title><url>/post/mq/rabbitmq-support-mqtt/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  RabbitMQ是通过插件的形式支持MQTT协议的，使用时，需要在RabbitMQ集群上启用rabbitmq_mqtt插件。
 一、如何配置RabbitMQ以支持MQTT的QoS级别 MQTT QoS级别在RabbitMQ中不需要特别的配置，因为rabbitmq_mqtt插件会自动处理QoS级别。MQTT客户端在发布消息时指定QoS级别，RabbitMQ会根据这个级别处理消息。
 AMQP和MQTT的QoS映射：
 MQTT QoS 0对应于“至多一次”的消息传递，AMQP中没有直接对应的QoS级别。 MQTT QoS 1对应于“至少一次”的消息传递，AMQP中可以通过消息确认机制实现。 MQTT QoS 2对应于“只有一次”的消息传递，AMQP中可以通过事务或具有唯一消息ID的队列实现。 graph LR A[1. 配置RabbitMQ以支持MQTT QoS] --&gt; B[启用MQTT插件] A --&gt; C[2. 配置持久化] A --&gt; D[3. 配置手动消息确认] A --&gt; E[4. 配置死信队列] A --&gt; F[5. 配置集群和高可用性] A --&gt; G[6. 配置TLS/SSL] B --&gt; B1[&#34;启用命令：rabbitmq-plugins enable rabbitmq_mqtt&#34;] C --&gt; C1[&#34;设置消息和队列持久化&#34;] D --&gt; D1[&#34;确保客户端确认消息&#34;] E --&gt; E1[&#34;配置DLX（死信交换机）&#34;] F --&gt; F1[&#34;跨多个节点部署RabbitMQ&#34;] G --&gt; G1[&#34;配置TLS/SSL以加密传输&#34;] 二、如何确保RabbitMQ中的MQTT消息不会被丢失 确保RabbitMQ中MQTT消息不丢失，需要综合考虑消息的持久性、网络通信的可靠性、消息确认机制等多个方面。
@@ -20,7 +32,7 @@ MQ（Message Queue）：通常指消息队列，如RabbitMQ、ActiveMQ等，实�
 type Message struct { ID string Payload interface{} } type Queue struct { messages []Message mutex sync.Mutex cond *sync.Cond } func NewQueue() *Queue { q := &amp;Queue{} q.cond = sync.NewCond(&amp;q.mutex) return q } 二、实现生产者和消费者 生产者负责生成消息并将其添加到队列中，消费者从队列中读取消息并进行处理。为了确保线程安全和条件等待，可以使用sync.Mutex和sync.Cond。
 func (q *Queue) Produce(msg Message) { q.mutex.Lock() defer q.mutex.Unlock() q.messages = append(q.messages, msg) q.cond.Signal() } func (q *Queue) Consume() Message { q.mutex.Lock() defer q.mutex.Unlock() for len(q.messages) == 0 { q.cond.Wait() } msg := q.messages[0] q.messages = q.messages[1:] return msg } 三、并发处理 使用goroutine可以实现并发生产和消费，用来模拟生产者和消费者的行为。
 func main() { queue := NewQueue() // 生产者Goroutine go func() { for i := 0; i &lt; 10; i++ { msg := Message{ID: fmt.Sprintf(&#34;msg-%d&#34;, i), Payload: fmt.Sprintf(&#34;Data %d&#34;, i)} queue.Produce(msg) fmt.Printf(&#34;Produced: %v\n&#34;, msg) time.Sleep(time.Second) } }() // 消费者Goroutine go func() { for { msg := queue.Consume() fmt.Printf(&#34;Consumed: %v\n&#34;, msg) time.Sleep(time.Second * 2) } }() // 防止主程序退出 select {} } 四、持久化存储 将消息存储在磁盘或数据库中，防止系统崩溃导致数据丢失。
-将消息写入到一个日志文件中，这样即使程序重启，消息也不会丢失。 在数据库中创建一个表来存储消息，并在消息处理失败时将消息插入到这个表中。   ]]></content></entry><entry><title>单例模式（Singleton Pattern）</title><url>/post/desiginpattern/singleton-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。
+将消息写入到一个日志文件中，这样即使程序重启，消息也不会丢失。 在数据库中创建一个表来存储消息，并在消息处理失败时将消息插入到这个表中。   ]]></content></entry><entry><title>Golang实现单例模式（Singleton Pattern）</title><url>/post/desiginpattern/singleton-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。
 一、使用场景 配置管理器：当配置信息被整个应用程序共享时，使用单例模式可以确保配置信息只被初始化一次。
 连接池：数据库连接池通常使用单例模式，以确保整个应用程序中只有一个连接池实例。
 日志记录器：日志记录器通常作为单例实现，以确保所有日志消息都发送到同一个日志文件或日志系统中。
