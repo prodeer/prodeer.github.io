@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>缓存 on 呦呦鹿鸣</title><link>//localhost:1313/categories/%E7%BC%93%E5%AD%98/</link><description>Recent content in 缓存 on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Tue, 03 Jan 2023 18:10:45 +0800</lastBuildDate><atom:link href="//localhost:1313/categories/%E7%BC%93%E5%AD%98/rss.xml" rel="self" type="application/rss+xml"/><item><title>13种缓存模式汇总</title><link>//localhost:1313/post/cache/caching-patterns/</link><pubDate>Tue, 03 Jan 2023 18:10:45 +0800</pubDate><guid>//localhost:1313/post/cache/caching-patterns/</guid><description>&lt;p>学习和总结了13种缓存模式优缺点、应用场景和工作流程。（汇总见底部的思维导图）&lt;/p>
+&lt;h3 id="一读取流程相同的缓存模式">一、读取流程相同的缓存模式：
+&lt;a class="header-anchor" href="#%e4%b8%80%e8%af%bb%e5%8f%96%e6%b5%81%e7%a8%8b%e7%9b%b8%e5%90%8c%e7%9a%84%e7%bc%93%e5%ad%98%e6%a8%a1%e5%bc%8f">&lt;/a>
+&lt;/h3>&lt;ol>
+&lt;li>Cache-Aside（旁路缓存）&lt;/li>
+&lt;li>Read-Through（透读缓存）&lt;/li>
+&lt;li>Write-Through（透写缓存）&lt;/li>
+&lt;li>Write-Back/Write-Behind（写后缓存）&lt;/li>
+&lt;li>Write-Around（写绕过缓存）&lt;/li>
+&lt;li>Write-Through with Expiry（带过期的透写缓存）&lt;/li>
+&lt;li>Lazy Write-Back（懒写后缓存）&lt;/li>
+&lt;li>Timed Write-Back（定时写后缓存）&lt;/li>
+&lt;li>Write-Back with Coalescing（合并写后缓存）&lt;/li>
+&lt;li>Read-Write（读写缓存）&lt;/li>
+&lt;/ol>
+&lt;p>&lt;strong>这些模式的读取流程都是&lt;/strong>：命中：返回缓存数据；未命中：从数据库加载数据并缓存后返回&lt;/p></description></item></channel></rss>

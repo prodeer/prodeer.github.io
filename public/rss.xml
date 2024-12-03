@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>呦呦鹿鸣</title><link>//localhost:1313/</link><description>Recent content on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Mon, 25 Nov 2024 13:44:11 +0800</lastBuildDate><atom:link href="//localhost:1313/rss.xml" rel="self" type="application/rss+xml"/><item><title>关于我</title><link>//localhost:1313/about/</link><pubDate>Mon, 25 Nov 2024 13:44:11 +0800</pubDate><guid>//localhost:1313/about/</guid><description>&lt;p>2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。&lt;/p>
-&lt;p>先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。&lt;/p></description></item><item><title>认识MQTT（三）：MQTT在业务中的应用</title><link>//localhost:1313/post/mq/use-mqtt/</link><pubDate>Sat, 31 Dec 2022 17:10:20 +0800</pubDate><guid>//localhost:1313/post/mq/use-mqtt/</guid><description>&lt;p>我们的系统连接着车辆和用户两端，车辆的个性化配置数据上报到云端，又或者用户登录后的账户信息下发给车端，车辆与云端之间的数据传输都是通过MQTT网关来实现的。
+&lt;p>先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。&lt;/p></description></item><item><title>13种缓存模式汇总</title><link>//localhost:1313/post/cache/caching-patterns/</link><pubDate>Tue, 03 Jan 2023 18:10:45 +0800</pubDate><guid>//localhost:1313/post/cache/caching-patterns/</guid><description>&lt;p>学习和总结了13种缓存模式优缺点、应用场景和工作流程。（汇总见底部的思维导图）&lt;/p>
+&lt;h3 id="一读取流程相同的缓存模式">一、读取流程相同的缓存模式：
+&lt;a class="header-anchor" href="#%e4%b8%80%e8%af%bb%e5%8f%96%e6%b5%81%e7%a8%8b%e7%9b%b8%e5%90%8c%e7%9a%84%e7%bc%93%e5%ad%98%e6%a8%a1%e5%bc%8f">&lt;/a>
+&lt;/h3>&lt;ol>
+&lt;li>Cache-Aside（旁路缓存）&lt;/li>
+&lt;li>Read-Through（透读缓存）&lt;/li>
+&lt;li>Write-Through（透写缓存）&lt;/li>
+&lt;li>Write-Back/Write-Behind（写后缓存）&lt;/li>
+&lt;li>Write-Around（写绕过缓存）&lt;/li>
+&lt;li>Write-Through with Expiry（带过期的透写缓存）&lt;/li>
+&lt;li>Lazy Write-Back（懒写后缓存）&lt;/li>
+&lt;li>Timed Write-Back（定时写后缓存）&lt;/li>
+&lt;li>Write-Back with Coalescing（合并写后缓存）&lt;/li>
+&lt;li>Read-Write（读写缓存）&lt;/li>
+&lt;/ol>
+&lt;p>&lt;strong>这些模式的读取流程都是&lt;/strong>：命中：返回缓存数据；未命中：从数据库加载数据并缓存后返回&lt;/p></description></item><item><title>认识MQTT（三）：MQTT在业务中的应用</title><link>//localhost:1313/post/mq/use-mqtt/</link><pubDate>Sat, 31 Dec 2022 17:10:20 +0800</pubDate><guid>//localhost:1313/post/mq/use-mqtt/</guid><description>&lt;p>我们的系统连接着车辆和用户两端，车辆的个性化配置数据上报到云端，又或者用户登录后的账户信息下发给车端，车辆与云端之间的数据传输都是通过MQTT网关来实现的。
 网关作为网络中间连接器、协议转换器，负责将车辆终端、众多业务后台复杂的网络连接场景、业务交互场景进行聚类转发。&lt;/p></description></item><item><title>Golang实现工厂模式（Factory Pattern）</title><link>//localhost:1313/post/desiginpattern/factory-pattern/</link><pubDate>Wed, 21 Dec 2022 12:52:01 +0800</pubDate><guid>//localhost:1313/post/desiginpattern/factory-pattern/</guid><description>&lt;p>工厂模式（Factory Pattern）是一种创建型设计模式，用于处理对象的创建。在工厂模式中，创建对象的任务被推迟到子类中，这些子类被称为工厂方法。这种模式的主要目的是将对象的创建和使用分离，使得在不知道具体类的情况下也能创建对象。&lt;/p></description></item><item><title>认识MQTT（二）：RabbitMQ支持MQTT</title><link>//localhost:1313/post/mq/rabbitmq-support-mqtt/</link><pubDate>Thu, 15 Dec 2022 16:00:20 +0800</pubDate><guid>//localhost:1313/post/mq/rabbitmq-support-mqtt/</guid><description>&lt;p>&lt;code>RabbitMQ&lt;/code>是通过插件的形式支持&lt;code>MQTT&lt;/code>协议的，使用时，需要在RabbitMQ集群上启用&lt;code>rabbitmq_mqtt&lt;/code>插件。&lt;/p>
 &lt;h2 id="一如何配置rabbitmq以支持mqtt的qos级别">一、如何配置RabbitMQ以支持MQTT的QoS级别
 &lt;a class="header-anchor" href="#%e4%b8%80%e5%a6%82%e4%bd%95%e9%85%8d%e7%bd%aerabbitmq%e4%bb%a5%e6%94%af%e6%8c%81mqtt%e7%9a%84qos%e7%ba%a7%e5%88%ab">&lt;/a>
