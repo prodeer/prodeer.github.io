@@ -458,7 +458,7 @@ params:
   # 将文章的描述内容用于首页展示（暂时未实现）
   # Automatically excerpt description in homepage 
   # as preamble text (not implemented by now).
-  excerptDesc: true
+  excerptDesc: false
 
   # 是否显示阅读更多按钮
   # Read more button

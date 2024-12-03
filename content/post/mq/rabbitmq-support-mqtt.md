@@ -9,6 +9,8 @@ tags = ['消息队列', '通信协议']
 
 `RabbitMQ`是通过插件的形式支持`MQTT`协议的，使用时，需要在RabbitMQ集群上启用`rabbitmq_mqtt`插件。
 
+<!--more-->
+
 ## 一、如何配置RabbitMQ以支持MQTT的QoS级别
 
 `MQTT` QoS级别在`RabbitMQ`中不需要特别的配置，因为`rabbitmq_mqtt`插件会自动处理QoS级别。`MQTT`客户端在发布消息时指定QoS级别，`RabbitMQ`会根据这个级别处理消息。

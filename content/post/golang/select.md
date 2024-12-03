@@ -7,7 +7,10 @@ tags = ['Golang']
 +++
 
 Go 的通道有两种操作方式，一种是带 range 子句的 for 语句，另一种则是 select 语句，它是专门为了操作通道而存在的。这里主要介绍 select 的用法。
-##### 一、select的语法
+
+<!--more-->
+
+### 一、select的语法
 select 语句的语法如下：
 ```go
 select {
@@ -70,7 +73,7 @@ The second candidate case is selected.
 ```
 多次执行的话，会随机输出不同的字符串，如果随机值不是0、1、2，则会执行  default 语句。
 
-##### 二、select死锁
+### 二、select死锁
 select 使用不当会发生死锁。
 
 * 如果通道没有数据发送，但 select 中有存在接收通道数据的语句，将发生死锁。
@@ -111,7 +114,7 @@ main.main()
 exit status 2
 ```
 
-##### 三、select和for结合使用
+### 三、select和for结合使用
 select 语句只能对其中的每一个case表达式各求值一次。所以，如果想连续或定时地操作其中的通道的话，就需要通过在for语句中嵌入select语句的方式实现。
 ```go
 package main
@@ -196,7 +199,7 @@ END:
         fmt.Println("end")
     }
 ```
-##### 四、select实现超时机制
+### 四、select实现超时机制
 主要使用的 `time.After` 实现超时控制。
 ```go
 package main

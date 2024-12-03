@@ -9,6 +9,8 @@ mermaid = true
 ### 一、业务场景
 车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。
 
+<!--more-->
+
 ### 二、激活流程图
 {{< mermaid bc="#white" >}}
 sequenceDiagram
