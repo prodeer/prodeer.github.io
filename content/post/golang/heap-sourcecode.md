@@ -35,7 +35,7 @@ Pop() interface{}：移除并返回堆中的最后一个元素，即优先级最
 
 ## 二、heap源码剖析
 
-Go 中切片的数据结构可以在源码下的 `src/container/heap/heap.go` 查看。以下源代码基于 go1.23.3 版本，有删减。
+Go 中`heap`的相关部分可以在源码下的 `src/container/heap/heap.go` 查看。以下源代码基于 go1.23.3 版本，有删减。
 
 ### 2.1 核心接口
 
