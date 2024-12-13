@@ -1,97 +1,989 @@
-<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="任务系统的设计"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content><meta property="og:type" content="article"><meta property="og:title" content="任务系统的设计"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/system/task-system/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2023-01-28 10:37:58 +0800 CST"><meta property="article:modified_time" content="2023-01-28 10:37:58 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"task-system","permalink":"//localhost:1313/post/system/task-system/","title":"任务系统的设计","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>任务系统的设计 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
-<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><a href=#一背景>一、背景</a></li><li><a href=#二现状>二、现状</a><ul><li><a href=#21-任务分类较多>2.1 任务分类较多</a></li><li><a href=#22-任务接入来源较多>2.2 任务接入来源较多</a></li></ul></li><li><a href=#三系统设计>三、系统设计</a><ul><li><a href=#31-梳理业务流程>3.1 梳理业务流程</a></li><li><a href=#32-核心模块划分>3.2 核心模块划分</a><ul><li><a href=#321-任务生成>3.2.1 任务生成</a></li><li><a href=#322-基础能力>3.2.2 基础能力</a></li><li><a href=#323-数据同步>3.2.3 数据同步</a></li></ul></li><li><a href=#33-技术实现>3.3 技术实现</a><ul><li><a href=#331-人群准入>3.3.1 人群准入</a></li><li><a href=#332-绑定任务>3.3.2 绑定任务</a></li><li><a href=#333-人群准出>3.3.3 人群准出</a></li></ul></li></ul></li><li><a href=#四小结>四、小结</a></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
-<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
-<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
-<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
-友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
-<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
-<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/system/task-system/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="任务系统的设计"><meta itemprop=description content="一、背景
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
+
+<meta name="generator" content="Hugo 0.139.0">
+<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
+<meta itemprop="name" content="任务系统的设计" />
+<meta itemprop="description" content="" />
+<meta name="description" content="" />
+
+
+<meta itemprop="datePublished" ZgotmplZ />
+
+
+<meta itemprop="dateModified" ZgotmplZ />
+
+
+
+
+
+<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
+<meta itemprop="keywords" content="" />
+
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="任务系统的设计" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="/imgs/liulu_avatar.png" />
+<meta property="og:image:width" content="312" />
+<meta property="og:image:height" content="312" />
+<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
+<meta property="og:url" content="//localhost:1313/post/system/task-system/"/>
+<meta property="og:site_name" content="呦呦鹿鸣" />
+<meta property="og:locale" content="zh-CN"/>
+
+<meta property="article:author" content="" />
+<meta property="article:published_time" content="2023-01-28 10:37:58 &#43;0800 CST" />
+<meta property="article:modified_time" content="2023-01-28 10:37:58 &#43;0800 CST" />
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+  
+<script type="text/javascript">
+(function(){
+  localDB = {
+    set: function (key, value, ttl) {
+      if (ttl === 0) return;
+      const now = new Date();
+      const expiryDay = ttl * 86400000;
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    },
+    get: function (key) {
+      const itemStr = localStorage.getItem(key);
+      if (!itemStr) {
+        return undefined;
+      }
+  
+      const item = JSON.parse(itemStr);
+      const now = new Date();
+  
+      if (now.getTime() > item.expiry) {
+        localStorage.removeItem(key);
+        return undefined;
+      }
+      return item.value;
+    }
+  };
+
+  theme = {
+    active: function() {
+      const localState = localDB.get('theme');
+      if (localState == undefined) return;
+      theme.toggle(localState);
+      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
+        theme.toggle(evt.matches ? 'dark' : 'light');
+      });
+    },
+
+    toggle: function (theme) {
+      document.documentElement.setAttribute('data-theme',  theme);
+      localDB.set('theme', theme, 2);
+      
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        const config = { setConfig: { theme: theme } };
+        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
+      }
+    }
+  };
+
+  theme.active();
+})(window);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"task-system","permalink":"//localhost:1313/post/system/task-system/","title":"任务系统的设计","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
+
+
+
+
+  <script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+  var script = document.createElement('script');
+    
+  script.charset = "UTF-8";
+  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
+  script.async   = false
+  script.defer   = true
+  
+  document.head.appendChild(script);
+  script.onload = function() {
+    NexT.utils.fmtBusuanzi();
+  }
+});
+</script>
+  
+
+
+
+  <title>任务系统的设计 - 呦呦鹿鸣</title>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
+  <div class="headband"></div>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner">
+        
+<div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+    
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">呦呦鹿鸣</h1>
+      <i class="logo-line"></i>
+    </a>
+    
+      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
+    
+    
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+      
+      <i class="fa fa-search fa-fw fa-lg"></i>
+      
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">    
+  
+    
+    <li class="menu-item menu-item-home">
+      <a href="/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-home hvr-icon"></i>首页
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-about">
+      <a href="/about/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-user hvr-icon"></i>关于
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-archives">
+      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-archive hvr-icon"></i>归档
+        
+        
+          <span class="badge">19</span>
+        
+      </a>
+      
+    </li>
+      
+
+  
+    <li class="menu-item menu-item-search">
+      <a role="button" class="popup-trigger hvr-icon-pulse">
+        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
+      </a>
+    </li>
+  
+  </ul>
+</nav>
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+      </div>
+      
+      
+      <div class="toggle sidebar-toggle" role="button">
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-toc">
+        文章目录
+      </li>
+      <li class="sidebar-nav-overview">
+        站点概览
+      </li>
+    </ul>
+    <div class="sidebar-panel-container">
+      
+      <div class="post-toc-wrap sidebar-panel">
+        <div class="post-toc animated"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#一背景">一、背景</a></li>
+        <li><a href="#二现状">二、现状</a>
+          <ul>
+            <li><a href="#21-任务分类较多">2.1 任务分类较多</a></li>
+            <li><a href="#22-任务接入来源较多">2.2 任务接入来源较多</a></li>
+          </ul>
+        </li>
+        <li><a href="#三系统设计">三、系统设计</a>
+          <ul>
+            <li><a href="#31-梳理业务流程">3.1 梳理业务流程</a></li>
+            <li><a href="#32-核心模块划分">3.2 核心模块划分</a>
+              <ul>
+                <li><a href="#321-任务生成">3.2.1 任务生成</a></li>
+                <li><a href="#322-基础能力">3.2.2 基础能力</a></li>
+                <li><a href="#323-数据同步">3.2.3 数据同步</a></li>
+              </ul>
+            </li>
+            <li><a href="#33-技术实现">3.3 技术实现</a>
+              <ul>
+                <li><a href="#331-人群准入">3.3.1 人群准入</a></li>
+                <li><a href="#332-绑定任务">3.3.2 绑定任务</a></li>
+                <li><a href="#333-人群准出">3.3.3 人群准出</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#四小结">四、小结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div>
+      
+      <div class="site-overview-wrap sidebar-panel">
+        
+<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+    <img class="site-author-image" itemprop="image" alt=""
+    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
+  
+  <p class="site-author-name" itemprop="name"></p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+
+
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+    <div class="site-state-item site-state-posts">
+      <a href="/archives/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">日志</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-categories">
+      <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-tags">
+      <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </a>
+    </div>
+  </nav>
+</div>
+
+
+<div class="links-of-social site-overview-item animated">
+
+
+</div>
+
+
+
+<div class="cc-license animated" itemprop="license">
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
+    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
+  </a>
+</div>
+
+
+
+
+<div class="links-of-blogroll site-overview-item animated">
+  <div class="links-of-blogroll-title">
+    
+    <i class="fa fa-globe fa-fw"></i>
+    
+    友情链接
+  </div>
+  <ul class="links-of-blogroll-list">
+    
+    
+    
+    
+    <li class="links-of-blogroll-item">
+      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
+    </li>
+    
+  </ul>
+</div>
+
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  
+    
+<div id="siteinfo-card-widget" class="sidebar-card-widget">
+  <div class="item-headline">
+    <i class="fas fa-chart-line"></i>
+    <span>网站资讯</span>
+  </div>
+  <div class="siteinfo">
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
+      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
+    </div>
+    
+    
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-user"></i>总访客数：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-eye"></i>页面浏览：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
+    </div> 
+        
+        
+    
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
+      <div class="item-count" id="wordsCount" data-count="37487"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
+      <div class="item-count" id="readTimes" data-times="86"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
+      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
+    </div>
+  </div>
+</div>
+  
+
+  
+</aside>
+<div class="sidebar-dimmer"></div>
+
+      
+    </header>
+    
+    <div class="tool-buttons" >
+    
+  
+  <div id="toggle-theme" class="button" title="深浅模式切换">
+    <i class="fas fa-adjust"></i>
+  </div>
+  
+  <div class="back-to-top" role="button" title="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+ 
+</div>
+
+
+  <div class="reading-progress-bar"></div>
+
+
+
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+
+
+
+
+
+  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
+<script type="text/javascript">
+((window.gitter = {}).chat = {}).options = {
+  room: "hugo-next/community"
+};
+</script>   
+
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+    <div class="main-inner post posts-expand">
+      
+      
+  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    
+    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/system/task-system/">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/imgs/liulu_avatar.png">
+      <meta itemprop="name" content="">
+    </span>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+    </span>
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="任务系统的设计">
+      <meta itemprop="description" content="一、背景
 
 由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。
-任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。"></span><header class=post-header><h1 class=post-title itemprop="name headline">任务系统的设计</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
-</span><span class=post-meta-item-text title=发表于>发表于：
-</span><time title="创建时间：2023-01-28 10:37:58 +0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-28 10:37:58 +0800 CST">2023-01-28
-</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
-</span><span class=post-meta-item-text title=分类于>分类于：
-</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1 itemprop=url rel=index><span itemprop=name>系统设计</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
-</span><span class=post-meta-item-text>字数：</span>
-<span>2417</span>
-</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
-</span><span class=post-meta-item-text>阅读：&ap;</span>
-<span>5分钟</span>
-</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
-</span><span class=post-meta-item-text>浏览：
-</span><span id=busuanzi_value_page_pv data-path=/post/system/task-system/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><h2 id=一背景>一、背景
-<a class=header-anchor href=#%e4%b8%80%e8%83%8c%e6%99%af></a></h2><p>由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。</p><p>任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。</p><h2 id=二现状>二、现状
-<a class=header-anchor href=#%e4%ba%8c%e7%8e%b0%e7%8a%b6></a></h2><h3 id=21-任务分类较多>2.1 任务分类较多
-<a class=header-anchor href=#21-%e4%bb%bb%e5%8a%a1%e5%88%86%e7%b1%bb%e8%be%83%e5%a4%9a></a></h3><p>根据正向牵引数据源（新司机首次在线，完成首单&mldr;&mldr;）、反向异常数据源（行程不安全、申诉&mldr;..）将任务分为十几种类别，且分类随着业务的开展还会不断增加。</p><h3 id=22-任务接入来源较多>2.2 任务接入来源较多
-<a class=header-anchor href=#22-%e4%bb%bb%e5%8a%a1%e6%8e%a5%e5%85%a5%e6%9d%a5%e6%ba%90%e8%be%83%e5%a4%9a></a></h3><p>不同场景会有其对应的行为事件，进而产生不同的任务，接入任务系统的业务方非常多。</p><h2 id=三系统设计>三、系统设计
-<a class=header-anchor href=#%e4%b8%89%e7%b3%bb%e7%bb%9f%e8%ae%be%e8%ae%a1></a></h2><h3 id=31-梳理业务流程>3.1 梳理业务流程
-<a class=header-anchor href=#31-%e6%a2%b3%e7%90%86%e4%b8%9a%e5%8a%a1%e6%b5%81%e7%a8%8b></a></h3><p><img src=/imgs/img-lazy-loading.gif data-src=/task-system-1.png alt=任务系统业务流程图></p><p>针对上面的任务，以及日后要接入的其他类任务，核心业务流程分为4部分：</p><ol><li><strong>事件接入</strong>：通过API/ES/MQ系统交互的方式，确定当前任务场景下，司机所对应的行为事件。</li><li><strong>圈定人群</strong>：在某一类场景下，司机的行为事件也有多种多样，通过一定的业务规则，来筛选我们的目标人群。</li><li><strong>绑定任务</strong>：筛选完目标人群后，通过组织架构以及相应的任务模板来生成任务。</li><li><strong>任务流程</strong>：任务接收人在APP上完成相关任务。</li></ol><p>以工单任务为例，任务时序图如下所示：<div class=mermaid align=center style=background:#white>sequenceDiagram
-participant 任务系统
-participant 行为引擎
-participant 人群服务
-participant 导师
-participant 驱动
-opt 任务下发
-任务系统->>行为引擎: 人群规则
-行为引擎->>人群服务: 人群圈定
-人群服务->>行为引擎: MQ人群流
-行为引擎->>任务系统: 数据填充
-end
-opt 任务绑定
-任务系统->>导师: 任务领取
-导师->>导师: 任务完成
-导师->>任务系统: 领取奖励
-任务系统->>驱动: 积分发放
-驱动->>任务系统: 同步成功
-end
-opt 任务剔除
-任务系统->>行为引擎: 人群准出
-行为引擎->>任务系统: 任务剔除
-end</div></p><h3 id=32-核心模块划分>3.2 核心模块划分
-<a class=header-anchor href=#32-%e6%a0%b8%e5%bf%83%e6%a8%a1%e5%9d%97%e5%88%92%e5%88%86></a></h3><p><img src=/imgs/img-lazy-loading.gif data-src=/task-system-2.png alt=任务系统核心模块>
-任务系统按模块逻辑可以分为4部分，任务生成、基础能力、同步模块。</p><h4 id=321-任务生成>3.2.1 任务生成
-<a class=header-anchor href=#321-%e4%bb%bb%e5%8a%a1%e7%94%9f%e6%88%90></a></h4><p>1.<strong>动态圈定人群</strong>：如上图场景1所示的任务。</p><p>当服务后台配置好规则后，任务系统会将这些规则给到行为牵引模块。行为牵引模块根据规则来确定目标人群，并利用消息队列（MQ）将人群数据流传递给任务系统。</p><p>之所以将行为牵引设计为一个独立的模块，是因为我们需要同时监控目标人群的准入和准出状态。这样做可以防止因不符合某些规则而导致的人群准出问题，行为牵引模块实现了规则的托管功能。</p><ol start=2><li><strong>快照规则人群</strong>：如上图场景2所示的任务。</li></ol><p>任务系统不需要关注人群的长期状态，只关注当前的状态。它通过ES在线实时拉取人群数据，或者通过消息队列（MQ）或开放接口（OpenAPI）下发人群数据。</p><ol start=3><li><strong>上传文件人群</strong>：如上图场景3所示的任务。</li></ol><p>通过上传文件并手动选定一批人群的操作，在形式上与第二种方法相似，都可以视为基于快照的逻辑。一旦数据源经过解析和格式化清洗，其数据结构就变得适合在任务系统中进行一系列状态流转。</p><p>随后，从<code>ICE</code>服务中获取一个唯一的主键，这是因为当前的任务数据分散在不同的数据库和表中，需要一个全局唯一的标识符来区分每条数据记录。</p><h4 id=322-基础能力>3.2.2 基础能力
-<a class=header-anchor href=#322-%e5%9f%ba%e7%a1%80%e8%83%bd%e5%8a%9b></a></h4><p>这个模块包含了任务系统的基础能力。例如任务状态的变更，消息触达，任务转发，任务检索等。 系统会在任务创建后，通过binlog将数据同步到 <code>ES</code> 进行索引，从而避免执行复杂的查询操作，减少对多个库扫描的情况。</p><h4 id=323-数据同步>3.2.3 数据同步
-<a class=header-anchor href=#323-%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5></a></h4><p>该模块不需要额外开发，基于自研的数据开发平台来配置相关的同步任务。这些任务可以按照离线的小时、天维度来支持业务查询，同时，由于ES中的数据是实时更新的，它可以用作在线系统的检索工具，避免了在查询时需要扫描多个数据库的复杂情况。</p><h3 id=33-技术实现>3.3 技术实现
-<a class=header-anchor href=#33-%e6%8a%80%e6%9c%af%e5%ae%9e%e7%8e%b0></a></h3><h4 id=331-人群准入>3.3.1 人群准入
-<a class=header-anchor href=#331-%e4%ba%ba%e7%be%a4%e5%87%86%e5%85%a5></a></h4><div class=mermaid align=center style=background:#white>graph LR
-规则配置 -->|规则生效| 任务池
-任务池 -->|人群规则| 行为引擎
-行为引擎 -->|人群流| 任务池</div><p>为了灵活配置任务的完成条件支持，引入了规则引擎。在比较<code>goengine</code>、<code>gorule</code>、<code>govaluate</code>后，最终使用 <code>govaluate</code>。相比前两者，<code>govaluate</code> 除了支持<code>in</code>操作、还支持正则表达式，而且表达式也不需要转换成<code>DRL</code>。</p><blockquote><p><strong>Govaluate：</strong> <code>govaluate</code> 是一个 Go 语言的表达式评估库，允许你在运行时动态评估字符串表达式。虽然它不是一个完整的规则引擎，但可以用于实现一些简单的规则评估功能。</p></blockquote><p>当规则生效时，系统会自动创建一个新的行为牵引项，并将该项对应的 <code>conduct_id</code> 记录下来。这个 <code>conduct_id</code> 将用于在消息队列（MQ）中回推人群信息，以确保与相应的规则相匹配。</p><p>人群规则详细内容如下，里面包含规则的类型，已经涉及的城市列表。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-json data-lang=json><span style=display:flex><span>{
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;id&#34;</span>: <span style=color:#ae81ff>123</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;导师工单任务规则&#34;</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;create_user&#34;</span>: <span style=color:#e6db74>&#34;create_user&#34;</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;rule_type&#34;</span>: <span style=color:#ae81ff>1</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;status&#34;</span>: <span style=color:#ae81ff>1</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;city_ids&#34;</span>: <span style=color:#e6db74>&#34;1,2,3&#34;</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;reward_info&#34;</span>: <span style=color:#e6db74>&#34;{&#34;</span><span style=color:#960050;background-color:#1e0010>reward_type</span><span style=color:#e6db74>&#34;:1,&#34;</span><span style=color:#960050;background-color:#1e0010>reward_amount</span><span style=color:#e6db74>&#34;: 80}&#34;</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;expiring_period&#34;</span>: <span style=color:#ae81ff>10</span>,
-</span></span><span style=display:flex><span>     <span style=color:#f92672>&#34;bind_period&#34;</span>: <span style=color:#ae81ff>2</span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>MQ人群流的内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-json data-lang=json><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;driver_id&#34;</span>: <span style=color:#ae81ff>580546707680283</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;operator_time&#34;</span>: <span style=color:#e6db74>&#34;2022-01-01 10:00:00&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;status&#34;</span>: <span style=color:#ae81ff>1</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#ae81ff>1</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;extra&#34;</span>: {
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;conduct_id&#34;</span>: <span style=color:#ae81ff>123</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h4 id=332-绑定任务>3.3.2 绑定任务
-<a class=header-anchor href=#332-%e7%bb%91%e5%ae%9a%e4%bb%bb%e5%8a%a1></a></h4><div class=mermaid align=center style=background:#white>graph LR
-B[导师/队长] -- 2. 任务沟通 --> A[新司机]
-B -- 1. 任务领取 --> C[任务池]
-D[行为引擎] -- 3. 完单事件 --> C
-C -- 4. 任务完成/失败 --> B</div><p>任务池中的任务被领取后，即视为任务被绑定到了某位导师/队长身上，其他人无法在任务池中查看这个任务。</p><p>如果任务在绑定期内未被完成，一旦超过绑定期，任务将重新回到任务池，可被再次领取。如果任务在任务池的有效期间内尚未被领取，该任务将会失效。</p><p>由于任务的时间间隔能可能较久，这里采用定时器轮转，加mysql索引来失效过期任务。不考虑延迟队列的原因是可能会导致数据在队列中存储时间过长。</p><h4 id=333-人群准出>3.3.3 人群准出
-<a class=header-anchor href=#333-%e4%ba%ba%e7%be%a4%e5%87%86%e5%87%ba></a></h4><p>针对司机完成订单的情况，我们需要根据不同的任务状态执行相应的逻辑处理。具体来说：</p><ol><li><p>如果任务还在任务池中，我们直接将其从任务池中移除。</p></li><li><p>如果任务已经被领取，我们需要检查领取人和新司机之间在任务的绑定期内是否有过虚拟通话记录。如果有通话记录，我们将任务标识为已完成；如果没有通话记录，则标识任务为未完成。</p></li></ol><h2 id=四小结>四、小结
-<a class=header-anchor href=#%e5%9b%9b%e5%b0%8f%e7%bb%93></a></h2><p>规则引擎结合消息队列MQ和定时器，为任务系统提供了强大的灵活性和自动化能力。通过动态配置规则，系统能够适应新任务需求而无需代码变更，实现任务的自动化处理和状态监控，提高效率并降低维护成本。</p></div><footer class=post-footer><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/mq/delayed-queue/ rel=next title=Golang实现一个基于本地存储的延时队列><i class="fa fa-chevron-left"></i> Golang实现一个基于本地存储的延时队列</a></div><div class="post-nav-prev post-nav-item"><a href=/post/golang/weak-reference/ rel=prev title=Go的弱引用>Go的弱引用
-<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
-<span itemprop=copyrightYear>2010 - 2024
-</span><span class=with-love><i class="fa fa-heart"></i>
-</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script><script type=text/javascript src=/js/mermaid.js defer></script></body></html>
+任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。">
+    </span>
+    
+    <header class="post-header">
+      
+ <h1  class="post-title" itemprop="name headline">
+  
+  
+  任务系统的设计
+  
+  
+   </h1> 
+
+<div class="post-meta-container">
+  <div class="post-meta-items">
+    
+
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-calendar"></i>
+  </span>
+  <span class="post-meta-item-text" title="发表于">
+    发表于：
+  </span>
+  <time title="创建时间：2023-01-28 10:37:58 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-28 10:37:58 &#43;0800 CST">
+    2023-01-28
+  </time>
+</span>
+
+    
+    
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-folder-open"></i>
+  </span>
+  <span class="post-meta-item-text" title="分类于">
+    分类于：
+  </span>
+  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+    <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1" itemprop="url" rel="index">
+      <span itemprop="name">系统设计</span>
+    </a>
+  </span>
+</span>
+
+
+        
+  </div>
+  
+  <div class="post-meta-items">
+    
+<span class="post-meta-item" title="字数">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-file-word"></i>
+  </span>
+  <span class="post-meta-item-text">字数：</span>
+  <span>2417</span>
+</span>
+
+    
+<span class="post-meta-item" title="阅读">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-clock"></i>
+  </span>
+  <span class="post-meta-item-text">阅读：&asymp;</span>
+  <span>5分钟</span>
+</span>
+
+
+    
+
+
+
+
+<span class="post-meta-item" title="浏览">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-eye"></i>
+  </span>
+  <span class="post-meta-item-text">
+  浏览：
+  </span>
+  <span id="busuanzi_value_page_pv"  data-path="/post/system/task-system/">
+    <i class="fa fa-sync fa-spin"></i>
+  </span>
+</span>
+
+    
+  </div>
+  
+</div>
+
+    </header>
+    
+    <div class="post-body " itemprop="articleBody">
+      
+
+  <h2 id="一背景">一、背景
+<a class="header-anchor" href="#%e4%b8%80%e8%83%8c%e6%99%af"></a>
+</h2><p>由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。</p>
+<p>任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。</p>
+<h2 id="二现状">二、现状
+<a class="header-anchor" href="#%e4%ba%8c%e7%8e%b0%e7%8a%b6"></a>
+</h2><h3 id="21-任务分类较多">2.1 任务分类较多
+<a class="header-anchor" href="#21-%e4%bb%bb%e5%8a%a1%e5%88%86%e7%b1%bb%e8%be%83%e5%a4%9a"></a>
+</h3><p>根据正向牵引数据源（新司机首次在线，完成首单&hellip;&hellip;）、反向异常数据源（行程不安全、申诉&hellip;..）将任务分为十几种类别，且分类随着业务的开展还会不断增加。</p>
+<h3 id="22-任务接入来源较多">2.2 任务接入来源较多
+<a class="header-anchor" href="#22-%e4%bb%bb%e5%8a%a1%e6%8e%a5%e5%85%a5%e6%9d%a5%e6%ba%90%e8%be%83%e5%a4%9a"></a>
+</h3><p>不同场景会有其对应的行为事件，进而产生不同的任务，接入任务系统的业务方非常多。</p>
+<h2 id="三系统设计">三、系统设计
+<a class="header-anchor" href="#%e4%b8%89%e7%b3%bb%e7%bb%9f%e8%ae%be%e8%ae%a1"></a>
+</h2><h3 id="31-梳理业务流程">3.1 梳理业务流程
+<a class="header-anchor" href="#31-%e6%a2%b3%e7%90%86%e4%b8%9a%e5%8a%a1%e6%b5%81%e7%a8%8b"></a>
+</h3><p><img src="/imgs/img-lazy-loading.gif" data-src="/task-system-1.png" alt="任务系统业务流程图"  /></p>
+<p>针对上面的任务，以及日后要接入的其他类任务，核心业务流程分为4部分：</p>
+<ol>
+<li><strong>事件接入</strong>：通过API/ES/MQ系统交互的方式，确定当前任务场景下，司机所对应的行为事件。</li>
+<li><strong>圈定人群</strong>：在某一类场景下，司机的行为事件也有多种多样，通过一定的业务规则，来筛选我们的目标人群。</li>
+<li><strong>绑定任务</strong>：筛选完目标人群后，通过组织架构以及相应的任务模板来生成任务。</li>
+<li><strong>任务流程</strong>：任务接收人在APP上完成相关任务。</li>
+</ol>
+<p>以工单任务为例，任务时序图如下所示：
+<div class="mermaid" align="center"   style="background: #white" > 
+  
+sequenceDiagram
+    participant 任务系统
+    participant 行为引擎
+    participant 人群服务
+    participant 导师
+    participant 驱动
+
+    opt 任务下发
+        任务系统->>行为引擎: 人群规则
+        行为引擎->>人群服务: 人群圈定
+        人群服务->>行为引擎: MQ人群流
+        行为引擎->>任务系统: 数据填充
+    end
+
+    opt 任务绑定
+        任务系统->>导师: 任务领取
+        导师->>导师: 任务完成
+        导师->>任务系统: 领取奖励
+        任务系统->>驱动: 积分发放
+        驱动->>任务系统: 同步成功
+    end
+
+    opt 任务剔除
+        任务系统->>行为引擎: 人群准出
+        行为引擎->>任务系统: 任务剔除
+    end
+
+</div></p>
+<h3 id="32-核心模块划分">3.2 核心模块划分
+<a class="header-anchor" href="#32-%e6%a0%b8%e5%bf%83%e6%a8%a1%e5%9d%97%e5%88%92%e5%88%86"></a>
+</h3><p><img src="/imgs/img-lazy-loading.gif" data-src="/task-system-2.png" alt="任务系统核心模块"  />
+任务系统按模块逻辑可以分为4部分，任务生成、基础能力、同步模块。</p>
+<h4 id="321-任务生成">3.2.1 任务生成
+<a class="header-anchor" href="#321-%e4%bb%bb%e5%8a%a1%e7%94%9f%e6%88%90"></a>
+</h4><p>1.<strong>动态圈定人群</strong>：如上图场景1所示的任务。</p>
+<p>当服务后台配置好规则后，任务系统会将这些规则给到行为牵引模块。行为牵引模块根据规则来确定目标人群，并利用消息队列（MQ）将人群数据流传递给任务系统。</p>
+<p>之所以将行为牵引设计为一个独立的模块，是因为我们需要同时监控目标人群的准入和准出状态。这样做可以防止因不符合某些规则而导致的人群准出问题，行为牵引模块实现了规则的托管功能。</p>
+<ol start="2">
+<li><strong>快照规则人群</strong>：如上图场景2所示的任务。</li>
+</ol>
+<p>任务系统不需要关注人群的长期状态，只关注当前的状态。它通过ES在线实时拉取人群数据，或者通过消息队列（MQ）或开放接口（OpenAPI）下发人群数据。</p>
+<ol start="3">
+<li><strong>上传文件人群</strong>：如上图场景3所示的任务。</li>
+</ol>
+<p>通过上传文件并手动选定一批人群的操作，在形式上与第二种方法相似，都可以视为基于快照的逻辑。一旦数据源经过解析和格式化清洗，其数据结构就变得适合在任务系统中进行一系列状态流转。</p>
+<p>随后，从<code>ICE</code>服务中获取一个唯一的主键，这是因为当前的任务数据分散在不同的数据库和表中，需要一个全局唯一的标识符来区分每条数据记录。</p>
+<h4 id="322-基础能力">3.2.2 基础能力
+<a class="header-anchor" href="#322-%e5%9f%ba%e7%a1%80%e8%83%bd%e5%8a%9b"></a>
+</h4><p>这个模块包含了任务系统的基础能力。例如任务状态的变更，消息触达，任务转发，任务检索等。 系统会在任务创建后，通过binlog将数据同步到 <code>ES</code> 进行索引，从而避免执行复杂的查询操作，减少对多个库扫描的情况。</p>
+<h4 id="323-数据同步">3.2.3 数据同步
+<a class="header-anchor" href="#323-%e6%95%b0%e6%8d%ae%e5%90%8c%e6%ad%a5"></a>
+</h4><p>该模块不需要额外开发，基于自研的数据开发平台来配置相关的同步任务。这些任务可以按照离线的小时、天维度来支持业务查询，同时，由于ES中的数据是实时更新的，它可以用作在线系统的检索工具，避免了在查询时需要扫描多个数据库的复杂情况。</p>
+<h3 id="33-技术实现">3.3 技术实现
+<a class="header-anchor" href="#33-%e6%8a%80%e6%9c%af%e5%ae%9e%e7%8e%b0"></a>
+</h3><h4 id="331-人群准入">3.3.1 人群准入
+<a class="header-anchor" href="#331-%e4%ba%ba%e7%be%a4%e5%87%86%e5%85%a5"></a>
+</h4><div class="mermaid" align="center"   style="background: #white" > 
+  
+graph LR
+    规则配置 -->|规则生效| 任务池
+    任务池 -->|人群规则| 行为引擎
+    行为引擎 -->|人群流| 任务池
+
+</div>
+<p>为了灵活配置任务的完成条件支持，引入了规则引擎。在比较<code>goengine</code>、<code>gorule</code>、<code>govaluate</code>后，最终使用 <code>govaluate</code>。相比前两者，<code>govaluate</code> 除了支持<code>in</code>操作、还支持正则表达式，而且表达式也不需要转换成<code>DRL</code>。</p>
+<blockquote>
+<p><strong>Govaluate：</strong> <code>govaluate</code> 是一个 Go 语言的表达式评估库，允许你在运行时动态评估字符串表达式。虽然它不是一个完整的规则引擎，但可以用于实现一些简单的规则评估功能。</p>
+</blockquote>
+<p>当规则生效时，系统会自动创建一个新的行为牵引项，并将该项对应的 <code>conduct_id</code> 记录下来。这个 <code>conduct_id</code> 将用于在消息队列（MQ）中回推人群信息，以确保与相应的规则相匹配。</p>
+<p>人群规则详细内容如下，里面包含规则的类型，已经涉及的城市列表。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">123</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;导师工单任务规则&#34;</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;create_user&#34;</span>: <span style="color:#e6db74">&#34;create_user&#34;</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;rule_type&#34;</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;city_ids&#34;</span>: <span style="color:#e6db74">&#34;1,2,3&#34;</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;reward_info&#34;</span>: <span style="color:#e6db74">&#34;{&#34;</span><span style="color:#960050;background-color:#1e0010">reward_type</span><span style="color:#e6db74">&#34;:1,&#34;</span><span style="color:#960050;background-color:#1e0010">reward_amount</span><span style="color:#e6db74">&#34;: 80}&#34;</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;expiring_period&#34;</span>: <span style="color:#ae81ff">10</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&#34;bind_period&#34;</span>: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>MQ人群流的内容如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;driver_id&#34;</span>: <span style="color:#ae81ff">580546707680283</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;operator_time&#34;</span>: <span style="color:#e6db74">&#34;2022-01-01 10:00:00&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;extra&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;conduct_id&#34;</span>: <span style="color:#ae81ff">123</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="332-绑定任务">3.3.2 绑定任务
+<a class="header-anchor" href="#332-%e7%bb%91%e5%ae%9a%e4%bb%bb%e5%8a%a1"></a>
+</h4><div class="mermaid" align="center"   style="background: #white" > 
+  
+graph LR
+    B[导师/队长] -- 2. 任务沟通 --> A[新司机]
+    B -- 1. 任务领取 --> C[任务池]
+    D[行为引擎] -- 3. 完单事件 --> C
+    C -- 4. 任务完成/失败 --> B
+
+</div>
+<p>任务池中的任务被领取后，即视为任务被绑定到了某位导师/队长身上，其他人无法在任务池中查看这个任务。</p>
+<p>如果任务在绑定期内未被完成，一旦超过绑定期，任务将重新回到任务池，可被再次领取。如果任务在任务池的有效期间内尚未被领取，该任务将会失效。</p>
+<p>由于任务的时间间隔能可能较久，这里采用定时器轮转，加mysql索引来失效过期任务。不考虑延迟队列的原因是可能会导致数据在队列中存储时间过长。</p>
+<h4 id="333-人群准出">3.3.3 人群准出
+<a class="header-anchor" href="#333-%e4%ba%ba%e7%be%a4%e5%87%86%e5%87%ba"></a>
+</h4><p>针对司机完成订单的情况，我们需要根据不同的任务状态执行相应的逻辑处理。具体来说：</p>
+<ol>
+<li>
+<p>如果任务还在任务池中，我们直接将其从任务池中移除。</p>
+</li>
+<li>
+<p>如果任务已经被领取，我们需要检查领取人和新司机之间在任务的绑定期内是否有过虚拟通话记录。如果有通话记录，我们将任务标识为已完成；如果没有通话记录，则标识任务为未完成。</p>
+</li>
+</ol>
+<h2 id="四小结">四、小结
+<a class="header-anchor" href="#%e5%9b%9b%e5%b0%8f%e7%bb%93"></a>
+</h2><p>规则引擎结合消息队列MQ和定时器，为任务系统提供了强大的灵活性和自动化能力。通过动态配置规则，系统能够适应新任务需求而无需代码变更，实现任务的自动化处理和状态监控，提高效率并降低维护成本。</p>
+
+
+    </div>
+    <footer class="post-footer">
+      
+
+
+
+
+<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
+
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+
+<div class="post-nav">
+  <div class="post-nav-next post-nav-item">
+    
+    <a href="/post/mq/delayed-queue/" rel="next" title="Golang实现一个基于本地存储的延时队列">
+      <i class="fa fa-chevron-left"></i> Golang实现一个基于本地存储的延时队列
+    </a>
+    
+  </div>
+  <div class="post-nav-prev post-nav-item">
+    
+    <a href="/post/golang/weak-reference/" rel="prev" title="Go的弱引用">
+      Go的弱引用
+      <i class="fa fa-chevron-right"></i>
+    </a>
+    
+  </div>
+</div>
+
+
+
+    </footer>
+  </article>
+</div>
+
+      
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+<div class="copyright">
+  &copy;
+  <span itemprop="copyrightYear">
+    
+    
+    
+    2010 - 2024
+    
+    
+  </span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  
+  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
+</div>
+
+
+
+
+
+ 
+
+
+
+
+
+    </div>
+  </footer>
+
+  
+
+
+
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
+
+
+<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+<script type="text/javascript" src="/js/main.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/js/mermaid.js" defer></script>
+
+</body>
+
+</html>

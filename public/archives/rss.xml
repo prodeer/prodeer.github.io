@@ -1,1 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Archives on 呦呦鹿鸣</title><link>//localhost:1313/archives/</link><description>Recent content in Archives on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><atom:link href="//localhost:1313/archives/rss.xml" rel="self" type="application/rss+xml"/><item><title>归档</title><link>//localhost:1313/archives/archives/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>//localhost:1313/archives/archives/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Archives on 呦呦鹿鸣</title>
+    <link>//localhost:1313/archives/</link>
+    <description>Recent content in Archives on 呦呦鹿鸣</description>
+    <generator>Hugo</generator>
+    <language>zh-CN</language>
+    <atom:link href="//localhost:1313/archives/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>归档</title>
+      <link>//localhost:1313/archives/archives/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/archives/archives/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

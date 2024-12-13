@@ -1,80 +1,959 @@
-<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="车辆激活（扫码激活）的实现"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content><meta property="og:type" content="article"><meta property="og:title" content="车辆激活（扫码激活）的实现"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/system/vehicle-active/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2022-11-28 20:37:58 +0800 CST"><meta property="article:modified_time" content="2022-11-28 20:37:58 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"vehicle-active","permalink":"//localhost:1313/post/system/vehicle-active/","title":"车辆激活（扫码激活）的实现","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>车辆激活（扫码激活）的实现 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
-<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><ul><li><a href=#一业务场景>一、业务场景</a></li><li><a href=#二激活流程图>二、激活流程图</a></li><li><a href=#三激活流程>三、激活流程</a><ul><li><a href=#31-车端生成二维码>3.1 车端生成二维码</a></li><li><a href=#32-app扫描二维码>3.2 App扫描二维码</a></li><li><a href=#33-app确认激活>3.3 App确认激活</a></li></ul></li><li><a href=#四遇到的问题>四、遇到的问题</a><ul><li><a href=#41-云端和车端数据不一致的问题>4.1 云端和车端数据不一致的问题</a></li></ul></li><li><a href=#问题描述>问题描述</a></li><li><a href=#解决方案>解决方案</a><ul><li><a href=#42-二维码密度过大问题>4.2 二维码密度过大问题</a></li></ul></li><li><a href=#问题描述-1>问题描述</a></li><li><a href=#解决方案-1>解决方案</a></li></ul></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
-<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
-<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
-<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
-友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
-<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
-<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/system/vehicle-active/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="车辆激活（扫码激活）的实现"><meta itemprop=description content="一、业务场景
 
-车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。"></span><header class=post-header><h1 class=post-title itemprop="name headline">车辆激活（扫码激活）的实现</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
-</span><span class=post-meta-item-text title=发表于>发表于：
-</span><time title="创建时间：2022-11-28 20:37:58 +0800 CST" itemprop="dateCreated datePublished" datetime="2022-11-28 20:37:58 +0800 CST">2022-11-28
-</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
-</span><span class=post-meta-item-text title=分类于>分类于：
-</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1 itemprop=url rel=index><span itemprop=name>系统设计</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
-</span><span class=post-meta-item-text>字数：</span>
-<span>1861</span>
-</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
-</span><span class=post-meta-item-text>阅读：&ap;</span>
-<span>4分钟</span>
-</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
-</span><span class=post-meta-item-text>浏览：
-</span><span id=busuanzi_value_page_pv data-path=/post/system/vehicle-active/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><h3 id=一业务场景>一、业务场景
-<a class=header-anchor href=#%e4%b8%80%e4%b8%9a%e5%8a%a1%e5%9c%ba%e6%99%af></a></h3><p>车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。</p><h3 id=二激活流程图>二、激活流程图
-<a class=header-anchor href=#%e4%ba%8c%e6%bf%80%e6%b4%bb%e6%b5%81%e7%a8%8b%e5%9b%be></a></h3><div class=mermaid align=center style=background:#white>sequenceDiagram
-participant Car as 车端
-participant Cloud as 云端
-participant MQTT as MQTT网关
-participant OwnerApp as 车主App
-Car->>Cloud: 1.1 请求生成二维码ID
-Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
-MQTT->>Car: 1.3 接收二维码ID
-Car->>Car: 1.4 生成二维码并显示在大屏幕上
-OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
-OwnerApp->>Cloud: 2.2 将二维码ID发给云端
-Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
-OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
-OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
-Cloud->>Cloud: 3.2 将二维码状态更新为“已确认”
-Cloud->>MQTT: 3.3 通过MQTT下发激活指令
-MQTT->>Car: 3.4 下发激活指令
-Car->>Car: 4.1 车端CDC接收指令并进行本地激活</div><h3 id=三激活流程>三、激活流程
-<a class=header-anchor href=#%e4%b8%89%e6%bf%80%e6%b4%bb%e6%b5%81%e7%a8%8b></a></h3><h4 id=31-车端生成二维码>3.1 车端生成二维码
-<a class=header-anchor href=#31-%e8%bd%a6%e7%ab%af%e7%94%9f%e6%88%90%e4%ba%8c%e7%bb%b4%e7%a0%81></a></h4><p>该阶段是车端跟云端的交互过程。</p><ul><li>用户提车后，打开车端大屏幕，发起激活请求，云端在接收到这一请求时，会生成一个唯一的二维码ID，并将该ID转化为Base64编码的字符串，通过MQTT下发给车端。</li><li>该二维码ID一定是唯一的，后续流程会将二维码ID跟车辆ID绑定，用于后续操作的校验。</li><li>车端会启动一个定时器，轮询查询二维码是否被扫描，如果未被App扫描，隔一段时间二维码会自动刷新。</li></ul><h4 id=32-app扫描二维码>3.2 App扫描二维码
-<a class=header-anchor href=#32-app%e6%89%ab%e6%8f%8f%e4%ba%8c%e7%bb%b4%e7%a0%81></a></h4><p>该阶段是客户端跟云端的交互过程。</p><ul><li>App扫描二维码，解析出二维码ID，将二维码ID作为参数发送给云端。</li><li>云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已扫描”。</li><li>App接收到扫码请求成功的结果后，会跳转到激活页面，请车主在手机App端确认激活。</li></ul><h4 id=33-app确认激活>3.3 App确认激活
-<a class=header-anchor href=#33-app%e7%a1%ae%e8%ae%a4%e6%bf%80%e6%b4%bb></a></h4><p>该阶段是客户端、车端跟服务端的交互过程。</p><ul><li>用户点击“确认激活”按钮，仍然是将二维码ID作为参数发送给服务端。</li><li>云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已确认”。</li><li>云端将激活信息（二维码ID等）通过MQTT下发给车。</li></ul><h3 id=四遇到的问题>四、遇到的问题
-<a class=header-anchor href=#%e5%9b%9b%e9%81%87%e5%88%b0%e7%9a%84%e9%97%ae%e9%a2%98></a></h3><p>在研发、联调过程中，存在几个问题：</p><h4 id=41-云端和车端数据不一致的问题>4.1 云端和车端数据不一致的问题
-<a class=header-anchor href=#41-%e4%ba%91%e7%ab%af%e5%92%8c%e8%bd%a6%e7%ab%af%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%80%e8%87%b4%e7%9a%84%e9%97%ae%e9%a2%98></a></h4><h3 id=问题描述>问题描述
-<a class=header-anchor href=#%e9%97%ae%e9%a2%98%e6%8f%8f%e8%bf%b0></a></h3><p>在App确认激活阶段，云端先将车辆激活状态置为“已激活”，再将激活信息下发给车端，但经常遇到车辆不在线、网关服务不稳定，导致激活信息不能正常下发给车端。</p><h3 id=解决方案>解决方案
-<a class=header-anchor href=#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88></a></h3><p>修改技术方案，将流程修改为：</p><ul><li>App确认激活时，云端不再更新二维码状态为“已确认”，而是生成一个<strong>激活安全码</strong>下发给车端。</li><li>车端主动上报激活时，要携带这个云端下发的<strong>激活安全码</strong>，如没收到，则需要重复扫码过程。</li><li>车端可以多次上报激活，云端可以判断云端的激活状态，如果激活成功，直接返回结果；如果是“未激活”，则将激活状态修改为“已激活”。</li><li>至此，车端云端的数据可以保持一致。</li></ul><p>新的激活流程如下：<div class=mermaid align=center style=background:#white>sequenceDiagram
-participant Car as 车端
-participant Cloud as 云端
-participant MQTT as MQTT网关
-participant OwnerApp as 车主App
-Car->>Cloud: 1.1 请求生成二维码ID
-Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
-MQTT->>Car: 1.3 接收二维码ID
-Car->>Car: 1.4 生成二维码并显示在大屏幕上
-OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
-OwnerApp->>Cloud: 2.2 将二维码ID发给云端
-Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
-OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
-OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
-Cloud->>MQTT: 3.2 通过MQTT下发激活安全码
-MQTT->>Car: 3.3 下发激活安全码
-Car->>Cloud: 4.1 车端上报激活
-Cloud->>Cloud: 4.2 （车辆未激活时）更新车辆激活状态
-Clout->>MQTT: 4.3 通过MQTT下发激活结果
-MQTT->>Car: 4.4 下发激活结果</div></p><p><img src=/imgs/img-lazy-loading.gif data-src=/vehicle-active.png alt=车辆激活流程图></p><h4 id=42-二维码密度过大问题>4.2 二维码密度过大问题
-<a class=header-anchor href=#42-%e4%ba%8c%e7%bb%b4%e7%a0%81%e5%af%86%e5%ba%a6%e8%bf%87%e5%a4%a7%e9%97%ae%e9%a2%98></a></h4><h3 id=问题描述-1>问题描述
-<a class=header-anchor href=#%e9%97%ae%e9%a2%98%e6%8f%8f%e8%bf%b0-1></a></h3><p>二维码通常具有一定的容错能力，二维码图案即使被遮挡了一小部分，也可以正常扫描。但如果二维码密度过大，会降低其对污点、遮挡度的容忍度，影响扫码的成功率，进而影响用户的感官体验。</p><p>目前车端请求生成二维码的步骤为：</p><ul><li>拼接原始内容字符串：用户ID、车辆ID、主副驾位置</li><li>生成二维码ID：qrcodeID=base64(AESCFB(原始内容，私钥))，生成的长度大约在100字符以上。</li><li>生成二维码所需的内容：一个url和qrcodeID拼接的字符串，形同 url/active?info=qrcodeID。</li><li>生成二维码图片流：qrcode=Base64(生成的二维码图片字节流），30%容错，尺寸:300x300px</li></ul><p>因为二维码密度主要与二维码所需内容长度有关，前面 url 长度固定，占60个字符，qrcodeID 约占100个字符，总长度160+个字符，只有缩短 qrcodelD 的长度才可以降低二维码密度。</p><h3 id=解决方案-1>解决方案
-<a class=header-anchor href=#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88-1></a></h3><ol><li>生成二维码ID不再使用AES和base64加密，使用uuid，生成的长度是32个字符。</li><li>新增缓存，将一些原始内容进行缓存，这里使用的是字符串，key是二维码ID，value是用户ID、车辆ID等字段拼接起来的字符串。</li><li>App扫码/确认激活/取消激活，先根据qrcodeID从缓存中获取缓存信息，再进行相应的处理。</li></ol></div><footer class=post-footer><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/desiginpattern/singleton-pattern/ rel=next title="Golang实现单例模式（Singleton Pattern）"><i class="fa fa-chevron-left"></i> Golang实现单例模式（Singleton Pattern）</a></div><div class="post-nav-prev post-nav-item"><a href=/post/golang/time-ticker/ rel=prev title=Go的定时器之Time.Ticker>Go的定时器之Time.Ticker
-<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
-<span itemprop=copyrightYear>2010 - 2024
-</span><span class=with-love><i class="fa fa-heart"></i>
-</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script><script type=text/javascript src=/js/mermaid.js defer></script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
+
+<meta name="generator" content="Hugo 0.139.0">
+<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
+<meta itemprop="name" content="车辆激活（扫码激活）的实现" />
+<meta itemprop="description" content="" />
+<meta name="description" content="" />
+
+
+<meta itemprop="datePublished" ZgotmplZ />
+
+
+<meta itemprop="dateModified" ZgotmplZ />
+
+
+
+
+
+<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
+<meta itemprop="keywords" content="" />
+
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="车辆激活（扫码激活）的实现" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="/imgs/liulu_avatar.png" />
+<meta property="og:image:width" content="312" />
+<meta property="og:image:height" content="312" />
+<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
+<meta property="og:url" content="//localhost:1313/post/system/vehicle-active/"/>
+<meta property="og:site_name" content="呦呦鹿鸣" />
+<meta property="og:locale" content="zh-CN"/>
+
+<meta property="article:author" content="" />
+<meta property="article:published_time" content="2022-11-28 20:37:58 &#43;0800 CST" />
+<meta property="article:modified_time" content="2022-11-28 20:37:58 &#43;0800 CST" />
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+  
+<script type="text/javascript">
+(function(){
+  localDB = {
+    set: function (key, value, ttl) {
+      if (ttl === 0) return;
+      const now = new Date();
+      const expiryDay = ttl * 86400000;
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    },
+    get: function (key) {
+      const itemStr = localStorage.getItem(key);
+      if (!itemStr) {
+        return undefined;
+      }
+  
+      const item = JSON.parse(itemStr);
+      const now = new Date();
+  
+      if (now.getTime() > item.expiry) {
+        localStorage.removeItem(key);
+        return undefined;
+      }
+      return item.value;
+    }
+  };
+
+  theme = {
+    active: function() {
+      const localState = localDB.get('theme');
+      if (localState == undefined) return;
+      theme.toggle(localState);
+      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
+        theme.toggle(evt.matches ? 'dark' : 'light');
+      });
+    },
+
+    toggle: function (theme) {
+      document.documentElement.setAttribute('data-theme',  theme);
+      localDB.set('theme', theme, 2);
+      
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        const config = { setConfig: { theme: theme } };
+        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
+      }
+    }
+  };
+
+  theme.active();
+})(window);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"vehicle-active","permalink":"//localhost:1313/post/system/vehicle-active/","title":"车辆激活（扫码激活）的实现","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
+
+
+
+
+  <script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+  var script = document.createElement('script');
+    
+  script.charset = "UTF-8";
+  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
+  script.async   = false
+  script.defer   = true
+  
+  document.head.appendChild(script);
+  script.onload = function() {
+    NexT.utils.fmtBusuanzi();
+  }
+});
+</script>
+  
+
+
+
+  <title>车辆激活（扫码激活）的实现 - 呦呦鹿鸣</title>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
+  <div class="headband"></div>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner">
+        
+<div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+    
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">呦呦鹿鸣</h1>
+      <i class="logo-line"></i>
+    </a>
+    
+      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
+    
+    
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+      
+      <i class="fa fa-search fa-fw fa-lg"></i>
+      
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">    
+  
+    
+    <li class="menu-item menu-item-home">
+      <a href="/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-home hvr-icon"></i>首页
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-about">
+      <a href="/about/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-user hvr-icon"></i>关于
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-archives">
+      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-archive hvr-icon"></i>归档
+        
+        
+          <span class="badge">19</span>
+        
+      </a>
+      
+    </li>
+      
+
+  
+    <li class="menu-item menu-item-search">
+      <a role="button" class="popup-trigger hvr-icon-pulse">
+        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
+      </a>
+    </li>
+  
+  </ul>
+</nav>
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+      </div>
+      
+      
+      <div class="toggle sidebar-toggle" role="button">
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-toc">
+        文章目录
+      </li>
+      <li class="sidebar-nav-overview">
+        站点概览
+      </li>
+    </ul>
+    <div class="sidebar-panel-container">
+      
+      <div class="post-toc-wrap sidebar-panel">
+        <div class="post-toc animated"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#一业务场景">一、业务场景</a></li>
+            <li><a href="#二激活流程图">二、激活流程图</a></li>
+            <li><a href="#三激活流程">三、激活流程</a>
+              <ul>
+                <li><a href="#31-车端生成二维码">3.1 车端生成二维码</a></li>
+                <li><a href="#32-app扫描二维码">3.2 App扫描二维码</a></li>
+                <li><a href="#33-app确认激活">3.3 App确认激活</a></li>
+              </ul>
+            </li>
+            <li><a href="#四遇到的问题">四、遇到的问题</a>
+              <ul>
+                <li><a href="#41-云端和车端数据不一致的问题">4.1 云端和车端数据不一致的问题</a></li>
+              </ul>
+            </li>
+            <li><a href="#问题描述">问题描述</a></li>
+            <li><a href="#解决方案">解决方案</a>
+              <ul>
+                <li><a href="#42-二维码密度过大问题">4.2 二维码密度过大问题</a></li>
+              </ul>
+            </li>
+            <li><a href="#问题描述-1">问题描述</a></li>
+            <li><a href="#解决方案-1">解决方案</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div>
+      
+      <div class="site-overview-wrap sidebar-panel">
+        
+<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+    <img class="site-author-image" itemprop="image" alt=""
+    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
+  
+  <p class="site-author-name" itemprop="name"></p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+
+
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+    <div class="site-state-item site-state-posts">
+      <a href="/archives/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">日志</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-categories">
+      <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-tags">
+      <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </a>
+    </div>
+  </nav>
+</div>
+
+
+<div class="links-of-social site-overview-item animated">
+
+
+</div>
+
+
+
+<div class="cc-license animated" itemprop="license">
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
+    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
+  </a>
+</div>
+
+
+
+
+<div class="links-of-blogroll site-overview-item animated">
+  <div class="links-of-blogroll-title">
+    
+    <i class="fa fa-globe fa-fw"></i>
+    
+    友情链接
+  </div>
+  <ul class="links-of-blogroll-list">
+    
+    
+    
+    
+    <li class="links-of-blogroll-item">
+      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
+    </li>
+    
+  </ul>
+</div>
+
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  
+    
+<div id="siteinfo-card-widget" class="sidebar-card-widget">
+  <div class="item-headline">
+    <i class="fas fa-chart-line"></i>
+    <span>网站资讯</span>
+  </div>
+  <div class="siteinfo">
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
+      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
+    </div>
+    
+    
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-user"></i>总访客数：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-eye"></i>页面浏览：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
+    </div> 
+        
+        
+    
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
+      <div class="item-count" id="wordsCount" data-count="37487"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
+      <div class="item-count" id="readTimes" data-times="86"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
+      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
+    </div>
+  </div>
+</div>
+  
+
+  
+</aside>
+<div class="sidebar-dimmer"></div>
+
+      
+    </header>
+    
+    <div class="tool-buttons" >
+    
+  
+  <div id="toggle-theme" class="button" title="深浅模式切换">
+    <i class="fas fa-adjust"></i>
+  </div>
+  
+  <div class="back-to-top" role="button" title="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+ 
+</div>
+
+
+  <div class="reading-progress-bar"></div>
+
+
+
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+
+
+
+
+
+  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
+<script type="text/javascript">
+((window.gitter = {}).chat = {}).options = {
+  room: "hugo-next/community"
+};
+</script>   
+
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+    <div class="main-inner post posts-expand">
+      
+      
+  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    
+    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/system/vehicle-active/">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/imgs/liulu_avatar.png">
+      <meta itemprop="name" content="">
+    </span>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+    </span>
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="车辆激活（扫码激活）的实现">
+      <meta itemprop="description" content="一、业务场景
+
+车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。">
+    </span>
+    
+    <header class="post-header">
+      
+ <h1  class="post-title" itemprop="name headline">
+  
+  
+  车辆激活（扫码激活）的实现
+  
+  
+   </h1> 
+
+<div class="post-meta-container">
+  <div class="post-meta-items">
+    
+
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-calendar"></i>
+  </span>
+  <span class="post-meta-item-text" title="发表于">
+    发表于：
+  </span>
+  <time title="创建时间：2022-11-28 20:37:58 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2022-11-28 20:37:58 &#43;0800 CST">
+    2022-11-28
+  </time>
+</span>
+
+    
+    
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-folder-open"></i>
+  </span>
+  <span class="post-meta-item-text" title="分类于">
+    分类于：
+  </span>
+  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+    <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1" itemprop="url" rel="index">
+      <span itemprop="name">系统设计</span>
+    </a>
+  </span>
+</span>
+
+
+        
+  </div>
+  
+  <div class="post-meta-items">
+    
+<span class="post-meta-item" title="字数">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-file-word"></i>
+  </span>
+  <span class="post-meta-item-text">字数：</span>
+  <span>1861</span>
+</span>
+
+    
+<span class="post-meta-item" title="阅读">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-clock"></i>
+  </span>
+  <span class="post-meta-item-text">阅读：&asymp;</span>
+  <span>4分钟</span>
+</span>
+
+
+    
+
+
+
+
+<span class="post-meta-item" title="浏览">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-eye"></i>
+  </span>
+  <span class="post-meta-item-text">
+  浏览：
+  </span>
+  <span id="busuanzi_value_page_pv"  data-path="/post/system/vehicle-active/">
+    <i class="fa fa-sync fa-spin"></i>
+  </span>
+</span>
+
+    
+  </div>
+  
+</div>
+
+    </header>
+    
+    <div class="post-body " itemprop="articleBody">
+      
+
+  <h3 id="一业务场景">一、业务场景
+<a class="header-anchor" href="#%e4%b8%80%e4%b8%9a%e5%8a%a1%e5%9c%ba%e6%99%af"></a>
+</h3><p>车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。</p>
+<h3 id="二激活流程图">二、激活流程图
+<a class="header-anchor" href="#%e4%ba%8c%e6%bf%80%e6%b4%bb%e6%b5%81%e7%a8%8b%e5%9b%be"></a>
+</h3><div class="mermaid" align="center"   style="background: #white" > 
+  
+sequenceDiagram
+    participant Car as 车端
+    participant Cloud as 云端
+    participant MQTT as MQTT网关
+    participant OwnerApp as 车主App
+
+    Car->>Cloud: 1.1 请求生成二维码ID
+    Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
+    MQTT->>Car: 1.3 接收二维码ID
+    Car->>Car: 1.4 生成二维码并显示在大屏幕上
+    OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
+    OwnerApp->>Cloud: 2.2 将二维码ID发给云端
+    Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
+    OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
+    OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
+    Cloud->>Cloud: 3.2 将二维码状态更新为“已确认”
+    Cloud->>MQTT: 3.3 通过MQTT下发激活指令
+    MQTT->>Car: 3.4 下发激活指令
+    Car->>Car: 4.1 车端CDC接收指令并进行本地激活
+
+</div>
+<h3 id="三激活流程">三、激活流程
+<a class="header-anchor" href="#%e4%b8%89%e6%bf%80%e6%b4%bb%e6%b5%81%e7%a8%8b"></a>
+</h3><h4 id="31-车端生成二维码">3.1 车端生成二维码
+<a class="header-anchor" href="#31-%e8%bd%a6%e7%ab%af%e7%94%9f%e6%88%90%e4%ba%8c%e7%bb%b4%e7%a0%81"></a>
+</h4><p>该阶段是车端跟云端的交互过程。</p>
+<ul>
+<li>用户提车后，打开车端大屏幕，发起激活请求，云端在接收到这一请求时，会生成一个唯一的二维码ID，并将该ID转化为Base64编码的字符串，通过MQTT下发给车端。</li>
+<li>该二维码ID一定是唯一的，后续流程会将二维码ID跟车辆ID绑定，用于后续操作的校验。</li>
+<li>车端会启动一个定时器，轮询查询二维码是否被扫描，如果未被App扫描，隔一段时间二维码会自动刷新。</li>
+</ul>
+<h4 id="32-app扫描二维码">3.2 App扫描二维码
+<a class="header-anchor" href="#32-app%e6%89%ab%e6%8f%8f%e4%ba%8c%e7%bb%b4%e7%a0%81"></a>
+</h4><p>该阶段是客户端跟云端的交互过程。</p>
+<ul>
+<li>App扫描二维码，解析出二维码ID，将二维码ID作为参数发送给云端。</li>
+<li>云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已扫描”。</li>
+<li>App接收到扫码请求成功的结果后，会跳转到激活页面，请车主在手机App端确认激活。</li>
+</ul>
+<h4 id="33-app确认激活">3.3 App确认激活
+<a class="header-anchor" href="#33-app%e7%a1%ae%e8%ae%a4%e6%bf%80%e6%b4%bb"></a>
+</h4><p>该阶段是客户端、车端跟服务端的交互过程。</p>
+<ul>
+<li>用户点击“确认激活”按钮，仍然是将二维码ID作为参数发送给服务端。</li>
+<li>云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已确认”。</li>
+<li>云端将激活信息（二维码ID等）通过MQTT下发给车。</li>
+</ul>
+<h3 id="四遇到的问题">四、遇到的问题
+<a class="header-anchor" href="#%e5%9b%9b%e9%81%87%e5%88%b0%e7%9a%84%e9%97%ae%e9%a2%98"></a>
+</h3><p>在研发、联调过程中，存在几个问题：</p>
+<h4 id="41-云端和车端数据不一致的问题">4.1 云端和车端数据不一致的问题
+<a class="header-anchor" href="#41-%e4%ba%91%e7%ab%af%e5%92%8c%e8%bd%a6%e7%ab%af%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%80%e8%87%b4%e7%9a%84%e9%97%ae%e9%a2%98"></a>
+</h4><h3 id="问题描述">问题描述
+<a class="header-anchor" href="#%e9%97%ae%e9%a2%98%e6%8f%8f%e8%bf%b0"></a>
+</h3><p>在App确认激活阶段，云端先将车辆激活状态置为“已激活”，再将激活信息下发给车端，但经常遇到车辆不在线、网关服务不稳定，导致激活信息不能正常下发给车端。</p>
+<h3 id="解决方案">解决方案
+<a class="header-anchor" href="#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88"></a>
+</h3><p>修改技术方案，将流程修改为：</p>
+<ul>
+<li>App确认激活时，云端不再更新二维码状态为“已确认”，而是生成一个<strong>激活安全码</strong>下发给车端。</li>
+<li>车端主动上报激活时，要携带这个云端下发的<strong>激活安全码</strong>，如没收到，则需要重复扫码过程。</li>
+<li>车端可以多次上报激活，云端可以判断云端的激活状态，如果激活成功，直接返回结果；如果是“未激活”，则将激活状态修改为“已激活”。</li>
+<li>至此，车端云端的数据可以保持一致。</li>
+</ul>
+<p>新的激活流程如下：
+<div class="mermaid" align="center"   style="background: #white" > 
+  
+sequenceDiagram
+    participant Car as 车端
+    participant Cloud as 云端
+    participant MQTT as MQTT网关
+    participant OwnerApp as 车主App
+
+    Car->>Cloud: 1.1 请求生成二维码ID
+    Cloud->>MQTT: 1.2 通过MQTT下发二维码ID
+    MQTT->>Car: 1.3 接收二维码ID
+    Car->>Car: 1.4 生成二维码并显示在大屏幕上
+    OwnerApp->>Car: 2.1 扫描二维码，获取二维码ID
+    OwnerApp->>Cloud: 2.2 将二维码ID发给云端
+    Cloud->>Cloud: 2.3 将二维码状态更新为“已扫描”
+    OwnerApp->>OwnerApp: 2.4 显示“确认激活”按钮
+    OwnerApp->>Cloud: 3.1 点击“确认激活”，发送激活指令
+    Cloud->>MQTT: 3.2 通过MQTT下发激活安全码
+    MQTT->>Car: 3.3 下发激活安全码
+    Car->>Cloud: 4.1 车端上报激活
+    Cloud->>Cloud: 4.2 （车辆未激活时）更新车辆激活状态
+    Clout->>MQTT: 4.3 通过MQTT下发激活结果
+    MQTT->>Car: 4.4 下发激活结果
+
+</div></p>
+<p><img src="/imgs/img-lazy-loading.gif" data-src="/vehicle-active.png" alt="车辆激活流程图"  /></p>
+<h4 id="42-二维码密度过大问题">4.2 二维码密度过大问题
+<a class="header-anchor" href="#42-%e4%ba%8c%e7%bb%b4%e7%a0%81%e5%af%86%e5%ba%a6%e8%bf%87%e5%a4%a7%e9%97%ae%e9%a2%98"></a>
+</h4><h3 id="问题描述-1">问题描述
+<a class="header-anchor" href="#%e9%97%ae%e9%a2%98%e6%8f%8f%e8%bf%b0-1"></a>
+</h3><p>二维码通常具有一定的容错能力，二维码图案即使被遮挡了一小部分，也可以正常扫描。但如果二维码密度过大，会降低其对污点、遮挡度的容忍度，影响扫码的成功率，进而影响用户的感官体验。</p>
+<p>目前车端请求生成二维码的步骤为：</p>
+<ul>
+<li>拼接原始内容字符串：用户ID、车辆ID、主副驾位置</li>
+<li>生成二维码ID：qrcodeID=base64(AESCFB(原始内容，私钥))，生成的长度大约在100字符以上。</li>
+<li>生成二维码所需的内容：一个url和qrcodeID拼接的字符串，形同 url/active?info=qrcodeID。</li>
+<li>生成二维码图片流：qrcode=Base64(生成的二维码图片字节流），30%容错，尺寸:300x300px</li>
+</ul>
+<p>因为二维码密度主要与二维码所需内容长度有关，前面 url 长度固定，占60个字符，qrcodeID 约占100个字符，总长度160+个字符，只有缩短 qrcodelD 的长度才可以降低二维码密度。</p>
+<h3 id="解决方案-1">解决方案
+<a class="header-anchor" href="#%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88-1"></a>
+</h3><ol>
+<li>生成二维码ID不再使用AES和base64加密，使用uuid，生成的长度是32个字符。</li>
+<li>新增缓存，将一些原始内容进行缓存，这里使用的是字符串，key是二维码ID，value是用户ID、车辆ID等字段拼接起来的字符串。</li>
+<li>App扫码/确认激活/取消激活，先根据qrcodeID从缓存中获取缓存信息，再进行相应的处理。</li>
+</ol>
+
+
+    </div>
+    <footer class="post-footer">
+      
+
+
+
+
+<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
+
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+
+<div class="post-nav">
+  <div class="post-nav-next post-nav-item">
+    
+    <a href="/post/desiginpattern/singleton-pattern/" rel="next" title="Golang实现单例模式（Singleton Pattern）">
+      <i class="fa fa-chevron-left"></i> Golang实现单例模式（Singleton Pattern）
+    </a>
+    
+  </div>
+  <div class="post-nav-prev post-nav-item">
+    
+    <a href="/post/golang/time-ticker/" rel="prev" title="Go的定时器之Time.Ticker">
+      Go的定时器之Time.Ticker
+      <i class="fa fa-chevron-right"></i>
+    </a>
+    
+  </div>
+</div>
+
+
+
+    </footer>
+  </article>
+</div>
+
+      
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+<div class="copyright">
+  &copy;
+  <span itemprop="copyrightYear">
+    
+    
+    
+    2010 - 2024
+    
+    
+  </span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  
+  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
+</div>
+
+
+
+
+
+ 
+
+
+
+
+
+    </div>
+  </footer>
+
+  
+
+
+
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
+
+
+<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+<script type="text/javascript" src="/js/main.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/js/mermaid.js" defer></script>
+
+</body>
+
+</html>

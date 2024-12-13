@@ -1,3 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>反射 on 呦呦鹿鸣</title><link>//localhost:1313/tags/%E5%8F%8D%E5%B0%84/</link><description>Recent content in 反射 on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 29 Mar 2023 23:30:00 +0800</lastBuildDate><atom:link href="//localhost:1313/tags/%E5%8F%8D%E5%B0%84/rss.xml" rel="self" type="application/rss+xml"/><item><title>Go的结构体标签与反射</title><link>//localhost:1313/post/golang/tag-and-reflect/</link><pubDate>Wed, 29 Mar 2023 23:30:00 +0800</pubDate><guid>//localhost:1313/post/golang/tag-and-reflect/</guid><description>&lt;h2 id="一结构体标签">一、结构体标签
-&lt;a class="header-anchor" href="#%e4%b8%80%e7%bb%93%e6%9e%84%e4%bd%93%e6%a0%87%e7%ad%be">&lt;/a>
-&lt;/h2>&lt;p>结构体标签是附加在结构体字段上的小块元数据字符串，格式为 &lt;code>key:&amp;quot;value&amp;quot;&lt;/code>，其中 &lt;code>key&lt;/code> 是标签名，&lt;code>value&lt;/code> 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>反射 on 呦呦鹿鸣</title>
+    <link>//localhost:1313/tags/%E5%8F%8D%E5%B0%84/</link>
+    <description>Recent content in 反射 on 呦呦鹿鸣</description>
+    <generator>Hugo</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Wed, 29 Mar 2023 23:30:00 +0800</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/%E5%8F%8D%E5%B0%84/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go的结构体标签与反射</title>
+      <link>//localhost:1313/post/golang/tag-and-reflect/</link>
+      <pubDate>Wed, 29 Mar 2023 23:30:00 +0800</pubDate>
+      <guid>//localhost:1313/post/golang/tag-and-reflect/</guid>
+      <description>&lt;h2 id=&#34;一结构体标签&#34;&gt;一、结构体标签&#xA;&lt;a class=&#34;header-anchor&#34; href=&#34;#%e4%b8%80%e7%bb%93%e6%9e%84%e4%bd%93%e6%a0%87%e7%ad%be&#34;&gt;&lt;/a&gt;&#xA;&lt;/h2&gt;&lt;p&gt;结构体标签是附加在结构体字段上的小块元数据字符串，格式为 &lt;code&gt;key:&amp;quot;value&amp;quot;&lt;/code&gt;，其中 &lt;code&gt;key&lt;/code&gt; 是标签名，&lt;code&gt;value&lt;/code&gt; 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,107 +1,978 @@
-<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="13种缓存模式汇总"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content><meta property="og:type" content="article"><meta property="og:title" content="13种缓存模式汇总"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/cache/caching-patterns/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2023-01-03 18:10:45 +0800 CST"><meta property="article:modified_time" content="2023-01-03 18:10:45 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"caching-patterns","permalink":"//localhost:1313/post/cache/caching-patterns/","title":"13种缓存模式汇总","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>13种缓存模式汇总 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
-<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
-<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
-<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
-<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
-友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
-<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
-<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/cache/caching-patterns/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="13种缓存模式汇总"><meta itemprop=description content="学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）"></span><header class=post-header><h1 class=post-title itemprop="name headline">13种缓存模式汇总</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
-</span><span class=post-meta-item-text title=发表于>发表于：
-</span><time title="创建时间：2023-01-03 18:10:45 +0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-03 18:10:45 +0800 CST">2023-01-03
-</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
-</span><span class=post-meta-item-text title=分类于>分类于：
-</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E7%BC%93%E5%AD%98 itemprop=url rel=index><span itemprop=name>缓存</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
-</span><span class=post-meta-item-text>字数：</span>
-<span>3058</span>
-</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
-</span><span class=post-meta-item-text>阅读：&ap;</span>
-<span>7分钟</span>
-</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
-</span><span class=post-meta-item-text>浏览：
-</span><span id=busuanzi_value_page_pv data-path=/post/cache/caching-patterns/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）</p><table><thead><tr><th>缓存模式</th><th>读取流程</th><th>更新流程</th></tr></thead><tbody><tr><td>Cache-Aside（旁路缓存）</td><td>命中：返回缓存数据；未命中：从数据库加载数据并缓存后返回</td><td>先更新数据库，然后更新或删除缓存中的数据</td></tr><tr><td>Read-Through（透读缓存）</td><td>同上</td><td>同上</td></tr><tr><td>Write-Through（透写缓存）</td><td>同上</td><td>同上</td></tr><tr><td>Write-Through with Expiry（带过期的透写缓存）</td><td>同上</td><td>同上</td></tr><tr><td>Read-Write（读写缓存）</td><td>同上</td><td>同上</td></tr><tr><td>Write-Back/Write-Behind（写后缓存）</td><td>同上</td><td>写入数据到缓存，然后异步写入数据库</td></tr><tr><td>Write-Around（写绕过缓存）</td><td>同上</td><td>直接更新数据库，可选更新缓存</td></tr><tr><td>Lazy Write-Back（懒写后缓存）</td><td>同上</td><td>写入数据到缓存，缓存批量异步写数据库</td></tr><tr><td>Timed Write-Back（定时写后缓存）</td><td>同上</td><td>写入数据到缓存，缓存定时写入数据库</td></tr><tr><td>Write-Back with Coalescing（合并写后缓存）</td><td>同上</td><td>写入数据到缓存，缓存合并后写入数据库</td></tr><tr><td>Cache-Only（仅缓存）</td><td>命中：返回缓存数据；未命中：从缓存的其他节点尝试获取数据</td><td>更新缓存</td></tr><tr><td>Hybrid Cache（混合缓存）</td><td>读取流程和更新流程根据组合的具体缓存模式而定</td><td>读取流程和更新流程根据组合的具体缓存模式而定</td></tr><tr><td>Adaptive Caching（自适应缓存）</td><td>读取流程和更新流程根据访问模式动态调整缓存策略</td><td>读取流程和更新流程根据访问模式动态调整缓存策略</td></tr></tbody></table><div class=mermaid align=center style=background:#white>graph LR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
+
+<meta name="generator" content="Hugo 0.139.0">
+<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
+<meta itemprop="name" content="13种缓存模式汇总" />
+<meta itemprop="description" content="" />
+<meta name="description" content="" />
+
+
+<meta itemprop="datePublished" ZgotmplZ />
+
+
+<meta itemprop="dateModified" ZgotmplZ />
+
+
+
+
+
+<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
+<meta itemprop="keywords" content="" />
+
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="13种缓存模式汇总" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="/imgs/liulu_avatar.png" />
+<meta property="og:image:width" content="312" />
+<meta property="og:image:height" content="312" />
+<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
+<meta property="og:url" content="//localhost:1313/post/cache/caching-patterns/"/>
+<meta property="og:site_name" content="呦呦鹿鸣" />
+<meta property="og:locale" content="zh-CN"/>
+
+<meta property="article:author" content="" />
+<meta property="article:published_time" content="2023-01-03 18:10:45 &#43;0800 CST" />
+<meta property="article:modified_time" content="2023-01-03 18:10:45 &#43;0800 CST" />
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+  
+<script type="text/javascript">
+(function(){
+  localDB = {
+    set: function (key, value, ttl) {
+      if (ttl === 0) return;
+      const now = new Date();
+      const expiryDay = ttl * 86400000;
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    },
+    get: function (key) {
+      const itemStr = localStorage.getItem(key);
+      if (!itemStr) {
+        return undefined;
+      }
+  
+      const item = JSON.parse(itemStr);
+      const now = new Date();
+  
+      if (now.getTime() > item.expiry) {
+        localStorage.removeItem(key);
+        return undefined;
+      }
+      return item.value;
+    }
+  };
+
+  theme = {
+    active: function() {
+      const localState = localDB.get('theme');
+      if (localState == undefined) return;
+      theme.toggle(localState);
+      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
+        theme.toggle(evt.matches ? 'dark' : 'light');
+      });
+    },
+
+    toggle: function (theme) {
+      document.documentElement.setAttribute('data-theme',  theme);
+      localDB.set('theme', theme, 2);
+      
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        const config = { setConfig: { theme: theme } };
+        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
+      }
+    }
+  };
+
+  theme.active();
+})(window);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"caching-patterns","permalink":"//localhost:1313/post/cache/caching-patterns/","title":"13种缓存模式汇总","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
+
+
+
+
+  <script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+  var script = document.createElement('script');
+    
+  script.charset = "UTF-8";
+  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
+  script.async   = false
+  script.defer   = true
+  
+  document.head.appendChild(script);
+  script.onload = function() {
+    NexT.utils.fmtBusuanzi();
+  }
+});
+</script>
+  
+
+
+
+  <title>13种缓存模式汇总 - 呦呦鹿鸣</title>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
+  <div class="headband"></div>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner">
+        
+<div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+    
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">呦呦鹿鸣</h1>
+      <i class="logo-line"></i>
+    </a>
+    
+      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
+    
+    
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+      
+      <i class="fa fa-search fa-fw fa-lg"></i>
+      
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">    
+  
+    
+    <li class="menu-item menu-item-home">
+      <a href="/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-home hvr-icon"></i>首页
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-about">
+      <a href="/about/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-user hvr-icon"></i>关于
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-archives">
+      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-archive hvr-icon"></i>归档
+        
+        
+          <span class="badge">19</span>
+        
+      </a>
+      
+    </li>
+      
+
+  
+    <li class="menu-item menu-item-search">
+      <a role="button" class="popup-trigger hvr-icon-pulse">
+        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
+      </a>
+    </li>
+  
+  </ul>
+</nav>
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+      </div>
+      
+      
+      <div class="toggle sidebar-toggle" role="button">
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-toc">
+        文章目录
+      </li>
+      <li class="sidebar-nav-overview">
+        站点概览
+      </li>
+    </ul>
+    <div class="sidebar-panel-container">
+      
+      <div class="post-toc-wrap sidebar-panel">
+        <div class="post-toc animated"><nav id="TableOfContents"></nav></div>
+      </div>
+      
+      <div class="site-overview-wrap sidebar-panel">
+        
+<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+    <img class="site-author-image" itemprop="image" alt=""
+    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
+  
+  <p class="site-author-name" itemprop="name"></p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+
+
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+    <div class="site-state-item site-state-posts">
+      <a href="/archives/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">日志</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-categories">
+      <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-tags">
+      <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </a>
+    </div>
+  </nav>
+</div>
+
+
+<div class="links-of-social site-overview-item animated">
+
+
+</div>
+
+
+
+<div class="cc-license animated" itemprop="license">
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
+    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
+  </a>
+</div>
+
+
+
+
+<div class="links-of-blogroll site-overview-item animated">
+  <div class="links-of-blogroll-title">
+    
+    <i class="fa fa-globe fa-fw"></i>
+    
+    友情链接
+  </div>
+  <ul class="links-of-blogroll-list">
+    
+    
+    
+    
+    <li class="links-of-blogroll-item">
+      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
+    </li>
+    
+  </ul>
+</div>
+
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  
+    
+<div id="siteinfo-card-widget" class="sidebar-card-widget">
+  <div class="item-headline">
+    <i class="fas fa-chart-line"></i>
+    <span>网站资讯</span>
+  </div>
+  <div class="siteinfo">
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
+      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
+    </div>
+    
+    
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-user"></i>总访客数：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-eye"></i>页面浏览：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
+    </div> 
+        
+        
+    
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
+      <div class="item-count" id="wordsCount" data-count="37487"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
+      <div class="item-count" id="readTimes" data-times="86"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
+      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
+    </div>
+  </div>
+</div>
+  
+
+  
+</aside>
+<div class="sidebar-dimmer"></div>
+
+      
+    </header>
+    
+    <div class="tool-buttons" >
+    
+  
+  <div id="toggle-theme" class="button" title="深浅模式切换">
+    <i class="fas fa-adjust"></i>
+  </div>
+  
+  <div class="back-to-top" role="button" title="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+ 
+</div>
+
+
+  <div class="reading-progress-bar"></div>
+
+
+
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+
+
+
+
+
+  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
+<script type="text/javascript">
+((window.gitter = {}).chat = {}).options = {
+  room: "hugo-next/community"
+};
+</script>   
+
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+    <div class="main-inner post posts-expand">
+      
+      
+  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    
+    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/cache/caching-patterns/">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/imgs/liulu_avatar.png">
+      <meta itemprop="name" content="">
+    </span>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+    </span>
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="13种缓存模式汇总">
+      <meta itemprop="description" content="学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）">
+    </span>
+    
+    <header class="post-header">
+      
+ <h1  class="post-title" itemprop="name headline">
+  
+  
+  13种缓存模式汇总
+  
+  
+   </h1> 
+
+<div class="post-meta-container">
+  <div class="post-meta-items">
+    
+
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-calendar"></i>
+  </span>
+  <span class="post-meta-item-text" title="发表于">
+    发表于：
+  </span>
+  <time title="创建时间：2023-01-03 18:10:45 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-03 18:10:45 &#43;0800 CST">
+    2023-01-03
+  </time>
+</span>
+
+    
+    
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-folder-open"></i>
+  </span>
+  <span class="post-meta-item-text" title="分类于">
+    分类于：
+  </span>
+  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+    <a href="/categories/%E7%BC%93%E5%AD%98" itemprop="url" rel="index">
+      <span itemprop="name">缓存</span>
+    </a>
+  </span>
+</span>
+
+
+        
+  </div>
+  
+  <div class="post-meta-items">
+    
+<span class="post-meta-item" title="字数">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-file-word"></i>
+  </span>
+  <span class="post-meta-item-text">字数：</span>
+  <span>3058</span>
+</span>
+
+    
+<span class="post-meta-item" title="阅读">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-clock"></i>
+  </span>
+  <span class="post-meta-item-text">阅读：&asymp;</span>
+  <span>7分钟</span>
+</span>
+
+
+    
+
+
+
+
+<span class="post-meta-item" title="浏览">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-eye"></i>
+  </span>
+  <span class="post-meta-item-text">
+  浏览：
+  </span>
+  <span id="busuanzi_value_page_pv"  data-path="/post/cache/caching-patterns/">
+    <i class="fa fa-sync fa-spin"></i>
+  </span>
+</span>
+
+    
+  </div>
+  
+</div>
+
+    </header>
+    
+    <div class="post-body " itemprop="articleBody">
+      
+
+  <p>学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）</p>
+<table>
+  <thead>
+      <tr>
+          <th>缓存模式</th>
+          <th>读取流程</th>
+          <th>更新流程</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Cache-Aside（旁路缓存）</td>
+          <td>命中：返回缓存数据；未命中：从数据库加载数据并缓存后返回</td>
+          <td>先更新数据库，然后更新或删除缓存中的数据</td>
+      </tr>
+      <tr>
+          <td>Read-Through（透读缓存）</td>
+          <td>同上</td>
+          <td>同上</td>
+      </tr>
+      <tr>
+          <td>Write-Through（透写缓存）</td>
+          <td>同上</td>
+          <td>同上</td>
+      </tr>
+      <tr>
+          <td>Write-Through with Expiry（带过期的透写缓存）</td>
+          <td>同上</td>
+          <td>同上</td>
+      </tr>
+      <tr>
+          <td>Read-Write（读写缓存）</td>
+          <td>同上</td>
+          <td>同上</td>
+      </tr>
+      <tr>
+          <td>Write-Back/Write-Behind（写后缓存）</td>
+          <td>同上</td>
+          <td>写入数据到缓存，然后异步写入数据库</td>
+      </tr>
+      <tr>
+          <td>Write-Around（写绕过缓存）</td>
+          <td>同上</td>
+          <td>直接更新数据库，可选更新缓存</td>
+      </tr>
+      <tr>
+          <td>Lazy Write-Back（懒写后缓存）</td>
+          <td>同上</td>
+          <td>写入数据到缓存，缓存批量异步写数据库</td>
+      </tr>
+      <tr>
+          <td>Timed Write-Back（定时写后缓存）</td>
+          <td>同上</td>
+          <td>写入数据到缓存，缓存定时写入数据库</td>
+      </tr>
+      <tr>
+          <td>Write-Back with Coalescing（合并写后缓存）</td>
+          <td>同上</td>
+          <td>写入数据到缓存，缓存合并后写入数据库</td>
+      </tr>
+      <tr>
+          <td>Cache-Only（仅缓存）</td>
+          <td>命中：返回缓存数据；未命中：从缓存的其他节点尝试获取数据</td>
+          <td>更新缓存</td>
+      </tr>
+      <tr>
+          <td>Hybrid Cache（混合缓存）</td>
+          <td>读取流程和更新流程根据组合的具体缓存模式而定</td>
+          <td>读取流程和更新流程根据组合的具体缓存模式而定</td>
+      </tr>
+      <tr>
+          <td>Adaptive Caching（自适应缓存）</td>
+          <td>读取流程和更新流程根据访问模式动态调整缓存策略</td>
+          <td>读取流程和更新流程根据访问模式动态调整缓存策略</td>
+      </tr>
+  </tbody>
+</table>
+<div class="mermaid" align="center"   style="background: #white" > 
+  
+graph LR
 A[1. Cache-Aside 旁路缓存] -->|定义| B_def[应用程序直接管理缓存的读取和写入]
 A -->|优点| C_adv[灵活、减少数据库负载、简单易于实现]
 A -->|缺点| D_dis[需要手动管理缓存、存在缓存一致性问题]
 A -->|应用场景| E_sce[读取频繁但更新较少的数据]
 A -->|读取流程| F_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A -->|更新流程| G_up[更新数据库后更新或删除缓存]
+
 A1[2. Read-Through 透读缓存] -->|定义| H_def[缓存层自动管理数据的读取]
 A1 -->|优点| I_adv[简化应用程序逻辑、减少数据库负担]
 A1 -->|缺点| J_dis[增加对缓存层依赖、缓存未命中时增加负载]
 A1 -->|应用场景| K_sce[需要快速访问且能容忍一定程度缓存一致性问题]
 A1 -->|读取流程| L_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A1 -->|更新流程| M_up[更新数据库后同步更新缓存]
+
 A2[3. Write-Through 透写缓存] -->|定义| N_def[数据写入时同时更新缓存和数据库]
 A2 -->|优点| O_adv[保证缓存和数据库数据一致性]
 A2 -->|缺点| P_dis[写操作增加负担、可能影响性能]
 A2 -->|应用场景| Q_sce[数据一致性要求高的场景]
 A2 -->|读取流程| R_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A2 -->|更新流程| S_up[写入数据到缓存并同步写入数据库]
+
 A3[4. Write-Back/Write-Behind 写后缓存] -->|定义| T_def[数据先写入缓存，然后异步写入数据库]
 A3 -->|优点| U_adv[提高写操作性能、减少数据库写入压力]
 A3 -->|缺点| V_dis[需要处理数据同步问题、可能导致数据丢失]
 A3 -->|应用场景| W_sce[不需要即时写入数据库的场景]
 A3 -->|读取流程| X_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A3 -->|更新流程| Y_up[写入数据到缓存并异步写入数据库]
+
 A4[5. Write-Around 写绕过缓存] -->|定义| Z_def[写操作直接写入数据库，而不是写入缓存]
 A4 -->|优点| AA_adv[减少缓存层负担]
 A4 -->|缺点| AB_dis[缓存数据可能过时]
 A4 -->|应用场景| AC_sce[数据收集或审计日志]
 A4 -->|读取流程| AD_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A4 -->|更新流程| AE_up[直接更新数据库，可选更新缓存]
+
 A5[6. Write-Through with Expiry 带过期的透写缓存] -->|定义| AF_def[透写缓存的变种，缓存中的数据会设置过期时间]
 A5 -->|优点| AG_adv[数据一致性较好]
 A5 -->|缺点| AH_dis[需要处理数据过期和重新加载]
 A5 -->|应用场景| AI_sce[配置信息、静态资源]
 A5 -->|读取流程| AJ_rd[命中且未过期：返回缓存数据<br>未命中或已过期：从数据库加载并缓存后返回]
 A5 -->|更新流程| AK_up[写入数据到缓存并同步写入数据库]
+
 A6[7. Lazy Write-Back 懒写后缓存] -->|定义| AL_def[写后缓存的变种，不会立即将数据异步写入数据库]
 A6 -->|优点| AM_adv[减少数据库写入次数]
 A6 -->|缺点| AN_dis[数据同步延迟]
 A6 -->|应用场景| AO_sce[批量数据处理]
 A6 -->|读取流程| AP_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A6 -->|更新流程| AQ_up[写入数据到缓存，缓存批量异步写数据库]
+
 A7[8. Timed Write-Back 定时写后缓存] -->|定义| AR_def[缓存中的数据会在特定的时间间隔后被写入数据库]
 A7 -->|优点| AS_adv[减少即时写入压力]
 A7 -->|缺点| AT_dis[数据同步延迟]
 A7 -->|应用场景| AU_sce[定时备份或数据同步]
 A7 -->|读取流程| AV_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A7 -->|更新流程| AW_up[写入数据到缓存，缓存定时写入数据库]
+
 A8[9. Write-Back with Coalescing 合并写后缓存] -->|定义| AX_def[多个写操作可能会被合并为单个写入操作]
 A8 -->|优点| AY_adv[减少数据库写入次数]
 A8 -->|缺点| AZ_dis[需要复杂的合并逻辑]
 A8 -->|应用场景| BA_sce[频繁更新的配置信息]
 A8 -->|读取流程| BB_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A8 -->|更新流程| BC_up[写入数据到缓存，缓存合并后写入数据库]
+
 A9[10. Read-Write 读写缓存] -->|定义| BD_def[缓存既处理读操作也处理写操作]
 A9 -->|优点| BE_adv[读写操作都从缓存中进行]
 A9 -->|缺点| BF_dis[缓存失效时影响性能]
 A9 -->|应用场景| BG_sce[实时数据监控]
 A9 -->|读取流程| BH_rd[命中：返回缓存数据<br>未命中：从数据库加载并缓存后返回]
 A9 -->|更新流程| BI_up[更新缓存后同步更新数据库]
+
 A10[11. Cache-Only 仅缓存] -->|定义| BK_def[所有的数据访问都通过缓存进行]
 A10 -->|优点| BL_adv[快速的数据访问]
 A10 -->|缺点| BM_dis[数据一致性难以保证]
 A10 -->|应用场景| BN_sce[静态内容分发]
 A10 -->|读取流程| BO_rd[命中：返回缓存数据<br>未命中：从缓存的其他节点尝试获取数据]
 A10 -->|更新流程| BP_up[更新缓存]
+
 A11[12. Hybrid Cache 混合缓存] -->|定义| BQ_def[结合多种缓存模式]
 A11 -->|优点| BR_adv[适应不同的数据访问模式和业务需求]
 A11 -->|缺点| BS_dis[实现复杂]
 A11 -->|应用场景| BT_sce[电商网站]
 A11 -->|读取流程| BU_rd[根据组合的具体缓存模式而定]
 A11 -->|更新流程| BV_up[根据组合的具体缓存模式而定]
+
 A12[13. Adaptive Caching 自适应缓存] -->|定义| BW_def[缓存策略会根据当前的访问模式和系统负载动态调整]
 A12 -->|优点| BX_adv[优化性能和资源利用率]
 A12 -->|缺点| BY_dis[实现复杂]
 A12 -->|应用场景| BZ_sce[动态网站内容]
 A12 -->|读取流程| CA_rd[根据访问模式动态调整缓存策略]
-A12 -->|更新流程| CB_up[根据访问模式动态调整缓存策略]</div></div><footer class=post-footer><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/desiginpattern/observer-pattern/ rel=next title="Golang实现观察者模式（Observer Pattern）"><i class="fa fa-chevron-left"></i> Golang实现观察者模式（Observer Pattern）</a></div><div class="post-nav-prev post-nav-item"><a href=/post/mq/use-mqtt/ rel=prev title=认识MQTT（三）：MQTT在业务中的应用>认识MQTT（三）：MQTT在业务中的应用
-<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
-<span itemprop=copyrightYear>2010 - 2024
-</span><span class=with-love><i class="fa fa-heart"></i>
-</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script><script type=text/javascript src=/js/mermaid.js defer></script></body></html>
+A12 -->|更新流程| CB_up[根据访问模式动态调整缓存策略]
+
+</div>
+
+
+    </div>
+    <footer class="post-footer">
+      
+
+
+
+
+<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
+
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+
+<div class="post-nav">
+  <div class="post-nav-next post-nav-item">
+    
+    <a href="/post/desiginpattern/observer-pattern/" rel="next" title="Golang实现观察者模式（Observer Pattern）">
+      <i class="fa fa-chevron-left"></i> Golang实现观察者模式（Observer Pattern）
+    </a>
+    
+  </div>
+  <div class="post-nav-prev post-nav-item">
+    
+    <a href="/post/mq/use-mqtt/" rel="prev" title="认识MQTT（三）：MQTT在业务中的应用">
+      认识MQTT（三）：MQTT在业务中的应用
+      <i class="fa fa-chevron-right"></i>
+    </a>
+    
+  </div>
+</div>
+
+
+
+    </footer>
+  </article>
+</div>
+
+      
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+<div class="copyright">
+  &copy;
+  <span itemprop="copyrightYear">
+    
+    
+    
+    2010 - 2024
+    
+    
+  </span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  
+  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
+</div>
+
+
+
+
+
+ 
+
+
+
+
+
+    </div>
+  </footer>
+
+  
+
+
+
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
+
+
+<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+<script type="text/javascript" src="/js/main.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/js/mermaid.js" defer></script>
+
+</body>
+
+</html>

@@ -1,42 +1,179 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
+
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<search>
+  
+  <entry>
+    <title>关于我</title>
+    <url>/about/</url>
+    <categories>
+      
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
 先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。
 每一次挑战，都是成长的机会。我期待在不断变化的世界中，对技术的热爱与追求永远不变。
-  </content></entry><entry><title>Go的结构体标签与反射</title><url>/post/golang/tag-and-reflect/</url><categories><category>Golang</category></categories><tags><tag>反射</tag><tag>源代码</tag></tags><content type="html"><![CDATA[  一、结构体标签 结构体标签是附加在结构体字段上的小块元数据字符串，格式为 key:&amp;quot;value&amp;quot;，其中 key 是标签名，value 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。
+  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的结构体标签与反射</title>
+    <url>/post/golang/tag-and-reflect/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>反射</tag>
+      
+      <tag>源代码</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  一、结构体标签 结构体标签是附加在结构体字段上的小块元数据字符串，格式为 key:&amp;quot;value&amp;quot;，其中 key 是标签名，value 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。
 type User struct { Name string `json:&amp;#34;name&amp;#34; xml:&amp;#34;user_name&amp;#34;` Age int `json:&amp;#34;age&amp;#34; xml:&amp;#34;user_age&amp;#34;` } 在这个例子中，Name 和 Age 字段都有两个标签，分别用于JSON和XML的序列化
 二、结构体标签的读取 要读取结构体字段的标签，可以使用reflect包中的Field方法获取结构体的字段，然后使用Tag方法获取标签字符串。
 import ( &amp;#34;fmt&amp;#34; &amp;#34;reflect&amp;#34; ) type MyStruct struct { Name string `这是个名字标签` // 不推荐 id int `desc:&amp;#34;这是id标签&amp;#34; sort:&amp;#34;这个字段可以用来排序&amp;#34;` // 推荐使用key value的方式定义标签 } func main() { // 通过反射获取标签 m := MyStruct{&amp;#34;小明&amp;#34;, 1} r := reflect.TypeOf(m) for i := 0; i &amp;lt; r.NumField(); i++ { field := r.Field(i) tag := field.Tag fmt.Println(field.Name, &amp;#34;的标签-&amp;gt;&amp;#34;, tag) } } 输出的结果是：
-Name 的标签-&amp;gt; id 的标签-&amp;gt; desc:&amp;#34;这是id标签&amp;#34; sort:&amp;#34;这个字段可以用来排序&amp;#34; Name字段的标签是&amp;quot;这是个名字标签&amp;quot;，但这个标签没有遵循key:&amp;quot;value&amp;quot;正确的格式，因此它不会被reflect包识别为有效的结构体标签。 id字段的标签是&amp;quot;desc:\&amp;quot;这是id标签\&amp;quot; sort:\&amp;quot;这个字段可以用来排序\&amp;quot;&amp;quot;，这是一个有效的结构体 …  ]]></content></entry><entry><title>Go的heap和源码分析</title><url>/post/golang/heap-sourcecode/</url><categories><category>Golang</category></categories><tags><tag>优先队列</tag><tag>源代码</tag></tags><content type="html">  之前用Go实现延时队列，我使用了Go标准库中的container/heap接口来构建一个优先队列。为什么Go的container/heap接口可以实现一个优先队列呢？
+Name 的标签-&amp;gt; id 的标签-&amp;gt; desc:&amp;#34;这是id标签&amp;#34; sort:&amp;#34;这个字段可以用来排序&amp;#34; Name字段的标签是&amp;quot;这是个名字标签&amp;quot;，但这个标签没有遵循key:&amp;quot;value&amp;quot;正确的格式，因此它不会被reflect包识别为有效的结构体标签。 id字段的标签是&amp;quot;desc:\&amp;quot;这是id标签\&amp;quot; sort:\&amp;quot;这个字段可以用来排序\&amp;quot;&amp;quot;，这是一个有效的结构体 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的heap和源码分析</title>
+    <url>/post/golang/heap-sourcecode/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>优先队列</tag>
+      
+      <tag>源代码</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  之前用Go实现延时队列，我使用了Go标准库中的container/heap接口来构建一个优先队列。为什么Go的container/heap接口可以实现一个优先队列呢？
 这是因为Go的container/heap定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。
 一、container/heap介绍 以下是container/heap接口实现优先队列的关键点：
-定义数据结构：首先，需要定义一个数据结构来存储堆中的元素。 实现heap.Interface：container/heap接口要求实现以下方法： Len()：返回堆中元素的数量。 Less(i, j int) bool：比较索引为 i 和 j 的两个元素，确定它们在堆中的顺序。 Swap(i, j int)：交换索引为 i 和 j 的两个元素。 Push(x interface{})：向堆中添加一个新元素。 Pop() interface{}：移除并返回堆中的最后一个元素，即优先级最高的元素。 初始化堆：使用heap.Init()函数初始化堆，确保堆的性质得到满足。 操作堆：通过heap.Push()和heap.Pop()来添加和移除元素，这些操作会保持堆的性质。 更新元素：如果需要更新堆中的元素，可以使用heap.Fix()来重新调整堆，确保堆的性质不被破坏。 利用container/heap接口的灵活性，可以根据具体需求实现不同类型的优先队列，例如最小堆或最大堆。通过实现Less方法，可以定义元素之间的比较逻辑，从而控制优先级队列的行为。例如，如果要实现一个最大堆，可以在Less方法中使用大于号（&amp;amp;gt;）来比较元素，使得优先级最高的元素总是在堆的顶部。
+定义数据结构：首先，需要定义一个数据结构来存储堆中的元素。 实现heap.Interface：container/heap接口要求实现以下方法： Len()：返回堆中元素的数量。 Less(i, j int) bool：比较索引为 i 和 j 的两个元素，确定它们在堆中的顺序。 Swap(i, j int)：交换索引为 i 和 j 的两个元素。 Push(x interface{})：向堆中添加一个新元素。 Pop() interface{}：移除并返回堆中的最后一个元素，即优先级最高的元素。 初始化堆：使用heap.Init()函数初始化堆，确保堆的性质得到满足。 操作堆：通过heap.Push()和heap.Pop()来添加和移除元素，这些操作会保持堆的性质。 更新元素：如果需要更新堆中的元素，可以使用heap.Fix()来重新调整堆，确保堆的性质不被破坏。 利用container/heap接口的灵活性，可以根据具体需求实现不同类型的优先队列，例如最小堆或最大堆。通过实现Less方法，可以定义元素之间的比较逻辑，从而控制优先级队列的行为。例如，如果要实现一个最大堆，可以在Less方法中使用大于号（&amp;gt;）来比较元素，使得优先级最高的元素总是在堆的顶部。
 此外，container/heap还提供了一些辅助函数，如heap.Push, heap.Pop, heap.Remove, 和 heap.Fix，使用这些函数可以更容易地实现和维护优先队列。
 二、heap源码剖析 Go 中heap的相关部分可以在源码下的 src/container/heap/heap.go 查看。以下源代码基于 go1.23.3 版本，有删减。
-2.1 核心接口 type Interface interface { sort.Interface …  </content></entry><entry><title>Golang实现一个基于本地存储的延时队列</title><url>/post/mq/delayed-queue/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>延时队列</tag></tags><content type="html">  一、什么是延迟队列 延迟队列是一种特殊的队列，其核心特点是队列中的消息或任务会被延迟一定时间后才能被消费或执行。这种队列广泛应用于需要延迟处理的场景，比如订单超时未支付自动取消、用户注册后一段时间未登录发送提醒等。
+2.1 核心接口 type Interface interface { sort.Interface …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Golang实现一个基于本地存储的延时队列</title>
+    <url>/post/mq/delayed-queue/</url>
+    <categories>
+      <category>消息队列</category>
+    </categories>
+    <tags>
+      
+      <tag>消息队列</tag>
+      
+      <tag>延时队列</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  一、什么是延迟队列 延迟队列是一种特殊的队列，其核心特点是队列中的消息或任务会被延迟一定时间后才能被消费或执行。这种队列广泛应用于需要延迟处理的场景，比如订单超时未支付自动取消、用户注册后一段时间未登录发送提醒等。
 二、延迟队列的应用场景 电商平台订单处理：超过一定时间未支付的订单自动取消。 商品签收后自动确认：在一定时间未确认的情况下，系统自动确认收货。 用户提醒：在平台注册但一定时间内未登录的用户，发送短信提醒。 会议通知：预定会议后，在预定时间点前一定时间通知与会人员。 三、延迟队列和定时任务的区别 特性 延迟队列 定时任务 触发时间 没有固定的开始时间，而是依赖于某个事件触发后，再延迟一段时间执行任务 有明确的触发时间，通常是按照固定的时间周期执行。可以通过cron表达式来设定具体的执行时间 周期性 无周期性，通常是一次性任务 有周期性，可以设置为定期重复执行 任务数量 通常处理单个任务 一般会同时处理多个任务 实现方式 消息队列、专门的延迟队列实现 可以通过编程语言或框架提供的定时器功能实现，如Golang的Timer包 应用场景 订单超时自动取消、用户操作后的反馈提示 数据备份、日志清理等定期执行的任务 数据库压力 通常是内存队列操作，处理效率较高，不会直接给数据库带来压力 查表会给数据库带来较大的查询压力，尤其是当业务数据量较大时 时效性 可以更精确地控制任务的执行时间，适合对实效性要求较高的场景 由于执行时间的不确定性，可能无法满足对实效性要求较高的系统需求 分布式支持 更容易实现分布式支持，适合大规模和高可用性的需求 在分布式环境下可能需要额外的协调机制来保证任务的一致性，比如分布式锁 可靠性 可以实现更好的异常恢复机制，尤其是在使用持久化存储的情况下 可能在系统异常恢复后丢失任务状态，需要额外的机制来保证任务的恢复 四、Golang实现延时队列 实现一个基于本地存储的延时队列，可以通过以下步骤进行：
-定义任务结构：首先定义一个任务结构体，包含任务的执行时间和具体的任务内容。 使用优先队列：利用Go的container/heap接口实现一个优先队列，用于管理任务。优先队列可以根据任务的执行时间来排序任务。 存储任务：将任务存储在优先队列中，以便根据执行时间顺序执行。 定时检查和执行：通过一个循环，定时检查当前时间与队列中最早任务的执行时间。如果当前 …  </content></entry><entry><title>任务系统的设计</title><url>/post/system/task-system/</url><categories><category>系统设计</category></categories><tags/><content type="html"><![CDATA[  一、背景 由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。
+定义任务结构：首先定义一个任务结构体，包含任务的执行时间和具体的任务内容。 使用优先队列：利用Go的container/heap接口实现一个优先队列，用于管理任务。优先队列可以根据任务的执行时间来排序任务。 存储任务：将任务存储在优先队列中，以便根据执行时间顺序执行。 定时检查和执行：通过一个循环，定时检查当前时间与队列中最早任务的执行时间。如果当前 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>任务系统的设计</title>
+    <url>/post/system/task-system/</url>
+    <categories>
+      <category>系统设计</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  一、背景 由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。
 任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。
 二、现状 2.1 任务分类较多 根据正向牵引数据源（新司机首次在线，完成首单&amp;hellip;&amp;hellip;）、反向异常数据源（行程不安全、申诉&amp;hellip;..）将任务分为十几种类别，且分类随着业务的开展还会不断增加。
 2.2 任务接入来源较多 不同场景会有其对应的行为事件，进而产生不同的任务，接入任务系统的业务方非常多。
 三、系统设计 3.1 梳理业务流程 针对上面的任务，以及日后要接入的其他类任务，核心业务流程分为4部分：
 事件接入：通过API/ES/MQ系统交互的方式，确定当前任务场景下，司机所对应的行为事件。 圈定人群：在某一类场景下，司机的行为事件也有多种多样，通过一定的业务规则，来筛选我们的目标人群。 绑定任务：筛选完目标人群后，通过组织架构以及相应的任务模板来生成任务。 任务流程：任务接收人在APP上完成相关任务。 以工单任务为例，任务时序图如下所示： sequenceDiagram participant 任务系统 participant 行为引擎 participant 人群服务 participant 导师 participant 驱动 opt 任务下发 任务系统-&gt;&gt;行为引擎: 人群规则 行为引擎-&gt;&gt;人群服务: 人群圈定 人群服务-&gt;&gt;行为引擎: MQ人群流 行为引擎-&gt;&gt;任务系统: 数据填充 end opt 任务绑定 任务系统-&gt;&gt;导师: 任务领取 导师-&gt;&gt;导师: 任务完成 导师-&gt;&gt;任务系统: 领取奖励 任务系统-&gt;&gt;驱动: 积分发放 驱动-&gt;&gt;任务系统: 同步成功 end opt 任务剔除 任务系统-&gt;&gt;行为引擎: 人群准出 行为引擎-&gt;&gt;任务系统: 任务剔除 end 3.2 核心模块划分 任务系统按模块逻辑可以分为4部分，任务生成、基础能力、同步模块。
 3.2.1 任务生成 1.动态圈定人群：如上图场景1所示的任务。
-当服务后台配 …  ]]></content></entry><entry><title>Go的弱引用</title><url>/post/golang/weak-reference/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>垃圾回收</tag></tags><content type="html">  在学习观察者模式的时候，看到观察者模式的实现方式之一有弱引用，所以专门学习了一下这个知识点。
+当服务后台配 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的弱引用</title>
+    <url>/post/golang/weak-reference/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>垃圾回收</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  在学习观察者模式的时候，看到观察者模式的实现方式之一有弱引用，所以专门学习了一下这个知识点。
 一、什么是弱引用 弱引用是一种特殊的引用类型，它允许引用一个对象而不增加该对象的引用计数。这意味着，弱引用不会阻止垃圾回收器（GC）回收被引用的对象，即使该对象只被弱引用关联。
 说人话就是：弱引用的对象在任何时候都可能被垃圾回收器回收。
 二、弱引用的应用场景 弱引用在处理缓存、对象池、观察者模式等场景中非常有用。在这些应用场景中，我们通常需要一个数据结构能够动态地增减对象，同时不会让这些对象被垃圾回收机制所回收，弱引用正好能够满足这个需求。
 三、弱引用在Go中存在吗 答案：存在。
 四、弱引用在Go语言中具体是如何实现的 sync.Map：sync.Map与普通的map不同，它不会阻止其键的垃圾回收。这意味着，如果一个键没有其他强引用，它所引用的对象可以被垃圾回收器回收。sync.Map提供了Store、Load和Delete等方法来操作键值对，同时允许垃圾回收器回收不再需要的键值对。 sync.Pool：sync.Pool提供了一种对象池的机制，它允许对象在不被使用时被回收。sync.Pool中的对象是弱引用的，它们可以在内存不足时被垃圾回收器回收，这使得sync.Pool成为实现缓存时避免内存泄漏的有用工具。 reflect.WeaklyTypedPtr方法：Go语言在标准库中提供了一种弱引用的实现方式，即使用reflect包中的WeaklyTypedPtr方法。该方法接受一个interface{}类型的输入，并将其转换为弱引用。使用该方法可以创建一个不会增加对象引用计数的指针，同时也不会让该对象被垃圾回收机制所忽略，这使得开发者能够更加灵活地管理内存。 垃圾回收机制：Go语言的垃圾回收机制也与弱引用有关。垃圾回收器会标记所有可达的对象为活跃状态，而未被标记的对象将被清除。在这个过程中，如果一个对象只被弱引用，那么它可能会被垃圾回收器回收。 五、实现一个自定义的弱引用机制 在Go语言中实现一个自定义的弱引用机制，可以通过以下几种方式：
 1. 使用sync.Map实现 sync.Map是Go语言中提供的一种并发安全的map，它允许键被垃圾回收，即使它们仍然被sync.Map引用。因此，可以用sync.Map来实现弱引用。
-import &amp;amp;#34;sync&amp;amp;#34; var …  </content></entry><entry><title>Golang实现观察者模式（Observer Pattern）</title><url>/post/desiginpattern/observer-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。
+import &amp;#34;sync&amp;#34; var …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Golang实现观察者模式（Observer Pattern）</title>
+    <url>/post/desiginpattern/observer-pattern/</url>
+    <categories>
+      <category>设计模式</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。
 观察者模式的主要目的是解决一个对象状态改变时，如何自动通知其他依赖对象的问题，同时保持对象间的低耦合和高协作性。
 在观察者模式中，包含以下几个关键角色：
 主题（Subject）：也称为被观察者，是状态变化的核心对象，负责管理所有的观察者并通知它们。 具体主题（ConcreteSubject）：具体主题是主题类的子类，它通常包含有经常发生改变的数据，当它的状态发生改变时它向各个观察者发出通知。 观察者（Observer）：依赖于主题对象的变化，并作出响应。 具体观察者（ConcreteObserver）：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的相关状态，这些状态需要和具体目标的状态保持一致；它实现了在抽象观察者Observer中定义的update()方法。 一、使用场景 车辆追踪系统：车辆的位置和状态需要实时监测，并及时通知相关的监控中心或用户。 股票市场监控系统：股票价格变化可以作为主题，而投资者或交易员可以作为观察者。 GUI开发：按钮、复选框、滚动条等GUI组件可以作为主题，而窗口、文本框等可以作为观察者。 二、优点 降低耦合度：观察者模式通过定义对象之间的一对多依赖关系，使得主题对象和观察者对象之间解耦，提高了系统的灵活性和可维护性。 动态响应：在并发编程中，系统的状态可能随时发生变化，观察者模式允许观察者对象根据主题对象状态的变化动态调整自己的行为，非常适合事件驱动的系统。 易于扩展：在并发系统中，新的观察者可以很容易地添加到系统中，而不需要修改现有的代码，提高了系统的可扩展性。 异步通信：观察者模式支持异步通信，允许系统在不阻塞的情况下进行通信。 广播通信支持：观察者模式支持广播通信，可以实现多对多的交互，适用于需要通知多个对象的状态变化的场景。 所以观察者模式很适合在并发编程中使用，尤其是在需要处理多个对象之间通信和状态更新的场景中。
-三、缺点 性能问题：如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间。 循环依赖：如果观察者和观察目标间有循环依赖，可能导致系统崩溃。 四、实现方式 接口实 …  </content></entry><entry><title>13种缓存模式汇总</title><url>/post/cache/caching-patterns/</url><categories><category>缓存</category></categories><tags/><content type="html"><![CDATA[  学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）
+三、缺点 性能问题：如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间。 循环依赖：如果观察者和观察目标间有循环依赖，可能导致系统崩溃。 四、实现方式 接口实 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>13种缓存模式汇总</title>
+    <url>/post/cache/caching-patterns/</url>
+    <categories>
+      <category>缓存</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  学习和总结了13种缓存模式的优缺点、应用场景和工作流程。（汇总见底部的思维导图）
 缓存模式 读取流程 更新流程 Cache-Aside（旁路缓存） 命中：返回缓存数据；未命中：从数据库加载数据并缓存后返回 先更新数据库，然后更新或删除缓存中的数据 Read-Through（透读缓存） 同上 同上 Write-Through（透写缓存） 同上 同上 Write-Through with Expiry（带过期的透写缓存） 同上 同上 Read-Write（读写缓存） 同上 同上 Write-Back/Write-Behind（写后缓存） 同上 写入数据到缓存，然后异步写入数据库 Write-Around（写绕过缓存） 同上 直接更新数据库，可选更新缓存 Lazy Write-Back（懒写后缓存） 同上 写入数据到缓存，缓存批量异步写数据库 Timed Write-Back（定时写后缓存） 同上 写入数据到缓存，缓存定时写入数据库 Write-Back with Coalescing（合并写后缓存） 同上 写入数据到缓存，缓存合并后写入数据库 Cache-Only（仅缓存） 命中：返回缓存数据；未命中：从缓存的其他节点尝试获取数据 更新缓存 Hybrid Cache（混合缓存） 读取流程和更新流程根据组合的具体缓存模式而定 读取流程和更新流程根据组合的具体缓存模式而定 Adaptive Caching（自适应缓存） 读取流程和更新流程根据访问模式动态调整缓存策略 读取流程和更新流程根据访问模式动态调整缓存策略 graph LR A[1. Cache-Aside 旁路缓存] --&gt;|定义| B_def[应用程序直接管理缓存的读取和写入] A --&gt;|优点| C_adv[灵活、减少数据库负载、简单易于实现] A --&gt;|缺点| D_dis[需要手动管理缓存、存在缓存一致性问题] A --&gt;|应用场景| E_sce[读取频繁但更新较少的数据] A --&gt;|读取流程| F_rd[命中：返回缓存数据
-未命中：从数据库加载并缓存后返回] A --&gt;|更新流程| G_up[更新数据库后更新或删除缓存] A1[2. Read-Through 透读缓存] --&gt;|定义| H_def[缓存层自动管理数据的读取] A1 --&gt;|优点| I_adv[简化应用程序逻辑、减少数据库负担] A1 …  ]]></content></entry><entry><title>认识MQTT（三）：MQTT在业务中的应用</title><url>/post/mq/use-mqtt/</url><categories><category>消息队列</category></categories><tags/><content type="html">  我们的系统连接着车辆和用户两端，车辆的个性化配置数据上报到云端，又或者用户登录后的账户信息下发给车端，车辆与云端之间的数据传输都是通过MQTT网关来实现的。
+未命中：从数据库加载并缓存后返回] A --&gt;|更新流程| G_up[更新数据库后更新或删除缓存] A1[2. Read-Through 透读缓存] --&gt;|定义| H_def[缓存层自动管理数据的读取] A1 --&gt;|优点| I_adv[简化应用程序逻辑、减少数据库负担] A1 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>认识MQTT（三）：MQTT在业务中的应用</title>
+    <url>/post/mq/use-mqtt/</url>
+    <categories>
+      <category>消息队列</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  我们的系统连接着车辆和用户两端，车辆的个性化配置数据上报到云端，又或者用户登录后的账户信息下发给车端，车辆与云端之间的数据传输都是通过MQTT网关来实现的。
 网关作为网络中间连接器、协议转换器，负责将车辆终端、众多业务后台复杂的网络连接场景、业务交互场景进行聚类转发。
 针对车端：MQTT网关实时、稳定的将车辆运行状态、用户交互等信息转发至对应后端业务平台，包括但不限于整车运行状态、零部件状态、用户操作指令等。 针对平台：MQTT网关实时、稳定的将业务平台数据下发至车辆终端，包括但不限于整车实时运行状态、操作指令、复杂的内容类交互等。 作为MQTT网关的调用方，我们给车端下发数据，经常会遇到车辆不在线，导致下发失败的情况，这样就会导致云端和车端数据不一致。除了重试机制外，我们还会采用以下几种方案保证数据的准确性。
-交互逻辑设计：云端先不更新，车端主动上报后再更新。可以参见之前写的 车辆激活（扫码激活）的实现 。 使用时间戳作为版本号：服务端的数据库表增加一个时间戳字段，此时间戳为作为版本号下发给车端。 车端如果正常接收到云端下发的数据，就会与本地的版本号（时间戳）进行比对，接收到的时间戳大就更新。 车端如果没有接收到云端下发的数据，在上电的时候，会主动请求获取云端的数据，并携带这个版本号。云端会将其与记录进行比对，如果该时间戳大于记录的时间戳，说明是在车端进行的操作，以车端为主，更新表里的时间戳；反之云端会将数据重新下发给车端。 graph TD A[服务端] -->|增加时间戳字段| B[时间戳作为版本号] B --> C[下发给车端] C --> D[车端接收时间戳] D -->|比对本地版本号| E{时间戳比较} E -->|接收到的时间戳大| F[车端更新本地数据] E -->|接收到的时间戳小或相等| G[车端保持本地数据不变] H[车端] -->|上电| I[主动请求云端数据] I -->|携带本地时间戳| J[云端接收请求] J --> K[云端比对时间戳] K -->|车端时间戳大于云端| L[以车端数据为主] L --> M[更新云端数据库时间戳] K -->|车端时间戳小于等于云端| N[云端将数据下发给车端] M --> O[同步完成] N --> O   </content></entry><entry><title>Golang实现工厂模式（Factory Pattern）</title><url>/post/desiginpattern/factory-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  工厂模式（Factory Pattern）是一种创建型设计模式，用于处理对象的创建。在工厂模式中，创建对象的任务被推迟到子类中，这些子类被称为工厂方法。这种模式的主要目的是将对象的创建和使用分离，使得在不知道具体类的情况下也能创建对象。
+交互逻辑设计：云端先不更新，车端主动上报后再更新。可以参见之前写的 车辆激活（扫码激活）的实现 。 使用时间戳作为版本号：服务端的数据库表增加一个时间戳字段，此时间戳为作为版本号下发给车端。 车端如果正常接收到云端下发的数据，就会与本地的版本号（时间戳）进行比对，接收到的时间戳大就更新。 车端如果没有接收到云端下发的数据，在上电的时候，会主动请求获取云端的数据，并携带这个版本号。云端会将其与记录进行比对，如果该时间戳大于记录的时间戳，说明是在车端进行的操作，以车端为主，更新表里的时间戳；反之云端会将数据重新下发给车端。 graph TD A[服务端] -->|增加时间戳字段| B[时间戳作为版本号] B --> C[下发给车端] C --> D[车端接收时间戳] D -->|比对本地版本号| E{时间戳比较} E -->|接收到的时间戳大| F[车端更新本地数据] E -->|接收到的时间戳小或相等| G[车端保持本地数据不变] H[车端] -->|上电| I[主动请求云端数据] I -->|携带本地时间戳| J[云端接收请求] J --> K[云端比对时间戳] K -->|车端时间戳大于云端| L[以车端数据为主] L --> M[更新云端数据库时间戳] K -->|车端时间戳小于等于云端| N[云端将数据下发给车端] M --> O[同步完成] N --> O   ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Golang实现工厂模式（Factory Pattern）</title>
+    <url>/post/desiginpattern/factory-pattern/</url>
+    <categories>
+      <category>设计模式</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  工厂模式（Factory Pattern）是一种创建型设计模式，用于处理对象的创建。在工厂模式中，创建对象的任务被推迟到子类中，这些子类被称为工厂方法。这种模式的主要目的是将对象的创建和使用分离，使得在不知道具体类的情况下也能创建对象。
 一、使用场景 数据库连接：在应用程序中，可能需要连接不同类型的数据库（如MySQL、PostgreSQL等），每种数据库的连接方式可能不同。根据不同的数据库类型，创建相应的数据库连接对象。
 日志记录器：在应用程序中，可能需要根据不同的环境（开发、测试、生产）使用不同的日志记录器。根据不同的环境，创建相应的日志记录器对象。
 支付网关：电子商务平台可能需要支持多种支付方式（如PayPal、Stripe、信用卡等）。根据不同的支付方式，创建相应的支付处理对象。
@@ -48,11 +185,43 @@ import &amp;amp;#34;sync&amp;amp;#34; var …  </content></entry><entry><title>G
 减少错误：由于对象的创建逻辑被封装在工厂类中，减少了在客户端代码中直接创建对象时可能发生的错误。
 易于测试：工厂模式使得替换对象变得更加容易，因此在单元测试中可以轻松地使用mock对象。 三、缺点 增加复杂性和维护成本：因为需要额外的工厂类，尤其是当产品类的数量很多时，可能会增加系统的复杂性和维护成本。
 可能违反单一职责原则：如果工厂类过于复杂，可能会违反单一职责原则，即一个类应该只有一个引起它变化的原因。
-四、实现方式 简单工厂模式 工厂方法模式 抽象工厂模式 建造者模式 原型模式 单例工厂模式 定义 一个工厂类封装创建对象的逻辑。 定义创建对象的接口，由子类决定实例化哪个类。 提供一个接口用于创建一系列相关或依赖对象的家族。 分离复杂对象的构建和表示，通过指定的构建过程创建不同的表示。 使用原型实例指定创建对象的种类，通过拷贝这些原型创建新的对象。 确保一个类只有一个实例，并提供一个全局访问点。 优点 简单直观，易于 …  </content></entry><entry><title>认识MQTT（二）：RabbitMQ支持MQTT</title><url>/post/mq/rabbitmq-support-mqtt/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  RabbitMQ是通过插件的形式支持MQTT协议的，使用时，需要在RabbitMQ集群上启用rabbitmq_mqtt插件。
+四、实现方式 简单工厂模式 工厂方法模式 抽象工厂模式 建造者模式 原型模式 单例工厂模式 定义 一个工厂类封装创建对象的逻辑。 定义创建对象的接口，由子类决定实例化哪个类。 提供一个接口用于创建一系列相关或依赖对象的家族。 分离复杂对象的构建和表示，通过指定的构建过程创建不同的表示。 使用原型实例指定创建对象的种类，通过拷贝这些原型创建新的对象。 确保一个类只有一个实例，并提供一个全局访问点。 优点 简单直观，易于 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>认识MQTT（二）：RabbitMQ支持MQTT</title>
+    <url>/post/mq/rabbitmq-support-mqtt/</url>
+    <categories>
+      <category>消息队列</category>
+    </categories>
+    <tags>
+      
+      <tag>消息队列</tag>
+      
+      <tag>通信协议</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  RabbitMQ是通过插件的形式支持MQTT协议的，使用时，需要在RabbitMQ集群上启用rabbitmq_mqtt插件。
 一、如何配置RabbitMQ以支持MQTT的QoS级别 MQTT QoS级别在RabbitMQ中不需要特别的配置，因为rabbitmq_mqtt插件会自动处理QoS级别。MQTT客户端在发布消息时指定QoS级别，RabbitMQ会根据这个级别处理消息。
 AMQP和MQTT的QoS映射：
 MQTT QoS 0对应于“至多一次”的消息传递，AMQP中没有直接对应的QoS级别。 MQTT QoS 1对应于“至少一次”的消息传递，AMQP中可以通过消息确认机制实现。 MQTT QoS 2对应于“只有一次”的消息传递，AMQP中可以通过事务或具有唯一消息ID的队列实现。 graph LR A[1. 配置RabbitMQ以支持MQTT QoS] --&gt; B[启用MQTT插件] A --&gt; C[2. 配置持久化] A --&gt; D[3. 配置手动消息确认] A --&gt; E[4. 配置死信队列] A --&gt; F[5. 配置集群和高可用性] A --&gt; G[6. 配置TLS/SSL] B --&gt; B1[&#34;启用命令：rabbitmq-plugins enable rabbitmq_mqtt&#34;] C --&gt; C1[&#34;设置消息和队列持久化&#34;] D --&gt; D1[&#34;确保客户端确认消息&#34;] E --&gt; E1[&#34;配置DLX（死信交换机）&#34;] F --&gt; F1[&#34;跨多个节点部署RabbitMQ&#34;] G --&gt; G1[&#34;配置TLS/SSL以加密传输&#34;] 二、如何确保RabbitMQ中的MQTT消息不会被丢失 确保RabbitMQ中MQTT消息不丢失，需要综合考虑消息的持久性、网络通信的可靠性、消息确认机制等多个方面。
-graph LR A[确保RabbitMQ中MQTT消息不丢失] A --&gt; B[1. 消息持久化] B --&gt; B1[&#34;持久化队列 - 队列持久化策略&#34;] B --&gt; B2[&#34;持久化消息 - 消息持久化标记&#34;] A --&gt; C[2. 网络通信的可靠性] C --&gt; C1[&#34;使用TLS/SSL - 加密传输层&#34;] A --&gt; D[3. 消息确认机制] D --&gt; D1[&#34;手动确认 - 消费者确认消息处理完成&#34;] A --&gt; E[4. 配置死信队列] E --&gt; …  ]]></content></entry><entry><title>认识MQTT（一）：MQTT是什么</title><url>/post/mq/mqtt-introduction/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>通信协议</tag></tags><content type="html"><![CDATA[  和车打交道后，接触到了MQTT，第一次听到这个词时，我还疑心自己是不是听错了，问Leader是不是MQ，得到了“不是”的答复，遂有此文，总结一下我所了解的MQTT。
+graph LR A[确保RabbitMQ中MQTT消息不丢失] A --&gt; B[1. 消息持久化] B --&gt; B1[&#34;持久化队列 - 队列持久化策略&#34;] B --&gt; B2[&#34;持久化消息 - 消息持久化标记&#34;] A --&gt; C[2. 网络通信的可靠性] C --&gt; C1[&#34;使用TLS/SSL - 加密传输层&#34;] A --&gt; D[3. 消息确认机制] D --&gt; D1[&#34;手动确认 - 消费者确认消息处理完成&#34;] A --&gt; E[4. 配置死信队列] E --&gt; …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>认识MQTT（一）：MQTT是什么</title>
+    <url>/post/mq/mqtt-introduction/</url>
+    <categories>
+      <category>消息队列</category>
+    </categories>
+    <tags>
+      
+      <tag>消息队列</tag>
+      
+      <tag>通信协议</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  和车打交道后，接触到了MQTT，第一次听到这个词时，我还疑心自己是不是听错了，问Leader是不是MQ，得到了“不是”的答复，遂有此文，总结一下我所了解的MQTT。
 一、MQTT的应用场景 graph LR subgraph 车辆集群 A1[车辆1] A2[车辆2] A3[车辆3] end B[MQTT Broker] subgraph 服务器集群 C[业务服务器] D[TSP平台] E[终端应用] end A1 --&gt;|发布/订阅消息| B A2 --&gt;|发布/订阅消息| B A3 --&gt;|发布/订阅消息| B B --&gt;|发布/订阅消息| C B --&gt;|发布/订阅消息| D B --&gt;|发布/订阅消息| E MQTT在车联网中主要应用在以下几个方面：
 车辆实时监控：通过MQTT协议，车辆可以实时将其位置、速度、状态等信息发布到一个或多个监控中心。监控中心可以订阅这些信息并进行实时监控和分析，以提供实时的车辆位置跟踪和监控。
 车辆远程控制：通过MQTT协议，车辆可以接收来自远程控制中心的指令，并执行相应的操作，如开关车门、启动引擎、调整车辆参数等，这样可以实现远程监控和控制车辆的功能。
@@ -62,12 +231,40 @@ graph LR A[确保RabbitMQ中MQTT消息不丢失] A --&gt; B[1. 消息持久化] 
 二、什么是MQTT 上面的应用场景中，可以看到MQTT是一个协议，而我们知道MQ是一个中间件，二者在定义上就有了区别。
 MQTT（Message Queuing Telemetry Transport）：一种应用层的消息协议，独立于传输层协议，可以运行在TCP/TLS或UDP上。
 MQ（Message Queue）：通常指消息队列，如RabbitMQ、ActiveMQ等，实现了特定的消息传递协议，如AMQP、STOMP等。
-三、MQTT和MQ …  ]]></content></entry><entry><title>用Golang实现一个消息队列</title><url>/post/golang/implement-queue/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>消息队列</tag></tags><content type="html"><![CDATA[  Go的channel是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。
+三、MQTT和MQ …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>用Golang实现一个消息队列</title>
+    <url>/post/golang/implement-queue/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>消息队列</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  Go的channel是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。
 一、设计消息队列的基本结构 定义一个Message结构体来存储消息的ID和负载，一个Queue结构体来管理消息队列。
 type Message struct { ID string Payload interface{} } type Queue struct { messages []Message mutex sync.Mutex cond *sync.Cond } func NewQueue() *Queue { q := &amp;Queue{} q.cond = sync.NewCond(&amp;q.mutex) return q } 二、实现生产者和消费者 生产者负责生成消息并将其添加到队列中，消费者从队列中读取消息并进行处理。为了确保线程安全和条件等待，可以使用sync.Mutex和sync.Cond。
 func (q *Queue) Produce(msg Message) { q.mutex.Lock() defer q.mutex.Unlock() q.messages = append(q.messages, msg) q.cond.Signal() } func (q *Queue) Consume() Message { q.mutex.Lock() defer q.mutex.Unlock() for len(q.messages) == 0 { q.cond.Wait() } msg := q.messages[0] q.messages = q.messages[1:] return msg } 三、并发处理 使用goroutine可以实现并发生产和消费，用来模拟生产者和消费者的行为。
 func main() { queue := NewQueue() // 生产者Goroutine go func() { for i := 0; i &lt; 10; i++ { msg := Message{ID: fmt.Sprintf(&#34;msg-%d&#34;, i), Payload: fmt.Sprintf(&#34;Data %d&#34;, i)} queue.Produce(msg) fmt.Printf(&#34;Produced: %v\n&#34;, msg) time.Sleep(time.Second) } }() // 消费者Goroutine go func() { for { msg := queue.Consume() fmt.Printf(&#34;Consumed: %v\n&#34;, msg) time.Sleep(time.Second * 2) } }() // 防止主程序退出 select {} } 四、持久化存储 将消息存储在磁盘或数据库中，防止系统崩溃导致数据丢失。
-将消息写入到一个日志文件中，这样即使程序重启，消息也不会丢失。 在数据库中创建一个表来存储消息，并在消息处理失败时将消息插入到这个表中。   ]]></content></entry><entry><title>Golang实现单例模式（Singleton Pattern）</title><url>/post/desiginpattern/singleton-pattern/</url><categories><category>设计模式</category></categories><tags/><content type="html">  单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。
+将消息写入到一个日志文件中，这样即使程序重启，消息也不会丢失。 在数据库中创建一个表来存储消息，并在消息处理失败时将消息插入到这个表中。   ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Golang实现单例模式（Singleton Pattern）</title>
+    <url>/post/desiginpattern/singleton-pattern/</url>
+    <categories>
+      <category>设计模式</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。
 一、使用场景 配置管理器：当配置信息被整个应用程序共享时，使用单例模式可以确保配置信息只被初始化一次。
 连接池：数据库连接池通常使用单例模式，以确保整个应用程序中只有一个连接池实例。
 日志记录器：日志记录器通常作为单例实现，以确保所有日志消息都发送到同一个日志文件或日志系统中。
@@ -82,10 +279,36 @@ func main() { queue := NewQueue() // 生产者Goroutine go func() { for i := 0; 
 四、实现方式 实现单例模式时，常见的有懒汉式（延迟加载）、饿汉式（预先加载）、双重检查锁定（Double-Checked Locking）等，这里主要用 Golang 来实现。
 1. 懒汉式 懒汉式单例模式在第一次被使用时才创建实例。这种方式的好处是只有在需要时才创建实例，节省资源。缺点是每次访问都需要检查实例是否已经被创建，可能会影响性能。
 此外，懒汉式在多线程环境下需要特别注意线程安全问题，比如，在多线程环境中，如果两个线程同时检查到实例未被创建，并且都去创建实例，就会创建多个实例，违反了单例模式的原则，于是就有了双重检查锁定的优化实现。
-package singleton // Singleton 结构体定义 type Singleton struct{} // instance …  </content></entry><entry><title>车辆激活（扫码激活）的实现</title><url>/post/system/vehicle-active/</url><categories><category>系统设计</category></categories><tags/><content type="html"><![CDATA[  一、业务场景 车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。
+package singleton // Singleton 结构体定义 type Singleton struct{} // instance …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>车辆激活（扫码激活）的实现</title>
+    <url>/post/system/vehicle-active/</url>
+    <categories>
+      <category>系统设计</category>
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[  一、业务场景 车辆激活是在车端大屏幕上生成一个二维码，车主使用App进行扫码，点击“确认激活”，车端收到指令后，由相应的模块（一般是CDC）进行本地激活。
 二、激活流程图 sequenceDiagram participant Car as 车端 participant Cloud as 云端 participant MQTT as MQTT网关 participant OwnerApp as 车主App Car-&gt;&gt;Cloud: 1.1 请求生成二维码ID Cloud-&gt;&gt;MQTT: 1.2 通过MQTT下发二维码ID MQTT-&gt;&gt;Car: 1.3 接收二维码ID Car-&gt;&gt;Car: 1.4 生成二维码并显示在大屏幕上 OwnerApp-&gt;&gt;Car: 2.1 扫描二维码，获取二维码ID OwnerApp-&gt;&gt;Cloud: 2.2 将二维码ID发给云端 Cloud-&gt;&gt;Cloud: 2.3 将二维码状态更新为“已扫描” OwnerApp-&gt;&gt;OwnerApp: 2.4 显示“确认激活”按钮 OwnerApp-&gt;&gt;Cloud: 3.1 点击“确认激活”，发送激活指令 Cloud-&gt;&gt;Cloud: 3.2 将二维码状态更新为“已确认” Cloud-&gt;&gt;MQTT: 3.3 通过MQTT下发激活指令 MQTT-&gt;&gt;Car: 3.4 下发激活指令 Car-&gt;&gt;Car: 4.1 车端CDC接收指令并进行本地激活 三、激活流程 3.1 车端生成二维码 该阶段是车端跟云端的交互过程。
 用户提车后，打开车端大屏幕，发起激活请求，云端在接收到这一请求时，会生成一个唯一的二维码ID，并将该ID转化为Base64编码的字符串，通过MQTT下发给车端。 该二维码ID一定是唯一的，后续流程会将二维码ID跟车辆ID绑定，用于后续操作的校验。 车端会启动一个定时器，轮询查询二维码是否被扫描，如果未被App扫描，隔一段时间二维码会自动刷新。 3.2 App扫描二维码 该阶段是客户端跟云端的交互过程。
-App扫描二维码，解析出二维码ID，将二维码ID作为参数发送给云端。 云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已扫描”。 App接收到扫码请求成功的结果后，会跳转到激活页面，请车主在手机App端确认激活。 3.3 App确认激活 该阶段是客户 …  ]]></content></entry><entry><title>Go的定时器之Time.Ticker</title><url>/post/golang/time-ticker/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag></tags><content type="html"><![CDATA[  一、引子 面试官问了一道题：每秒钟调用一次proc并保证程序不退出。
+App扫描二维码，解析出二维码ID，将二维码ID作为参数发送给云端。 云端接到请求后，会通过二维码 ID 查找Redis缓存进行校验，校验通过后，将二维码状态更新为“已扫描”。 App接收到扫码请求成功的结果后，会跳转到激活页面，请车主在手机App端确认激活。 3.3 App确认激活 该阶段是客户 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的定时器之Time.Ticker</title>
+    <url>/post/golang/time-ticker/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  一、引子 面试官问了一道题：每秒钟调用一次proc并保证程序不退出。
 package main func main() { } func proc() { panic(&amp;#34;ok&amp;#34;) } 这道题考察的知识点主要有：
 定时执行任务 捕获 panic 错误 这里主要学习、了解 Time.Ticker 的实现，其源代码基于 Go 1.17.9 版本，主要在 src/time/tick.go 文件中，包含了一个结构体和四个函数。
 二、Time.Ticker Ticker 是一个周期触发定时的计时器，它会按照一个时间间隔往 channel 发送系统当前时间，而 channel 的接收者可以以固定的时间间隔从 channel 中读取事件。
@@ -94,16 +317,62 @@ package main func main() { } func proc() { panic(&amp;#34;ok&amp;#34;) } 这道�
 创建一个 Ticker，主要包括其中的 C 属性和 r 属性。r 属性是 runtimeTimer 类型。
 调用 startTimer 函数，启动 Ticker。
 如果 d &amp;lt;= 0 会 panic。
-func NewTicker(d Duration) *Ticker { if d &amp;lt;= 0 { panic(errors.New(&amp;#34;non-positive interval for NewTicker&amp;#34;)) } c := make(chan Time, 1) t := &amp;amp;Ticker{ C: c, r: …  ]]></content></entry><entry><title>Go的WaitGroup源码分析</title><url>/post/golang/waitgroup-sourcecode/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>源代码</tag></tags><content type="html">  WaitGroup 是开发中经常用到的并发控制手段，其源代码在 src/sync/waitgroup.go 文件中，定义了 1 个结构体和 4 个方法：
+func NewTicker(d Duration) *Ticker { if d &amp;lt;= 0 { panic(errors.New(&amp;#34;non-positive interval for NewTicker&amp;#34;)) } c := make(chan Time, 1) t := &amp;amp;Ticker{ C: c, r: …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的WaitGroup源码分析</title>
+    <url>/post/golang/waitgroup-sourcecode/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>源代码</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  WaitGroup 是开发中经常用到的并发控制手段，其源代码在 src/sync/waitgroup.go 文件中，定义了 1 个结构体和 4 个方法：
 WaitGroup{}：结构体。 state()：内部方法，在 Add()、Wait() 中调用。 Add()：添加任务数、改变任务数。 Done()：完成任务，其实就是 Add(-1)。 Wait()：阻塞等待所有任务的完成。 以下源代码基于 Go 1.17.5 版本，有删减。
 $ go version go version go1.17.5 darwin/amd64 在学习之前可以先了解一些概念：
 结构体对齐相关的内容，可参考 之前的笔记 。 信号量函数有两个： runtime_Semacquire 表示增加一个信号量，并挂起当前 goroutine。在 Wait() 里用到。 runtime_Semrelease 表示减少一个信号量，并唤醒 sema 上其中一个正在等待的 goroutine。在 Add() 里用到。 unsafe.Pointer 用于各种指针相互转换； uintptr 是 golang 的内置类型，能存储指针的整型，其底层类型是 int，可以和 unsafe.Pointer 相互转换。 一、结构体 1.1 state1 数组的组成 type WaitGroup struct { // 表示 `WaitGroup` 是不可复制的，只能用指针传递，保证全局唯一。 noCopy noCopy // state1 = state（*unit64） + sema（*unit32） // state = counter + waiter state1 [3]uint32 } state1 是一个 uint32 数组，包含了counter 总数、waiter 等待数 和 sema 信号量，其中：
 counter：通过 Add() 设置的子 goroutine 的计数值。 waiter：通过 Wait() 陷入阻塞的 waiter 数。 sema：信号量。 1.2 state 和 sema 的位置 实际上，counter 和 waiter 合在一起，当成一个 64 位的整数来使用，所以 state1 数组又可以看成由 *unit64 的 state 和 *unit32 的 sema 组成，即：
-state1 …  </content></entry><entry><title>Go的Select的用法</title><url>/post/golang/select/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag></tags><content type="html"><![CDATA[  Go 的通道有两种操作方式，一种是带 range 子句的 for 语句，另一种则是 select 语句，它是专门为了操作通道而存在的。这里主要介绍 select 的用法。
+state1 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的Select的用法</title>
+    <url>/post/golang/select/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  Go 的通道有两种操作方式，一种是带 range 子句的 for 语句，另一种则是 select 语句，它是专门为了操作通道而存在的。这里主要介绍 select 的用法。
 一、select的语法 select 语句的语法如下：
 select { case &amp;lt;-ch1 : statement(s) case ch2 &amp;lt;- 1 : statement(s) … default : /* 可选 */ statement(s) } 这里要注意：
 每个 case 都必须是一个通信。 由于 select 语句是专为通道设计的，所以每个 case 表达式中都只能包含操作通道的表达式，比如接收表达式。 如果有多个 case 都可以运行，select 会随机公平地选出一个执行，其他不会执行。 如果多个 case 都不能运行，若有 default 子句，则执行该语句，反之，select 将阻塞，直到某个 case 可以运行。 所有 channel 表达式都会被求值。 用一个简单示例看一下：
-package main import ( &amp;#34;fmt&amp;#34; &amp;#34;math/rand&amp;#34; ) func main() { // 准备好几个通道。 intChannels := [5]chan int{ make(chan int, 1), make(chan int, 1), make(chan int, 1), make(chan int, 1), make(chan int, 1) } // 随机选择一个通道，并向它发送元素值。 index := rand.Intn(5) fmt.Printf(&amp;#34;The index: %d\n&amp;#34;, index) intChannels[index] &amp;lt;- index // 哪一个通道中有可取的元素值，哪个对应的分支就会被执行。 select { case &amp;lt;-intChannels[0]: fmt.Println(&amp;#34;The first candidate case is selected.&amp;#34;) case &amp;lt;-intChannels[1]: fmt.Println(&amp;#34;The second candidate case is selected.&amp;#34;) case elem …  ]]></content></entry><entry><title>Go的Channel发送和接收</title><url>/post/golang/channel/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>源代码</tag></tags><content type="html"><![CDATA[  先来看一道面试题：
+package main import ( &amp;#34;fmt&amp;#34; &amp;#34;math/rand&amp;#34; ) func main() { // 准备好几个通道。 intChannels := [5]chan int{ make(chan int, 1), make(chan int, 1), make(chan int, 1), make(chan int, 1), make(chan int, 1) } // 随机选择一个通道，并向它发送元素值。 index := rand.Intn(5) fmt.Printf(&amp;#34;The index: %d\n&amp;#34;, index) intChannels[index] &amp;lt;- index // 哪一个通道中有可取的元素值，哪个对应的分支就会被执行。 select { case &amp;lt;-intChannels[0]: fmt.Println(&amp;#34;The first candidate case is selected.&amp;#34;) case &amp;lt;-intChannels[1]: fmt.Println(&amp;#34;The second candidate case is selected.&amp;#34;) case elem …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的Channel发送和接收</title>
+    <url>/post/golang/channel/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>源代码</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  先来看一道面试题：
 对已经关闭的 chan 进行读写，会怎么样？为什么？ 在上一篇学习 Go 协程的文章中，知道 go 关键字可以用来开启一个 goroutine 进行任务处理，但多个任务之间如果需要通信，就需要用到通道（channel）了。
 一、Channel的定义 声明并初始化一个通道，可以使用 Go 语言的内建函数 make，同时指定该通道类型的元素类型，下面声明了一个 chan int 类型的 channel:
 ch := make(chan int) 二、Channel的操作 发送（写）：发送操作包括了“复制元素值”和“放置副本到通道内部”这两个步骤。即：进入通道的并不是操作符右边的那个元素值，而是它的副本。
@@ -113,8 +382,39 @@ ch := make(chan int) close(ch) 从一个已关闭的 channel 中读取消息永�
 v, ok := &amp;lt;-ch 如果 ok 是false，表明接收的 v 是产生的零值，这个 channel 被关闭了或者为空。
 三、Channel发送和接收操作的特点 一个通道相当于一个先进先出（FIFO）的队列：也就是说，通道中的各个元素值都是严格地按照发送的顺序排列的，先被发送通道的元素值一定会先被接收。
 对于同一个通道，发送操作之间和接收操作之间是互斥的：同一时刻，对同一通道发送多个元素，直到这个元素值被完全复制进该通道之后，其他针对该通道的发送操作才可能被执行。接收也是如此。
-发送操作和接收操作中，对元素值的处理是不可分割的：前面我们知道发送一个值到通道，是先复制值，再将该副本移动到通道内部，“不可分割”指的是发送操作要么还没复制元素值，要 …  ]]></content></entry><entry><title>Go的Waitgroup和锁</title><url>/post/golang/waitgroup/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag><tag>源代码</tag></tags><content type="html"><![CDATA[  学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。
+发送操作和接收操作中，对元素值的处理是不可分割的：前面我们知道发送一个值到通道，是先复制值，再将该副本移动到通道内部，“不可分割”指的是发送操作要么还没复制元素值，要 …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>Go的Waitgroup和锁</title>
+    <url>/post/golang/waitgroup/</url>
+    <categories>
+      <category>Golang</category>
+    </categories>
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>源代码</tag>
+      
+    </tags>
+    <content type="html"><![CDATA[  学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。
 一、Goroutinue 先说 goroutine，我们都知道它是 Go 中的轻量级线程。Go 程序从 main 包的 main() 函数开始，在程序启动时，Go 程序就会为 main() 函数创建一个默认的 goroutine。使用 goroutine，使用关键字 go 即可。
 package main import ( &amp;#34;fmt&amp;#34; ) func main() { // 并发执行程序 go running() } func running() { fmt.Println(&amp;#34;Goroutine&amp;#34;) } 执行代码会发现没有我们预期的“Goroutine”输出，这是因为当前的程序是一个单线程的程序，main 函数只要执行后，就不会再管其他线程在做什么事情，程序就自动退出了。解决办法是加一个 sleep 函数，让 main 函数等待 running 函数执行完毕后再退出。我们假设 running 函数里的代码执行需要 2 秒，因此让 main 函数等待 3 秒再退出。
 package main import ( &amp;#34;fmt&amp;#34; &amp;#34;time&amp;#34; ) func main() { // 并发执行程序 go running() time.Sleep(3 * time.Second) } func running() { fmt.Println(&amp;#34;Goroutine&amp;#34;) } 再次执行代码，终端输出了我们想要的“Goroutine”字符串。
-二、WaitGroup 上面我们是假设了 running 函数执行需要 2 秒，可如果执行需要 10 秒甚至更长时间，不知道 goroutin 什么时候结束，难道还要 main 函数 sleep 更多的秒数吗？就不能让 running 函数执行完去通知 main 函数，main 函数收到信号自动退出吗？还真可以！可以使用 sync …  ]]></content></entry><entry><title>归档</title><url>/archives/archives/</url><categories/><tags/><content type="html">    </content></entry></search>
+二、WaitGroup 上面我们是假设了 running 函数执行需要 2 秒，可如果执行需要 10 秒甚至更长时间，不知道 goroutin 什么时候结束，难道还要 main 函数 sleep 更多的秒数吗？就不能让 running 函数执行完去通知 main 函数，main 函数收到信号自动退出吗？还真可以！可以使用 sync …  ]]></content>
+  </entry>
+  
+  <entry>
+    <title>归档</title>
+    <url>/archives/archives/</url>
+    <categories>
+      
+    </categories>
+    <tags>
+      
+    </tags>
+    <content type="html"><![CDATA[    ]]></content>
+  </entry>
+  
+</search>

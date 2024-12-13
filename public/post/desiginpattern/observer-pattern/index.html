@@ -1,130 +1,975 @@
-<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="Golang实现观察者模式（Observer Pattern）"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content><meta property="og:type" content="article"><meta property="og:title" content="Golang实现观察者模式（Observer Pattern）"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/desiginpattern/observer-pattern/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2023-01-08 22:52:01 +0800 CST"><meta property="article:modified_time" content="2023-01-08 22:52:01 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"observer-pattern","permalink":"//localhost:1313/post/desiginpattern/observer-pattern/","title":"Golang实现观察者模式（Observer Pattern）","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>Golang实现观察者模式（Observer Pattern） - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
-<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
-<span class=toggle-line></span>
-<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><ul><li><a href=#一使用场景>一、使用场景</a></li><li><a href=#二优点>二、优点</a></li><li><a href=#三缺点>三、缺点</a></li><li><a href=#四实现方式>四、实现方式</a></li><li><a href=#五golang实现>五、Golang实现</a></li><li><a href=#51-主要逻辑>5.1 主要逻辑</a><ul><li><a href=#concretesubject-方法>ConcreteSubject 方法</a></li><li><a href=#concreteobserver-方法>ConcreteObserver 方法</a></li></ul></li><li><a href=#52-异步处理>5.2 异步处理</a></li></ul></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
-<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
-<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
-<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
-友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
-<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
-<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/desiginpattern/observer-pattern/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="Golang实现观察者模式（Observer Pattern）"><meta itemprop=description content="观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。"></span><header class=post-header><h1 class=post-title itemprop="name headline">Golang实现观察者模式（Observer Pattern）</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
-</span><span class=post-meta-item-text title=发表于>发表于：
-</span><time title="创建时间：2023-01-08 22:52:01 +0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-08 22:52:01 +0800 CST">2023-01-08
-</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
-</span><span class=post-meta-item-text title=分类于>分类于：
-</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F itemprop=url rel=index><span itemprop=name>设计模式</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
-</span><span class=post-meta-item-text>字数：</span>
-<span>2224</span>
-</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
-</span><span class=post-meta-item-text>阅读：&ap;</span>
-<span>5分钟</span>
-</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
-</span><span class=post-meta-item-text>浏览：
-</span><span id=busuanzi_value_page_pv data-path=/post/desiginpattern/observer-pattern/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。</p><p>观察者模式的主要目的是解决一个对象状态改变时，如何自动通知其他依赖对象的问题，同时保持对象间的低耦合和高协作性。</p><p>在观察者模式中，包含以下几个关键角色：</p><ol><li><strong>主题（Subject）</strong>：也称为被观察者，是状态变化的核心对象，负责管理所有的观察者并通知它们。</li><li><strong>具体主题（ConcreteSubject）</strong>：具体主题是主题类的子类，它通常包含有经常发生改变的数据，当它的状态发生改变时它向各个观察者发出通知。</li><li><strong>观察者（Observer）</strong>：依赖于主题对象的变化，并作出响应。</li><li><strong>具体观察者（ConcreteObserver）</strong>：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的相关状态，这些状态需要和具体目标的状态保持一致；它实现了在抽象观察者Observer中定义的update()方法。</li></ol><h3 id=一使用场景>一、使用场景
-<a class=header-anchor href=#%e4%b8%80%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af></a></h3><ol><li><strong>车辆追踪系统</strong>：车辆的位置和状态需要实时监测，并及时通知相关的监控中心或用户。</li><li><strong>股票市场监控系统</strong>：股票价格变化可以作为主题，而投资者或交易员可以作为观察者。</li><li><strong>GUI开发</strong>：按钮、复选框、滚动条等GUI组件可以作为主题，而窗口、文本框等可以作为观察者。</li></ol><h3 id=二优点>二、优点
-<a class=header-anchor href=#%e4%ba%8c%e4%bc%98%e7%82%b9></a></h3><ol><li><strong>降低耦合度</strong>：观察者模式通过定义对象之间的一对多依赖关系，使得主题对象和观察者对象之间解耦，提高了系统的灵活性和可维护性。</li><li><strong>动态响应</strong>：在并发编程中，系统的状态可能随时发生变化，观察者模式允许观察者对象根据主题对象状态的变化动态调整自己的行为，非常适合事件驱动的系统。</li><li><strong>易于扩展</strong>：在并发系统中，新的观察者可以很容易地添加到系统中，而不需要修改现有的代码，提高了系统的可扩展性。</li><li><strong>异步通信</strong>：观察者模式支持异步通信，允许系统在不阻塞的情况下进行通信。</li><li><strong>广播通信支持</strong>：观察者模式支持广播通信，可以实现多对多的交互，适用于需要通知多个对象的状态变化的场景。</li></ol><p>所以观察者模式很适合在并发编程中使用，尤其是在需要处理多个对象之间通信和状态更新的场景中。</p><h3 id=三缺点>三、缺点
-<a class=header-anchor href=#%e4%b8%89%e7%bc%ba%e7%82%b9></a></h3><ul><li><strong>性能问题</strong>：如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间。</li><li><strong>循环依赖</strong>：如果观察者和观察目标间有循环依赖，可能导致系统崩溃。</li></ul><h3 id=四实现方式>四、实现方式
-<a class=header-anchor href=#%e5%9b%9b%e5%ae%9e%e7%8e%b0%e6%96%b9%e5%bc%8f></a></h3><ol><li><strong>接口实现</strong>：定义一个观察者接口，所有观察者都需要实现这个接口，主题（Subject）维护一个观察者列表，并在状态变化时遍历这个列表，调用每个观察者的更新方法。</li><li><strong>使用Channel和Goroutine</strong>：在Go语言中，可以利用channel和goroutine来实现观察者模式，这种方式适用于并发场景，可以提高效率。</li><li><strong>组合方法</strong>：在某些实现中，观察者模式可以与其他设计模式如组合模式结合使用，以实现更复杂的功能。</li><li><strong>弱引用</strong>：使用弱引用来持有观察者的引用，允许垃圾回收器在内存不足时回收这些对象，即使存在对它们的弱引用。</li></ol><h3 id=五golang实现>五、Golang实现
-<a class=header-anchor href=#%e4%ba%94golang%e5%ae%9e%e7%8e%b0></a></h3><p>在 Golang 中，可以通过使用<code>Channel</code>和<code>Goroutine</code>来实现观察者模式。</p><ol><li><strong>定义观察者接口</strong>：创建一个<code>Observer</code>接口，其中包含一个<code>Update</code>方法，用于接收更新。</li><li><strong>定义主题接口</strong>：创建一个<code>Subject</code>接口，其中包含<code>Attach</code>、<code>Detach</code>和<code>Notify</code>方法，用于管理观察者并分发通知。</li><li><strong>实现具体主题</strong>：创建一个具体的主题<code>ConcreteSubject</code>结构体，维护一个观察者列表，用于接收更新。</li><li><strong>实现具体观察者</strong>：创建具体的观察者<code>ConcreteObserver</code>结构体，用于接收来自主题的更新。</li><li><strong>使用Goroutine处理更新</strong>：在具体观察者中，使用<code>Goroutine</code>来异步处理更新，以避免阻塞。</li></ol><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;sync&#34;</span>
-</span></span><span style=display:flex><span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Observer 接口定义了观察者需要实现的 Update 方法
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Observer</span> <span style=color:#66d9ef>interface</span> {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>Update</span>(<span style=color:#a6e22e>message</span> <span style=color:#66d9ef>string</span>)
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Subject 接口定义了主题需要实现的方法
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Subject</span> <span style=color:#66d9ef>interface</span> {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>Attach</span>(<span style=color:#a6e22e>observer</span> <span style=color:#a6e22e>Observer</span>)
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>Detach</span>(<span style=color:#a6e22e>observer</span> <span style=color:#a6e22e>Observer</span>)
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>Notify</span>(<span style=color:#a6e22e>message</span> <span style=color:#66d9ef>string</span>)
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// ConcreteSubject 具体主题的实现
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>ConcreteSubject</span> <span style=color:#66d9ef>struct</span> {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>observers</span> []<span style=color:#a6e22e>Observer</span>
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>mu</span>        <span style=color:#a6e22e>sync</span>.<span style=color:#a6e22e>Mutex</span> <span style=color:#75715e>// 用于并发安全
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>s</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>ConcreteSubject</span>) <span style=color:#a6e22e>Attach</span>(<span style=color:#a6e22e>observer</span> <span style=color:#a6e22e>Observer</span>) {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Unlock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span> = append(<span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span>, <span style=color:#a6e22e>observer</span>)
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>s</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>ConcreteSubject</span>) <span style=color:#a6e22e>Detach</span>(<span style=color:#a6e22e>observer</span> <span style=color:#a6e22e>Observer</span>) {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Unlock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>o</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span> {
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>o</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>observer</span> {
-</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span> = append(<span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span>[:<span style=color:#a6e22e>i</span>], <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span>[<span style=color:#a6e22e>i</span><span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>:]<span style=color:#f92672>...</span>)
-</span></span><span style=display:flex><span>                        <span style=color:#66d9ef>break</span>
-</span></span><span style=display:flex><span>                }
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>s</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>ConcreteSubject</span>) <span style=color:#a6e22e>Notify</span>(<span style=color:#a6e22e>message</span> <span style=color:#66d9ef>string</span>) {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Lock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>mu</span>.<span style=color:#a6e22e>Unlock</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>_</span>, <span style=color:#a6e22e>observer</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>s</span>.<span style=color:#a6e22e>observers</span> {
-</span></span><span style=display:flex><span>                <span style=color:#75715e>// 使用Goroutine异步通知
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>observer</span>.<span style=color:#a6e22e>Update</span>(<span style=color:#a6e22e>message</span>)
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// ConcreteObserver 具体观察者的实现
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>ConcreteObserver</span> <span style=color:#66d9ef>struct</span> {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>id</span> <span style=color:#66d9ef>int</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>o</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>ConcreteObserver</span>) <span style=color:#a6e22e>Update</span>(<span style=color:#a6e22e>message</span> <span style=color:#66d9ef>string</span>) {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Printf</span>(<span style=color:#e6db74>&#34;Observer %d received message: %s\n&#34;</span>, <span style=color:#a6e22e>o</span>.<span style=color:#a6e22e>id</span>, <span style=color:#a6e22e>message</span>)
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>subject</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>ConcreteSubject</span>{}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>observer1</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>ConcreteObserver</span>{<span style=color:#a6e22e>id</span>: <span style=color:#ae81ff>1</span>}
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>observer2</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>ConcreteObserver</span>{<span style=color:#a6e22e>id</span>: <span style=color:#ae81ff>2</span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>subject</span>.<span style=color:#a6e22e>Attach</span>(<span style=color:#a6e22e>observer1</span>)
-</span></span><span style=display:flex><span>        <span style=color:#a6e22e>subject</span>.<span style=color:#a6e22e>Attach</span>(<span style=color:#a6e22e>observer2</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 使用channel来传递消息
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>messages</span> <span style=color:#f92672>:=</span> make(<span style=color:#66d9ef>chan</span> <span style=color:#66d9ef>string</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 启动一个goroutine来模拟消息发送
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>go</span> <span style=color:#66d9ef>func</span>() {
-</span></span><span style=display:flex><span>                <span style=color:#a6e22e>messages</span> <span style=color:#f92672>&lt;-</span> <span style=color:#e6db74>&#34;Hello, Observers!&#34;</span>
-</span></span><span style=display:flex><span>                close(<span style=color:#a6e22e>messages</span>)
-</span></span><span style=display:flex><span>        }()
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 从channel接收消息并通知观察者
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>go</span> <span style=color:#66d9ef>func</span>() {
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>message</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>messages</span> {
-</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>subject</span>.<span style=color:#a6e22e>Notify</span>(<span style=color:#a6e22e>message</span>)
-</span></span><span style=display:flex><span>                }
-</span></span><span style=display:flex><span>        }()
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// 等待所有消息处理完成
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#75715e>// 这里仅为示例，实际应用中可能需要更复杂的同步机制
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>select</span> {}
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=51-主要逻辑>5.1 主要逻辑
-<a class=header-anchor href=#51-%e4%b8%bb%e8%a6%81%e9%80%bb%e8%be%91></a></h3><h4 id=concretesubject-方法>ConcreteSubject 方法
-<a class=header-anchor href=#concretesubject-%e6%96%b9%e6%b3%95></a></h4><ul><li><strong>Attach(observer Observer)</strong>：添加一个观察者到观察者列表。
-使用<code>sync.Mutex</code>来保证在并发环境下对观察者列表的操作是安全的。</li><li><strong>Detach(observer Observer)</strong>：从观察者列表中移除一个观察者。
-同样使用<code>sync.Mutex</code>来保证操作的线程安全性。</li><li><strong>Notify(message string)</strong>：通知所有观察者新的消息。
-遍历观察者列表，并为每个观察者启动一个新的<code>goroutine</code>来异步调用其<code>Update</code>方法。这样，主题不会等待每个观察者的<code>Update</code>方法执行完成，从而实现异步通知。</li></ul><h4 id=concreteobserver-方法>ConcreteObserver 方法
-<a class=header-anchor href=#concreteobserver-%e6%96%b9%e6%b3%95></a></h4><ul><li><strong>Update(message string)</strong>：接收从主题发来的消息，并打印出来。</li></ul><h3 id=52-异步处理>5.2 异步处理
-<a class=header-anchor href=#52-%e5%bc%82%e6%ad%a5%e5%a4%84%e7%90%86></a></h3><p>这里使用了<code>goroutine</code>和<code>channel</code>来实现异步处理。<code>channel</code>用于在<code>goroutine</code>之间同步消息，而<code>goroutine</code>允许<code>Notify</code>方法非阻塞地执行，即使观察者的<code>Update</code>方法可能需要一些时间来处理消息。</p></div><footer class=post-footer><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/golang/weak-reference/ rel=next title=Go的弱引用><i class="fa fa-chevron-left"></i> Go的弱引用</a></div><div class="post-nav-prev post-nav-item"><a href=/post/cache/caching-patterns/ rel=prev title=13种缓存模式汇总>13种缓存模式汇总
-<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
-<span itemprop=copyrightYear>2010 - 2024
-</span><span class=with-love><i class="fa fa-heart"></i>
-</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
+
+<meta name="generator" content="Hugo 0.139.0">
+<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
+<meta itemprop="name" content="Golang实现观察者模式（Observer Pattern）" />
+<meta itemprop="description" content="" />
+<meta name="description" content="" />
+
+
+<meta itemprop="datePublished" ZgotmplZ />
+
+
+<meta itemprop="dateModified" ZgotmplZ />
+
+
+
+
+
+<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
+<meta itemprop="keywords" content="" />
+
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Golang实现观察者模式（Observer Pattern）" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="/imgs/liulu_avatar.png" />
+<meta property="og:image:width" content="312" />
+<meta property="og:image:height" content="312" />
+<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
+<meta property="og:url" content="//localhost:1313/post/desiginpattern/observer-pattern/"/>
+<meta property="og:site_name" content="呦呦鹿鸣" />
+<meta property="og:locale" content="zh-CN"/>
+
+<meta property="article:author" content="" />
+<meta property="article:published_time" content="2023-01-08 22:52:01 &#43;0800 CST" />
+<meta property="article:modified_time" content="2023-01-08 22:52:01 &#43;0800 CST" />
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
+
+  
+  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+  
+<script type="text/javascript">
+(function(){
+  localDB = {
+    set: function (key, value, ttl) {
+      if (ttl === 0) return;
+      const now = new Date();
+      const expiryDay = ttl * 86400000;
+      const item = {
+        value: value,
+        expiry: now.getTime() + expiryDay
+      };
+      localStorage.setItem(key, JSON.stringify(item));
+    },
+    get: function (key) {
+      const itemStr = localStorage.getItem(key);
+      if (!itemStr) {
+        return undefined;
+      }
+  
+      const item = JSON.parse(itemStr);
+      const now = new Date();
+  
+      if (now.getTime() > item.expiry) {
+        localStorage.removeItem(key);
+        return undefined;
+      }
+      return item.value;
+    }
+  };
+
+  theme = {
+    active: function() {
+      const localState = localDB.get('theme');
+      if (localState == undefined) return;
+      theme.toggle(localState);
+      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
+        theme.toggle(evt.matches ? 'dark' : 'light');
+      });
+    },
+
+    toggle: function (theme) {
+      document.documentElement.setAttribute('data-theme',  theme);
+      localDB.set('theme', theme, 2);
+      
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        const config = { setConfig: { theme: theme } };
+        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
+      }
+    }
+  };
+
+  theme.active();
+})(window);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"path":"observer-pattern","permalink":"//localhost:1313/post/desiginpattern/observer-pattern/","title":"Golang实现观察者模式（Observer Pattern）","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
+
+
+
+
+  <script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+  var script = document.createElement('script');
+    
+  script.charset = "UTF-8";
+  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
+  script.async   = false
+  script.defer   = true
+  
+  document.head.appendChild(script);
+  script.onload = function() {
+    NexT.utils.fmtBusuanzi();
+  }
+});
+</script>
+  
+
+
+
+  <title>Golang实现观察者模式（Observer Pattern） - 呦呦鹿鸣</title>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
+  <div class="headband"></div>
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner">
+        
+<div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+    
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">呦呦鹿鸣</h1>
+      <i class="logo-line"></i>
+    </a>
+    
+      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
+    
+    
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+      
+      <i class="fa fa-search fa-fw fa-lg"></i>
+      
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">    
+  
+    
+    <li class="menu-item menu-item-home">
+      <a href="/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-home hvr-icon"></i>首页
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-about">
+      <a href="/about/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-user hvr-icon"></i>关于
+        
+        
+      </a>
+      
+    </li>
+  
+    
+    <li class="menu-item menu-item-archives">
+      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
+        <i class="fa fa-archive hvr-icon"></i>归档
+        
+        
+          <span class="badge">19</span>
+        
+      </a>
+      
+    </li>
+      
+
+  
+    <li class="menu-item menu-item-search">
+      <a role="button" class="popup-trigger hvr-icon-pulse">
+        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
+      </a>
+    </li>
+  
+  </ul>
+</nav>
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+      </div>
+      
+      
+      <div class="toggle sidebar-toggle" role="button">
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+  <span class="toggle-line"></span>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-toc">
+        文章目录
+      </li>
+      <li class="sidebar-nav-overview">
+        站点概览
+      </li>
+    </ul>
+    <div class="sidebar-panel-container">
+      
+      <div class="post-toc-wrap sidebar-panel">
+        <div class="post-toc animated"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#一使用场景">一、使用场景</a></li>
+            <li><a href="#二优点">二、优点</a></li>
+            <li><a href="#三缺点">三、缺点</a></li>
+            <li><a href="#四实现方式">四、实现方式</a></li>
+            <li><a href="#五golang实现">五、Golang实现</a></li>
+            <li><a href="#51-主要逻辑">5.1 主要逻辑</a>
+              <ul>
+                <li><a href="#concretesubject-方法">ConcreteSubject 方法</a></li>
+                <li><a href="#concreteobserver-方法">ConcreteObserver 方法</a></li>
+              </ul>
+            </li>
+            <li><a href="#52-异步处理">5.2 异步处理</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div>
+      
+      <div class="site-overview-wrap sidebar-panel">
+        
+<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+    <img class="site-author-image" itemprop="image" alt=""
+    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
+  
+  <p class="site-author-name" itemprop="name"></p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+
+
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+    <div class="site-state-item site-state-posts">
+      <a href="/archives/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">日志</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-categories">
+      <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-tags">
+      <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </a>
+    </div>
+  </nav>
+</div>
+
+
+<div class="links-of-social site-overview-item animated">
+
+
+</div>
+
+
+
+<div class="cc-license animated" itemprop="license">
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
+    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
+  </a>
+</div>
+
+
+
+
+<div class="links-of-blogroll site-overview-item animated">
+  <div class="links-of-blogroll-title">
+    
+    <i class="fa fa-globe fa-fw"></i>
+    
+    友情链接
+  </div>
+  <ul class="links-of-blogroll-list">
+    
+    
+    
+    
+    <li class="links-of-blogroll-item">
+      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
+    </li>
+    
+  </ul>
+</div>
+
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  
+    
+<div id="siteinfo-card-widget" class="sidebar-card-widget">
+  <div class="item-headline">
+    <i class="fas fa-chart-line"></i>
+    <span>网站资讯</span>
+  </div>
+  <div class="siteinfo">
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
+      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
+    </div>
+    
+    
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-user"></i>总访客数：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name">
+        <i class="fas fa fa-eye"></i>页面浏览：
+      </div>
+      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
+    </div> 
+        
+        
+    
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
+      <div class="item-count" id="wordsCount" data-count="37487"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
+      <div class="item-count" id="readTimes" data-times="86"></div>
+    </div>
+    <div class="siteinfo-item">
+      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
+      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
+    </div>
+  </div>
+</div>
+  
+
+  
+</aside>
+<div class="sidebar-dimmer"></div>
+
+      
+    </header>
+    
+    <div class="tool-buttons" >
+    
+  
+  <div id="toggle-theme" class="button" title="深浅模式切换">
+    <i class="fas fa-adjust"></i>
+  </div>
+  
+  <div class="back-to-top" role="button" title="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+ 
+</div>
+
+
+  <div class="reading-progress-bar"></div>
+
+
+
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+
+
+
+
+
+  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
+<script type="text/javascript">
+((window.gitter = {}).chat = {}).options = {
+  room: "hugo-next/community"
+};
+</script>   
+
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+    <div class="main-inner post posts-expand">
+      
+      
+  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    
+    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/desiginpattern/observer-pattern/">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/imgs/liulu_avatar.png">
+      <meta itemprop="name" content="">
+    </span>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+    </span>
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Golang实现观察者模式（Observer Pattern）">
+      <meta itemprop="description" content="观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。">
+    </span>
+    
+    <header class="post-header">
+      
+ <h1  class="post-title" itemprop="name headline">
+  
+  
+  Golang实现观察者模式（Observer Pattern）
+  
+  
+   </h1> 
+
+<div class="post-meta-container">
+  <div class="post-meta-items">
+    
+
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-calendar"></i>
+  </span>
+  <span class="post-meta-item-text" title="发表于">
+    发表于：
+  </span>
+  <time title="创建时间：2023-01-08 22:52:01 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2023-01-08 22:52:01 &#43;0800 CST">
+    2023-01-08
+  </time>
+</span>
+
+    
+    
+
+<span class="post-meta-item">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-folder-open"></i>
+  </span>
+  <span class="post-meta-item-text" title="分类于">
+    分类于：
+  </span>
+  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+    <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F" itemprop="url" rel="index">
+      <span itemprop="name">设计模式</span>
+    </a>
+  </span>
+</span>
+
+
+        
+  </div>
+  
+  <div class="post-meta-items">
+    
+<span class="post-meta-item" title="字数">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-file-word"></i>
+  </span>
+  <span class="post-meta-item-text">字数：</span>
+  <span>2224</span>
+</span>
+
+    
+<span class="post-meta-item" title="阅读">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-clock"></i>
+  </span>
+  <span class="post-meta-item-text">阅读：&asymp;</span>
+  <span>5分钟</span>
+</span>
+
+
+    
+
+
+
+
+<span class="post-meta-item" title="浏览">
+  <span class="post-meta-item-icon">
+    <i class="fas fa-solid fa-eye"></i>
+  </span>
+  <span class="post-meta-item-text">
+  浏览：
+  </span>
+  <span id="busuanzi_value_page_pv"  data-path="/post/desiginpattern/observer-pattern/">
+    <i class="fa fa-sync fa-spin"></i>
+  </span>
+</span>
+
+    
+  </div>
+  
+</div>
+
+    </header>
+    
+    <div class="post-body " itemprop="articleBody">
+      
+
+  <p>观察者模式是一种行为型设计模式，它定义了对象间的一种一对多的依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象都会得到通知并自动更新。这种模式也被称为发布-订阅模式、模型-视图模式、源-监听器模式。</p>
+<p>观察者模式的主要目的是解决一个对象状态改变时，如何自动通知其他依赖对象的问题，同时保持对象间的低耦合和高协作性。</p>
+<p>在观察者模式中，包含以下几个关键角色：</p>
+<ol>
+<li><strong>主题（Subject）</strong>：也称为被观察者，是状态变化的核心对象，负责管理所有的观察者并通知它们。</li>
+<li><strong>具体主题（ConcreteSubject）</strong>：具体主题是主题类的子类，它通常包含有经常发生改变的数据，当它的状态发生改变时它向各个观察者发出通知。</li>
+<li><strong>观察者（Observer）</strong>：依赖于主题对象的变化，并作出响应。</li>
+<li><strong>具体观察者（ConcreteObserver）</strong>：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的相关状态，这些状态需要和具体目标的状态保持一致；它实现了在抽象观察者Observer中定义的update()方法。</li>
+</ol>
+<h3 id="一使用场景">一、使用场景
+<a class="header-anchor" href="#%e4%b8%80%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af"></a>
+</h3><ol>
+<li><strong>车辆追踪系统</strong>：车辆的位置和状态需要实时监测，并及时通知相关的监控中心或用户。</li>
+<li><strong>股票市场监控系统</strong>：股票价格变化可以作为主题，而投资者或交易员可以作为观察者。</li>
+<li><strong>GUI开发</strong>：按钮、复选框、滚动条等GUI组件可以作为主题，而窗口、文本框等可以作为观察者。</li>
+</ol>
+<h3 id="二优点">二、优点
+<a class="header-anchor" href="#%e4%ba%8c%e4%bc%98%e7%82%b9"></a>
+</h3><ol>
+<li><strong>降低耦合度</strong>：观察者模式通过定义对象之间的一对多依赖关系，使得主题对象和观察者对象之间解耦，提高了系统的灵活性和可维护性。</li>
+<li><strong>动态响应</strong>：在并发编程中，系统的状态可能随时发生变化，观察者模式允许观察者对象根据主题对象状态的变化动态调整自己的行为，非常适合事件驱动的系统。</li>
+<li><strong>易于扩展</strong>：在并发系统中，新的观察者可以很容易地添加到系统中，而不需要修改现有的代码，提高了系统的可扩展性。</li>
+<li><strong>异步通信</strong>：观察者模式支持异步通信，允许系统在不阻塞的情况下进行通信。</li>
+<li><strong>广播通信支持</strong>：观察者模式支持广播通信，可以实现多对多的交互，适用于需要通知多个对象的状态变化的场景。</li>
+</ol>
+<p>所以观察者模式很适合在并发编程中使用，尤其是在需要处理多个对象之间通信和状态更新的场景中。</p>
+<h3 id="三缺点">三、缺点
+<a class="header-anchor" href="#%e4%b8%89%e7%bc%ba%e7%82%b9"></a>
+</h3><ul>
+<li><strong>性能问题</strong>：如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间。</li>
+<li><strong>循环依赖</strong>：如果观察者和观察目标间有循环依赖，可能导致系统崩溃。</li>
+</ul>
+<h3 id="四实现方式">四、实现方式
+<a class="header-anchor" href="#%e5%9b%9b%e5%ae%9e%e7%8e%b0%e6%96%b9%e5%bc%8f"></a>
+</h3><ol>
+<li><strong>接口实现</strong>：定义一个观察者接口，所有观察者都需要实现这个接口，主题（Subject）维护一个观察者列表，并在状态变化时遍历这个列表，调用每个观察者的更新方法。</li>
+<li><strong>使用Channel和Goroutine</strong>：在Go语言中，可以利用channel和goroutine来实现观察者模式，这种方式适用于并发场景，可以提高效率。</li>
+<li><strong>组合方法</strong>：在某些实现中，观察者模式可以与其他设计模式如组合模式结合使用，以实现更复杂的功能。</li>
+<li><strong>弱引用</strong>：使用弱引用来持有观察者的引用，允许垃圾回收器在内存不足时回收这些对象，即使存在对它们的弱引用。</li>
+</ol>
+<h3 id="五golang实现">五、Golang实现
+<a class="header-anchor" href="#%e4%ba%94golang%e5%ae%9e%e7%8e%b0"></a>
+</h3><p>在 Golang 中，可以通过使用<code>Channel</code>和<code>Goroutine</code>来实现观察者模式。</p>
+<ol>
+<li><strong>定义观察者接口</strong>：创建一个<code>Observer</code>接口，其中包含一个<code>Update</code>方法，用于接收更新。</li>
+<li><strong>定义主题接口</strong>：创建一个<code>Subject</code>接口，其中包含<code>Attach</code>、<code>Detach</code>和<code>Notify</code>方法，用于管理观察者并分发通知。</li>
+<li><strong>实现具体主题</strong>：创建一个具体的主题<code>ConcreteSubject</code>结构体，维护一个观察者列表，用于接收更新。</li>
+<li><strong>实现具体观察者</strong>：创建具体的观察者<code>ConcreteObserver</code>结构体，用于接收来自主题的更新。</li>
+<li><strong>使用Goroutine处理更新</strong>：在具体观察者中，使用<code>Goroutine</code>来异步处理更新，以避免阻塞。</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;sync&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Observer 接口定义了观察者需要实现的 Update 方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Observer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">message</span> <span style="color:#66d9ef">string</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Subject 接口定义了主题需要实现的方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Subject</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Attach</span>(<span style="color:#a6e22e">observer</span> <span style="color:#a6e22e">Observer</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Detach</span>(<span style="color:#a6e22e">observer</span> <span style="color:#a6e22e">Observer</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Notify</span>(<span style="color:#a6e22e">message</span> <span style="color:#66d9ef">string</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ConcreteSubject 具体主题的实现
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ConcreteSubject</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">observers</span> []<span style="color:#a6e22e">Observer</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">mu</span>        <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span> <span style="color:#75715e">// 用于并发安全
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ConcreteSubject</span>) <span style="color:#a6e22e">Attach</span>(<span style="color:#a6e22e">observer</span> <span style="color:#a6e22e">Observer</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Lock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Unlock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span> = append(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span>, <span style="color:#a6e22e">observer</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ConcreteSubject</span>) <span style="color:#a6e22e">Detach</span>(<span style="color:#a6e22e">observer</span> <span style="color:#a6e22e">Observer</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Lock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Unlock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">o</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">o</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">observer</span> {
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span> = append(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span>[:<span style="color:#a6e22e">i</span>], <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>:]<span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ConcreteSubject</span>) <span style="color:#a6e22e">Notify</span>(<span style="color:#a6e22e">message</span> <span style="color:#66d9ef">string</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Lock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Unlock</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">observer</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">observers</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// 使用Goroutine异步通知
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">observer</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">message</span>)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ConcreteObserver 具体观察者的实现
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ConcreteObserver</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">o</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ConcreteObserver</span>) <span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">message</span> <span style="color:#66d9ef">string</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Observer %d received message: %s\n&#34;</span>, <span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">message</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">subject</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">ConcreteSubject</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">observer1</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">ConcreteObserver</span>{<span style="color:#a6e22e">id</span>: <span style="color:#ae81ff">1</span>}
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">observer2</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">ConcreteObserver</span>{<span style="color:#a6e22e">id</span>: <span style="color:#ae81ff">2</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">subject</span>.<span style="color:#a6e22e">Attach</span>(<span style="color:#a6e22e">observer1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">subject</span>.<span style="color:#a6e22e">Attach</span>(<span style="color:#a6e22e">observer2</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 使用channel来传递消息
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">messages</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 启动一个goroutine来模拟消息发送
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">messages</span> <span style="color:#f92672">&lt;-</span> <span style="color:#e6db74">&#34;Hello, Observers!&#34;</span>
+</span></span><span style="display:flex;"><span>                close(<span style="color:#a6e22e">messages</span>)
+</span></span><span style="display:flex;"><span>        }()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 从channel接收消息并通知观察者
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">message</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">messages</span> {
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">subject</span>.<span style="color:#a6e22e">Notify</span>(<span style="color:#a6e22e">message</span>)
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>        }()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 等待所有消息处理完成
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// 这里仅为示例，实际应用中可能需要更复杂的同步机制
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">select</span> {}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="51-主要逻辑">5.1 主要逻辑
+<a class="header-anchor" href="#51-%e4%b8%bb%e8%a6%81%e9%80%bb%e8%be%91"></a>
+</h3><h4 id="concretesubject-方法">ConcreteSubject 方法
+<a class="header-anchor" href="#concretesubject-%e6%96%b9%e6%b3%95"></a>
+</h4><ul>
+<li><strong>Attach(observer Observer)</strong>：添加一个观察者到观察者列表。
+使用<code>sync.Mutex</code>来保证在并发环境下对观察者列表的操作是安全的。</li>
+<li><strong>Detach(observer Observer)</strong>：从观察者列表中移除一个观察者。
+同样使用<code>sync.Mutex</code>来保证操作的线程安全性。</li>
+<li><strong>Notify(message string)</strong>：通知所有观察者新的消息。
+遍历观察者列表，并为每个观察者启动一个新的<code>goroutine</code>来异步调用其<code>Update</code>方法。这样，主题不会等待每个观察者的<code>Update</code>方法执行完成，从而实现异步通知。</li>
+</ul>
+<h4 id="concreteobserver-方法">ConcreteObserver 方法
+<a class="header-anchor" href="#concreteobserver-%e6%96%b9%e6%b3%95"></a>
+</h4><ul>
+<li><strong>Update(message string)</strong>：接收从主题发来的消息，并打印出来。</li>
+</ul>
+<h3 id="52-异步处理">5.2 异步处理
+<a class="header-anchor" href="#52-%e5%bc%82%e6%ad%a5%e5%a4%84%e7%90%86"></a>
+</h3><p>这里使用了<code>goroutine</code>和<code>channel</code>来实现异步处理。<code>channel</code>用于在<code>goroutine</code>之间同步消息，而<code>goroutine</code>允许<code>Notify</code>方法非阻塞地执行，即使观察者的<code>Update</code>方法可能需要一些时间来处理消息。</p>
+
+
+    </div>
+    <footer class="post-footer">
+      
+
+
+
+
+<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
+
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+
+<div class="post-nav">
+  <div class="post-nav-next post-nav-item">
+    
+    <a href="/post/golang/weak-reference/" rel="next" title="Go的弱引用">
+      <i class="fa fa-chevron-left"></i> Go的弱引用
+    </a>
+    
+  </div>
+  <div class="post-nav-prev post-nav-item">
+    
+    <a href="/post/cache/caching-patterns/" rel="prev" title="13种缓存模式汇总">
+      13种缓存模式汇总
+      <i class="fa fa-chevron-right"></i>
+    </a>
+    
+  </div>
+</div>
+
+
+
+    </footer>
+  </article>
+</div>
+
+      
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+<div class="copyright">
+  &copy;
+  <span itemprop="copyrightYear">
+    
+    
+    
+    2010 - 2024
+    
+    
+  </span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+</div>
+
+<div class="powered-by">
+  
+  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
+</div>
+
+
+
+
+
+ 
+
+
+
+
+
+    </div>
+  </footer>
+
+  
+
+
+
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
+ 
+  
+  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
+
+
+<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+<script type="text/javascript" src="/js/main.js" defer></script>
+
+
+
+
+
+</body>
+
+</html>

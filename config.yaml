@@ -103,7 +103,7 @@ enableRobotsTXT: true
 # 强制输出时压缩文件
 # Compress all files when output
 minify:
-  minifyOutput: true
+  minifyOutput: false
 
 #--------------------------------------
 # 菜单配置说明
