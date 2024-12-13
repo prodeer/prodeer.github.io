@@ -1,936 +1,126 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
-
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
-
-<meta name="generator" content="Hugo 0.139.0">
-<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
-<meta itemprop="name" content="Go的Waitgroup和锁" />
-<meta itemprop="description" content="" />
-<meta name="description" content="" />
-
-
-<meta itemprop="datePublished" ZgotmplZ />
-
-
-<meta itemprop="dateModified" ZgotmplZ />
-
-
-
-
-
-<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
-<meta itemprop="keywords" content="Golang,源代码" />
-
-
-<meta property="og:type" content="article" />
-<meta property="og:title" content="Go的Waitgroup和锁" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="/imgs/liulu_avatar.png" />
-<meta property="og:image:width" content="312" />
-<meta property="og:image:height" content="312" />
-<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
-<meta property="og:url" content="//localhost:1313/post/golang/waitgroup/"/>
-<meta property="og:site_name" content="呦呦鹿鸣" />
-<meta property="og:locale" content="zh-CN"/>
-
-<meta property="article:author" content="" />
-<meta property="article:published_time" content="2021-05-18 00:13:00 &#43;0800 CST" />
-<meta property="article:modified_time" content="2021-05-18 00:13:00 &#43;0800 CST" />
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-
-
-  
-<script type="text/javascript">
-(function(){
-  localDB = {
-    set: function (key, value, ttl) {
-      if (ttl === 0) return;
-      const now = new Date();
-      const expiryDay = ttl * 86400000;
-      const item = {
-        value: value,
-        expiry: now.getTime() + expiryDay
-      };
-      localStorage.setItem(key, JSON.stringify(item));
-    },
-    get: function (key) {
-      const itemStr = localStorage.getItem(key);
-      if (!itemStr) {
-        return undefined;
-      }
-  
-      const item = JSON.parse(itemStr);
-      const now = new Date();
-  
-      if (now.getTime() > item.expiry) {
-        localStorage.removeItem(key);
-        return undefined;
-      }
-      return item.value;
-    }
-  };
-
-  theme = {
-    active: function() {
-      const localState = localDB.get('theme');
-      if (localState == undefined) return;
-      theme.toggle(localState);
-      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
-        theme.toggle(evt.matches ? 'dark' : 'light');
-      });
-    },
-
-    toggle: function (theme) {
-      document.documentElement.setAttribute('data-theme',  theme);
-      localDB.set('theme', theme, 2);
-      
-      const iframe = document.querySelector('iframe.giscus-frame');
-      if (iframe) {
-        const config = { setConfig: { theme: theme } };
-        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
-      }
-    }
-  };
-
-  theme.active();
-})(window);
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"path":"waitgroup","permalink":"//localhost:1313/post/golang/waitgroup/","title":"Go的Waitgroup和锁","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
-
-
-
-
-  <script type="text/javascript">
-document.addEventListener('DOMContentLoaded', () => {
-  var script = document.createElement('script');
-    
-  script.charset = "UTF-8";
-  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
-  script.async   = false
-  script.defer   = true
-  
-  document.head.appendChild(script);
-  script.onload = function() {
-    NexT.utils.fmtBusuanzi();
-  }
-});
-</script>
-  
-
-
-
-  <title>Go的Waitgroup和锁 - 呦呦鹿鸣</title>
-  <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
-  <div class="headband"></div>
-  <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
-        
-<div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="" role="button">
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-    
-
-    <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <h1 class="site-title">呦呦鹿鸣</h1>
-      <i class="logo-line"></i>
-    </a>
-    
-      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
-    
-    
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-      
-      <i class="fa fa-search fa-fw fa-lg"></i>
-      
-    </div>
-  </div>
-</div>
-
-
-<nav class="site-nav">
-  <ul class="main-menu menu">    
-  
-    
-    <li class="menu-item menu-item-home">
-      <a href="/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-home hvr-icon"></i>首页
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-about">
-      <a href="/about/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-user hvr-icon"></i>关于
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-archives">
-      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-archive hvr-icon"></i>归档
-        
-        
-          <span class="badge">19</span>
-        
-      </a>
-      
-    </li>
-      
-
-  
-    <li class="menu-item menu-item-search">
-      <a role="button" class="popup-trigger hvr-icon-pulse">
-        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
-      </a>
-    </li>
-  
-  </ul>
-</nav>
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-      
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off" maxlength="80"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close" role="button">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div class="search-result-container no-result">
-  <div class="search-result-icon">
-    <i class="fa fa-spinner fa-pulse fa-5x"></i>
-  </div>
-</div>
-      
-    </div>
-  </div>
-
-      </div>
-      
-      
-      <div class="toggle sidebar-toggle" role="button">
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-</div>
-
-<aside class="sidebar">
-  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-toc">
-        文章目录
-      </li>
-      <li class="sidebar-nav-overview">
-        站点概览
-      </li>
-    </ul>
-    <div class="sidebar-panel-container">
-      
-      <div class="post-toc-wrap sidebar-panel">
-        <div class="post-toc animated"><nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li>
-          <ul>
-            <li>
-              <ul>
-                <li><a href="#一goroutinue">一、Goroutinue</a></li>
-                <li><a href="#二waitgroup">二、WaitGroup</a></li>
-                <li><a href="#三锁">三、锁</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav></div>
-      </div>
-      
-      <div class="site-overview-wrap sidebar-panel">
-        
-<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  
-    <img class="site-author-image" itemprop="image" alt=""
-    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
-  
-  <p class="site-author-name" itemprop="name"></p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-
-
-<div class="site-state-wrap site-overview-item animated">
-  <nav class="site-state">
-    <div class="site-state-item site-state-posts">
-      <a href="/archives/">
-        <span class="site-state-item-count">19</span>
-        <span class="site-state-item-name">日志</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-categories">
-      <a href="/categories/">
-        <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">分类</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-tags">
-      <a href="/tags/">
-        <span class="site-state-item-count">8</span>
-        <span class="site-state-item-name">标签</span>
-      </a>
-    </div>
-  </nav>
-</div>
-
-
-<div class="links-of-social site-overview-item animated">
-
-
-</div>
-
-
-
-<div class="cc-license animated" itemprop="license">
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
-    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
-  </a>
-</div>
-
-
-
-
-<div class="links-of-blogroll site-overview-item animated">
-  <div class="links-of-blogroll-title">
-    
-    <i class="fa fa-globe fa-fw"></i>
-    
-    友情链接
-  </div>
-  <ul class="links-of-blogroll-list">
-    
-    
-    
-    
-    <li class="links-of-blogroll-item">
-      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
-    </li>
-    
-  </ul>
-</div>
-
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  
-    
-<div id="siteinfo-card-widget" class="sidebar-card-widget">
-  <div class="item-headline">
-    <i class="fas fa-chart-line"></i>
-    <span>网站资讯</span>
-  </div>
-  <div class="siteinfo">
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
-      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
-    </div>
-    
-    
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-user"></i>总访客数：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-eye"></i>页面浏览：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
-    </div> 
-        
-        
-    
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
-      <div class="item-count" id="wordsCount" data-count="37487"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
-      <div class="item-count" id="readTimes" data-times="86"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
-      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
-    </div>
-  </div>
-</div>
-  
-
-  
-</aside>
-<div class="sidebar-dimmer"></div>
-
-      
-    </header>
-    
-    <div class="tool-buttons" >
-    
-  
-  <div id="toggle-theme" class="button" title="深浅模式切换">
-    <i class="fas fa-adjust"></i>
-  </div>
-  
-  <div class="back-to-top" role="button" title="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
- 
-</div>
-
-
-  <div class="reading-progress-bar"></div>
-
-
-
-  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
-
-
-
-
-
-
-
-  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
-<script type="text/javascript">
-((window.gitter = {}).chat = {}).options = {
-  room: "hugo-next/community"
-};
-</script>   
-
-
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
-    <div class="main-inner post posts-expand">
-      
-      
-  <div class="post-block">
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    
-    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/golang/waitgroup/">
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/imgs/liulu_avatar.png">
-      <meta itemprop="name" content="">
-    </span>
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-    </span>
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Go的Waitgroup和锁">
-      <meta itemprop="description" content="学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。">
-    </span>
-    
-    <header class="post-header">
-      
- <h1  class="post-title" itemprop="name headline">
-  
-  
-  Go的Waitgroup和锁
-  
-  
-   </h1> 
-
-<div class="post-meta-container">
-  <div class="post-meta-items">
-    
-
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-calendar"></i>
-  </span>
-  <span class="post-meta-item-text" title="发表于">
-    发表于：
-  </span>
-  <time title="创建时间：2021-05-18 00:13:00 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2021-05-18 00:13:00 &#43;0800 CST">
-    2021-05-18
-  </time>
-</span>
-
-    
-    
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-folder-open"></i>
-  </span>
-  <span class="post-meta-item-text" title="分类于">
-    分类于：
-  </span>
-  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-    <a href="/categories/golang" itemprop="url" rel="index">
-      <span itemprop="name">Golang</span>
-    </a>
-  </span>
-</span>
-
-
-        
-  </div>
-  
-  <div class="post-meta-items">
-    
-<span class="post-meta-item" title="字数">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-file-word"></i>
-  </span>
-  <span class="post-meta-item-text">字数：</span>
-  <span>1618</span>
-</span>
-
-    
-<span class="post-meta-item" title="阅读">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-clock"></i>
-  </span>
-  <span class="post-meta-item-text">阅读：&asymp;</span>
-  <span>4分钟</span>
-</span>
-
-
-    
-
-
-
-
-<span class="post-meta-item" title="浏览">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-eye"></i>
-  </span>
-  <span class="post-meta-item-text">
-  浏览：
-  </span>
-  <span id="busuanzi_value_page_pv"  data-path="/post/golang/waitgroup/">
-    <i class="fa fa-sync fa-spin"></i>
-  </span>
-</span>
-
-    
-  </div>
-  
-</div>
-
-    </header>
-    
-    <div class="post-body " itemprop="articleBody">
-      
-
-  <p>学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。</p>
-<h4 id="一goroutinue">一、Goroutinue
-<a class="header-anchor" href="#%e4%b8%80goroutinue"></a>
-</h4><p>先说 goroutine，我们都知道它是 Go 中的轻量级线程。Go 程序从 main 包的 main() 函数开始，在程序启动时，Go 程序就会为 main() 函数创建一个默认的 goroutine。使用 goroutine，使用关键字 go 即可。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 并发执行程序
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">running</span>()
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">running</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Goroutine&#34;</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>执行代码会发现没有我们预期的“Goroutine”输出，这是因为当前的程序是一个单线程的程序，main 函数只要执行后，就不会再管其他线程在做什么事情，程序就自动退出了。解决办法是加一个 sleep 函数，让 main 函数等待 running 函数执行完毕后再退出。我们假设 running 函数里的代码执行需要 2 秒，因此让 main 函数等待 3 秒再退出。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;time&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 并发执行程序
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">running</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">3</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">running</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Goroutine&#34;</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>再次执行代码，终端输出了我们想要的“Goroutine”字符串。</p>
-<h4 id="二waitgroup">二、WaitGroup
-<a class="header-anchor" href="#%e4%ba%8cwaitgroup"></a>
-</h4><p>上面我们是假设了 running 函数执行需要 2 秒，可如果执行需要 10 秒甚至更长时间，不知道 goroutin 什么时候结束，难道还要 main 函数 sleep 更多的秒数吗？就不能让 running 函数执行完去通知 main 函数，main 函数收到信号自动退出吗？还真可以！可以使用 sync 包的 Waitgroup 判断一组任务是否完成。</p>
-<p>WatiGroup 能够一直等到所有的 goroutine 执行完成，并且阻塞主线程的执行，直到所有的 goroutine 执行完成。它有 3 个方法：</p>
-<ul>
-<li>Add()：给计数器添加等待 goroutine 的数量。</li>
-<li>Done()：减少 WaitGroup 计数器的值，应在协程的最后执行。</li>
-<li>Wait()：执行阻塞，直到所有的 WaitGroup 数量变成 0</li>
-</ul>
-<p>一个简单的示例如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span> 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> ( 
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt” 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;</span><span style="color:#a6e22e">sync</span><span style="color:#960050;background-color:#1e0010">”</span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">time</span><span style="color:#e6db74">&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">func process(i int, wg *sync.WaitGroup) { 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    fmt.Println(&#34;</span><span style="color:#a6e22e">started</span> <span style="color:#a6e22e">Goroutine</span> <span style="color:#e6db74">&#34;, i) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    time.Sleep(2 * time.Second) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    fmt.Printf(&#34;</span><span style="color:#a6e22e">Goroutine</span> <span style="color:#f92672">%</span><span style="color:#a6e22e">d</span> <span style="color:#a6e22e">ended</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#a6e22e">n</span><span style="color:#e6db74">&#34;, i) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    wg.Done() 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">} 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">func main() { 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    var wg sync.WaitGroup 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    for i := 0; i &lt; 3; i++ { 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        wg.Add(1) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        go process(i, &amp;wg) 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    } 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    wg.Wait() 
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    fmt.Println(&#34;</span><span style="color:#a6e22e">All</span> <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">routines</span> <span style="color:#a6e22e">finished</span> <span style="color:#a6e22e">executing</span><span style="color:#960050;background-color:#1e0010">”</span>) 
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//main函数也可以写成如下方式
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">wg</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">3</span>) <span style="color:#75715e">//设置计数器，数值即为goroutine的个数
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">process</span>(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">wg</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">process</span>(<span style="color:#ae81ff">2</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">wg</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">process</span>(<span style="color:#ae81ff">3</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">wg</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>() <span style="color:#75715e">//主goroutine阻塞等待计数器变为0
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;All goroutines finished executing&#34;</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>命令行输出如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>deer@192 src % go run hello.go //第1次
-</span></span><span style="display:flex;"><span>started Goroutine  3
-</span></span><span style="display:flex;"><span>started Goroutine  1
-</span></span><span style="display:flex;"><span>started Goroutine  2
-</span></span><span style="display:flex;"><span>Goroutine 2 ended
-</span></span><span style="display:flex;"><span>Goroutine 1 ended
-</span></span><span style="display:flex;"><span>Goroutine 3 ended
-</span></span><span style="display:flex;"><span>All goroutines finished executing
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>deer@192 src % go run hello.go //第2次
-</span></span><span style="display:flex;"><span>started Goroutine  3
-</span></span><span style="display:flex;"><span>started Goroutine  1
-</span></span><span style="display:flex;"><span>started Goroutine  2
-</span></span><span style="display:flex;"><span>Goroutine 1 ended
-</span></span><span style="display:flex;"><span>Goroutine 2 ended
-</span></span><span style="display:flex;"><span>Goroutine 3 ended
-</span></span><span style="display:flex;"><span>All goroutines finished executing
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>deer@192 src % go run hello.go //第3次
-</span></span><span style="display:flex;"><span>started Goroutine  3
-</span></span><span style="display:flex;"><span>started Goroutine  2
-</span></span><span style="display:flex;"><span>started Goroutine  1
-</span></span><span style="display:flex;"><span>Goroutine 3 ended
-</span></span><span style="display:flex;"><span>Goroutine 1 ended
-</span></span><span style="display:flex;"><span>Goroutine 2 ended
-</span></span><span style="display:flex;"><span>All goroutines finished executing
+<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="Go的Waitgroup和锁"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content="Golang,源代码"><meta property="og:type" content="article"><meta property="og:title" content="Go的Waitgroup和锁"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/golang/waitgroup/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2021-05-18 00:13:00 +0800 CST"><meta property="article:modified_time" content="2021-05-18 00:13:00 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"waitgroup","permalink":"//localhost:1313/post/golang/waitgroup/","title":"Go的Waitgroup和锁","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>Go的Waitgroup和锁 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
+<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><ul><li><ul><li><a href=#一goroutinue>一、Goroutinue</a></li><li><a href=#二waitgroup>二、WaitGroup</a></li><li><a href=#三锁>三、锁</a></li></ul></li></ul></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
+<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
+<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
+<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
+友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
+<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
+<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/golang/waitgroup/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="Go的Waitgroup和锁"><meta itemprop=description content="学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。"></span><header class=post-header><h1 class=post-title itemprop="name headline">Go的Waitgroup和锁</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
+</span><span class=post-meta-item-text title=发表于>发表于：
+</span><time title="创建时间：2021-05-18 00:13:00 +0800 CST" itemprop="dateCreated datePublished" datetime="2021-05-18 00:13:00 +0800 CST">2021-05-18
+</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
+</span><span class=post-meta-item-text title=分类于>分类于：
+</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/golang itemprop=url rel=index><span itemprop=name>Golang</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
+</span><span class=post-meta-item-text>字数：</span>
+<span>1618</span>
+</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
+</span><span class=post-meta-item-text>阅读：&ap;</span>
+<span>4分钟</span>
+</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
+</span><span class=post-meta-item-text>浏览：
+</span><span id=busuanzi_value_page_pv data-path=/post/golang/waitgroup/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。</p><h4 id=一goroutinue>一、Goroutinue
+<a class=header-anchor href=#%e4%b8%80goroutinue></a></h4><p>先说 goroutine，我们都知道它是 Go 中的轻量级线程。Go 程序从 main 包的 main() 函数开始，在程序启动时，Go 程序就会为 main() 函数创建一个默认的 goroutine。使用 goroutine，使用关键字 go 即可。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 并发执行程序
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>running</span>()
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>running</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#e6db74>&#34;Goroutine&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>执行代码会发现没有我们预期的“Goroutine”输出，这是因为当前的程序是一个单线程的程序，main 函数只要执行后，就不会再管其他线程在做什么事情，程序就自动退出了。解决办法是加一个 sleep 函数，让 main 函数等待 running 函数执行完毕后再退出。我们假设 running 函数里的代码执行需要 2 秒，因此让 main 函数等待 3 秒再退出。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;time&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 并发执行程序
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>running</span>()
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Sleep</span>(<span style=color:#ae81ff>3</span> <span style=color:#f92672>*</span> <span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Second</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>running</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#e6db74>&#34;Goroutine&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>再次执行代码，终端输出了我们想要的“Goroutine”字符串。</p><h4 id=二waitgroup>二、WaitGroup
+<a class=header-anchor href=#%e4%ba%8cwaitgroup></a></h4><p>上面我们是假设了 running 函数执行需要 2 秒，可如果执行需要 10 秒甚至更长时间，不知道 goroutin 什么时候结束，难道还要 main 函数 sleep 更多的秒数吗？就不能让 running 函数执行完去通知 main 函数，main 函数收到信号自动退出吗？还真可以！可以使用 sync 包的 Waitgroup 判断一组任务是否完成。</p><p>WatiGroup 能够一直等到所有的 goroutine 执行完成，并且阻塞主线程的执行，直到所有的 goroutine 执行完成。它有 3 个方法：</p><ul><li>Add()：给计数器添加等待 goroutine 的数量。</li><li>Done()：减少 WaitGroup 计数器的值，应在协程的最后执行。</li><li>Wait()：执行阻塞，直到所有的 WaitGroup 数量变成 0</li></ul><p>一个简单的示例如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span> 
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> ( 
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt” 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;</span><span style=color:#a6e22e>sync</span><span style=color:#960050;background-color:#1e0010>”</span> 
+</span></span><span style=display:flex><span>    <span style=color:#960050;background-color:#1e0010>“</span><span style=color:#a6e22e>time</span><span style=color:#e6db74>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>func process(i int, wg *sync.WaitGroup) { 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    fmt.Println(&#34;</span><span style=color:#a6e22e>started</span> <span style=color:#a6e22e>Goroutine</span> <span style=color:#e6db74>&#34;, i) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    time.Sleep(2 * time.Second) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    fmt.Printf(&#34;</span><span style=color:#a6e22e>Goroutine</span> <span style=color:#f92672>%</span><span style=color:#a6e22e>d</span> <span style=color:#a6e22e>ended</span><span style=color:#960050;background-color:#1e0010>\</span><span style=color:#a6e22e>n</span><span style=color:#e6db74>&#34;, i) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    wg.Done() 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>} 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>func main() { 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    var wg sync.WaitGroup 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    for i := 0; i &lt; 3; i++ { 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        wg.Add(1) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        go process(i, &amp;wg) 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    } 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    wg.Wait() 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    fmt.Println(&#34;</span><span style=color:#a6e22e>All</span> <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>routines</span> <span style=color:#a6e22e>finished</span> <span style=color:#a6e22e>executing</span><span style=color:#960050;background-color:#1e0010>”</span>) 
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#75715e>//main函数也可以写成如下方式
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>var</span> <span style=color:#a6e22e>wg</span> <span style=color:#a6e22e>sync</span>.<span style=color:#a6e22e>WaitGroup</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>wg</span>.<span style=color:#a6e22e>Add</span>(<span style=color:#ae81ff>3</span>) <span style=color:#75715e>//设置计数器，数值即为goroutine的个数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>process</span>(<span style=color:#ae81ff>1</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>wg</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>process</span>(<span style=color:#ae81ff>2</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>wg</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>process</span>(<span style=color:#ae81ff>3</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>wg</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>wg</span>.<span style=color:#a6e22e>Wait</span>() <span style=color:#75715e>//主goroutine阻塞等待计数器变为0
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#e6db74>&#34;All goroutines finished executing&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>命令行输出如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-fallback data-lang=fallback><span style=display:flex><span>deer@192 src % go run hello.go //第1次
+</span></span><span style=display:flex><span>started Goroutine  3
+</span></span><span style=display:flex><span>started Goroutine  1
+</span></span><span style=display:flex><span>started Goroutine  2
+</span></span><span style=display:flex><span>Goroutine 2 ended
+</span></span><span style=display:flex><span>Goroutine 1 ended
+</span></span><span style=display:flex><span>Goroutine 3 ended
+</span></span><span style=display:flex><span>All goroutines finished executing
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>deer@192 src % go run hello.go //第2次
+</span></span><span style=display:flex><span>started Goroutine  3
+</span></span><span style=display:flex><span>started Goroutine  1
+</span></span><span style=display:flex><span>started Goroutine  2
+</span></span><span style=display:flex><span>Goroutine 1 ended
+</span></span><span style=display:flex><span>Goroutine 2 ended
+</span></span><span style=display:flex><span>Goroutine 3 ended
+</span></span><span style=display:flex><span>All goroutines finished executing
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>deer@192 src % go run hello.go //第3次
+</span></span><span style=display:flex><span>started Goroutine  3
+</span></span><span style=display:flex><span>started Goroutine  2
+</span></span><span style=display:flex><span>started Goroutine  1
+</span></span><span style=display:flex><span>Goroutine 3 ended
+</span></span><span style=display:flex><span>Goroutine 1 ended
+</span></span><span style=display:flex><span>Goroutine 2 ended
+</span></span><span style=display:flex><span>All goroutines finished executing
 </span></span></code></pre></div><p>简单的说，上面程序中 wg 内部维护了一个计数器，激活了 3 个 goroutine：
 1）每次激活 goroutine 之前，都先调用 Add() 方法增加一个需要等待的 goroutine 计数。
 2）每个 goroutine 都运行 process() 函数，这个函数在执行完成时需要调用 Done() 方法来表示 goroutine 的结束。
 3）激活 3 个 goroutine 后，main 的 goroutine 会执行到 Wait()，由于每个激活的 goroutine 运行的 process() 都需要睡眠 2 秒，所以 main 的 goroutine 在 Wait() 这里会阻塞一段时间(大约2秒)，
-4）当所有 goroutine 都完成后，计数器减为 0，Wait() 将不再阻塞，于是 main 的 goroutine 得以执行后面的 Println()。</p>
-<p>这里需要注意：
+4）当所有 goroutine 都完成后，计数器减为 0，Wait() 将不再阻塞，于是 main 的 goroutine 得以执行后面的 Println()。</p><p>这里需要注意：
 1）process() 中使用指针类型的 <code>*sync.WaitGroup</code> 作为参数，表示这 3 个 goroutine 共享一个 wg，才能知道这 3 个 goroutine 都完成了。如果这里使用值类型的 <code>sync.WaitGroup</code> 作为参数，意味着每个 goroutine 都拷贝一份 wg，每个 goroutine 都使用自己的 wg，main goroutine将会永久阻塞而导致产生死锁。
-2）Add() 设置的数量必须与实际等待的 goroutine 个数一致，也就是和Done的调用数量必须相等，否则会panic，报错信息如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>fatal error: all goroutines are asleep - deadlock!
-</span></span></code></pre></div><h4 id="三锁">三、锁
-<a class="header-anchor" href="#%e4%b8%89%e9%94%81"></a>
-</h4><p>当多个 goroutine 同时操作一个变量时，会存在数据竞争，导致最后的结果与期待的不符，解决办法就是加锁。Go 中的 sync 包 实现了两种锁：Mutex 和 RWMutex，前者为互斥锁，后者为读写锁，基于 Mutex 实现。当我们的场景是写操作为主时，可以使用 Mutex 来加锁、解锁。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lock</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span> <span style="color:#75715e">//声明一个互斥锁
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Lock</span>() <span style="color:#75715e">//加锁
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//code...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Unlock</span>() <span style="color:#75715e">//解锁
-</span></span></span></code></pre></div><p>互斥锁其实就是每个线程在对资源操作前都尝试先加锁，成功加锁才能操作，操作结束后再解锁。也就是说，使用了互斥锁，同一时刻只能有一个 goroutine 在执行。</p>
-
-
-
-    </div>
-    <footer class="post-footer">
-      
-
-
-<div class="post-tags">
-  
-    <a href="/tags/golang">
-    Golang
-  </a>
-  
-    <a href="/tags/%e6%ba%90%e4%bb%a3%e7%a0%81">
-    源代码
-  </a>
-  
-</div>
-
-
-
-<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
-
-
-<hr/>
-
-
-
-
-
-
-
-
-
-
-
-<div class="post-nav">
-  <div class="post-nav-next post-nav-item">
-    
-    <a href="/post/golang/channel/" rel="next" title="Go的Channel发送和接收">
-      <i class="fa fa-chevron-left"></i> Go的Channel发送和接收
-    </a>
-    
-  </div>
-  <div class="post-nav-prev post-nav-item">
-    
-  </div>
-</div>
-
-
-
-    </footer>
-  </article>
-</div>
-
-      
-    </div>
-  </main>
-  <footer class="footer">
-    <div class="footer-inner">
-      
-
-<div class="copyright">
-  &copy;
-  <span itemprop="copyrightYear">
-    
-    
-    
-    2010 - 2024
-    
-    
-  </span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder"></span>
-</div>
-
-<div class="powered-by">
-  
-  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
-</div>
-
-
-
-
-
- 
-
-
-
-
-
-    </div>
-  </footer>
-
-  
-
-
-
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
-
-
-<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-<script type="text/javascript" src="/js/main.js" defer></script>
-
-
-
-
-
-</body>
-
-</html>
+2）Add() 设置的数量必须与实际等待的 goroutine 个数一致，也就是和Done的调用数量必须相等，否则会panic，报错信息如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-fallback data-lang=fallback><span style=display:flex><span>fatal error: all goroutines are asleep - deadlock!
+</span></span></code></pre></div><h4 id=三锁>三、锁
+<a class=header-anchor href=#%e4%b8%89%e9%94%81></a></h4><p>当多个 goroutine 同时操作一个变量时，会存在数据竞争，导致最后的结果与期待的不符，解决办法就是加锁。Go 中的 sync 包 实现了两种锁：Mutex 和 RWMutex，前者为互斥锁，后者为读写锁，基于 Mutex 实现。当我们的场景是写操作为主时，可以使用 Mutex 来加锁、解锁。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>lock</span> <span style=color:#a6e22e>sync</span>.<span style=color:#a6e22e>Mutex</span> <span style=color:#75715e>//声明一个互斥锁
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span> <span style=color:#a6e22e>lock</span>.<span style=color:#a6e22e>Lock</span>() <span style=color:#75715e>//加锁
+</span></span></span><span style=display:flex><span><span style=color:#75715e>//code...
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span> <span style=color:#a6e22e>lock</span>.<span style=color:#a6e22e>Unlock</span>() <span style=color:#75715e>//解锁
+</span></span></span></code></pre></div><p>互斥锁其实就是每个线程在对资源操作前都尝试先加锁，成功加锁才能操作，操作结束后再解锁。也就是说，使用了互斥锁，同一时刻只能有一个 goroutine 在执行。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/golang>Golang
+</a><a href=/tags/%e6%ba%90%e4%bb%a3%e7%a0%81>源代码</a></div><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/golang/channel/ rel=next title=Go的Channel发送和接收><i class="fa fa-chevron-left"></i> Go的Channel发送和接收</a></div><div class="post-nav-prev post-nav-item"></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
+<span itemprop=copyrightYear>2010 - 2024
+</span><span class=with-love><i class="fa fa-heart"></i>
+</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script></body></html>

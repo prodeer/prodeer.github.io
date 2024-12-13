@@ -1,1047 +1,217 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
-
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
-
-<meta name="generator" content="Hugo 0.139.0">
-<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
-<meta itemprop="name" content="Go的heap和源码分析" />
-<meta itemprop="description" content="" />
-<meta name="description" content="" />
-
-
-<meta itemprop="datePublished" ZgotmplZ />
-
-
-<meta itemprop="dateModified" ZgotmplZ />
-
-
-
-
-
-<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
-<meta itemprop="keywords" content="优先队列,源代码" />
-
-
-<meta property="og:type" content="article" />
-<meta property="og:title" content="Go的heap和源码分析" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="/imgs/liulu_avatar.png" />
-<meta property="og:image:width" content="312" />
-<meta property="og:image:height" content="312" />
-<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
-<meta property="og:url" content="//localhost:1313/post/golang/heap-sourcecode/"/>
-<meta property="og:site_name" content="呦呦鹿鸣" />
-<meta property="og:locale" content="zh-CN"/>
-
-<meta property="article:author" content="" />
-<meta property="article:published_time" content="2023-03-04 21:30:00 &#43;0800 CST" />
-<meta property="article:modified_time" content="2023-03-04 21:30:00 &#43;0800 CST" />
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-
-
-  
-<script type="text/javascript">
-(function(){
-  localDB = {
-    set: function (key, value, ttl) {
-      if (ttl === 0) return;
-      const now = new Date();
-      const expiryDay = ttl * 86400000;
-      const item = {
-        value: value,
-        expiry: now.getTime() + expiryDay
-      };
-      localStorage.setItem(key, JSON.stringify(item));
-    },
-    get: function (key) {
-      const itemStr = localStorage.getItem(key);
-      if (!itemStr) {
-        return undefined;
-      }
-  
-      const item = JSON.parse(itemStr);
-      const now = new Date();
-  
-      if (now.getTime() > item.expiry) {
-        localStorage.removeItem(key);
-        return undefined;
-      }
-      return item.value;
-    }
-  };
-
-  theme = {
-    active: function() {
-      const localState = localDB.get('theme');
-      if (localState == undefined) return;
-      theme.toggle(localState);
-      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
-        theme.toggle(evt.matches ? 'dark' : 'light');
-      });
-    },
-
-    toggle: function (theme) {
-      document.documentElement.setAttribute('data-theme',  theme);
-      localDB.set('theme', theme, 2);
-      
-      const iframe = document.querySelector('iframe.giscus-frame');
-      if (iframe) {
-        const config = { setConfig: { theme: theme } };
-        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
-      }
-    }
-  };
-
-  theme.active();
-})(window);
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"path":"heap-sourcecode","permalink":"//localhost:1313/post/golang/heap-sourcecode/","title":"Go的heap和源码分析","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
-
-
-
-
-  <script type="text/javascript">
-document.addEventListener('DOMContentLoaded', () => {
-  var script = document.createElement('script');
-    
-  script.charset = "UTF-8";
-  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
-  script.async   = false
-  script.defer   = true
-  
-  document.head.appendChild(script);
-  script.onload = function() {
-    NexT.utils.fmtBusuanzi();
-  }
-});
-</script>
-  
-
-
-
-  <title>Go的heap和源码分析 - 呦呦鹿鸣</title>
-  <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
-  <div class="headband"></div>
-  <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
-        
-<div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="" role="button">
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-    
-
-    <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <h1 class="site-title">呦呦鹿鸣</h1>
-      <i class="logo-line"></i>
-    </a>
-    
-      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
-    
-    
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-      
-      <i class="fa fa-search fa-fw fa-lg"></i>
-      
-    </div>
-  </div>
-</div>
-
-
-<nav class="site-nav">
-  <ul class="main-menu menu">    
-  
-    
-    <li class="menu-item menu-item-home">
-      <a href="/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-home hvr-icon"></i>首页
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-about">
-      <a href="/about/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-user hvr-icon"></i>关于
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-archives">
-      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-archive hvr-icon"></i>归档
-        
-        
-          <span class="badge">19</span>
-        
-      </a>
-      
-    </li>
-      
-
-  
-    <li class="menu-item menu-item-search">
-      <a role="button" class="popup-trigger hvr-icon-pulse">
-        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
-      </a>
-    </li>
-  
-  </ul>
-</nav>
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-      
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off" maxlength="80"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close" role="button">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div class="search-result-container no-result">
-  <div class="search-result-icon">
-    <i class="fa fa-spinner fa-pulse fa-5x"></i>
-  </div>
-</div>
-      
-    </div>
-  </div>
-
-      </div>
-      
-      
-      <div class="toggle sidebar-toggle" role="button">
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-</div>
-
-<aside class="sidebar">
-  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-toc">
-        文章目录
-      </li>
-      <li class="sidebar-nav-overview">
-        站点概览
-      </li>
-    </ul>
-    <div class="sidebar-panel-container">
-      
-      <div class="post-toc-wrap sidebar-panel">
-        <div class="post-toc animated"><nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#一containerheap介绍">一、container/heap介绍</a></li>
-        <li><a href="#二heap源码剖析">二、heap源码剖析</a>
-          <ul>
-            <li><a href="#21-核心接口">2.1 核心接口</a></li>
-            <li><a href="#22-push">2.2 Push</a></li>
-            <li><a href="#23-pop">2.3 Pop</a></li>
-            <li><a href="#24-初始化">2.4 初始化</a></li>
-          </ul>
-        </li>
-        <li><a href="#三实现优先队列">三、实现优先队列</a></li>
-      </ul>
-    </li>
-  </ul>
-</nav></div>
-      </div>
-      
-      <div class="site-overview-wrap sidebar-panel">
-        
-<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  
-    <img class="site-author-image" itemprop="image" alt=""
-    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
-  
-  <p class="site-author-name" itemprop="name"></p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-
-
-<div class="site-state-wrap site-overview-item animated">
-  <nav class="site-state">
-    <div class="site-state-item site-state-posts">
-      <a href="/archives/">
-        <span class="site-state-item-count">19</span>
-        <span class="site-state-item-name">日志</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-categories">
-      <a href="/categories/">
-        <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">分类</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-tags">
-      <a href="/tags/">
-        <span class="site-state-item-count">8</span>
-        <span class="site-state-item-name">标签</span>
-      </a>
-    </div>
-  </nav>
-</div>
-
-
-<div class="links-of-social site-overview-item animated">
-
-
-</div>
-
-
-
-<div class="cc-license animated" itemprop="license">
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
-    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
-  </a>
-</div>
-
-
-
-
-<div class="links-of-blogroll site-overview-item animated">
-  <div class="links-of-blogroll-title">
-    
-    <i class="fa fa-globe fa-fw"></i>
-    
-    友情链接
-  </div>
-  <ul class="links-of-blogroll-list">
-    
-    
-    
-    
-    <li class="links-of-blogroll-item">
-      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
-    </li>
-    
-  </ul>
-</div>
-
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  
-    
-<div id="siteinfo-card-widget" class="sidebar-card-widget">
-  <div class="item-headline">
-    <i class="fas fa-chart-line"></i>
-    <span>网站资讯</span>
-  </div>
-  <div class="siteinfo">
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
-      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
-    </div>
-    
-    
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-user"></i>总访客数：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-eye"></i>页面浏览：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
-    </div> 
-        
-        
-    
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
-      <div class="item-count" id="wordsCount" data-count="37487"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
-      <div class="item-count" id="readTimes" data-times="86"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
-      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
-    </div>
-  </div>
-</div>
-  
-
-  
-</aside>
-<div class="sidebar-dimmer"></div>
-
-      
-    </header>
-    
-    <div class="tool-buttons" >
-    
-  
-  <div id="toggle-theme" class="button" title="深浅模式切换">
-    <i class="fas fa-adjust"></i>
-  </div>
-  
-  <div class="back-to-top" role="button" title="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
- 
-</div>
-
-
-  <div class="reading-progress-bar"></div>
-
-
-
-  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
-
-
-
-
-
-
-
-  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
-<script type="text/javascript">
-((window.gitter = {}).chat = {}).options = {
-  room: "hugo-next/community"
-};
-</script>   
-
-
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
-    <div class="main-inner post posts-expand">
-      
-      
-  <div class="post-block">
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    
-    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/golang/heap-sourcecode/">
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/imgs/liulu_avatar.png">
-      <meta itemprop="name" content="">
-    </span>
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-    </span>
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Go的heap和源码分析">
-      <meta itemprop="description" content="之前用Go实现延时队列，我使用了Go标准库中的container/heap接口来构建一个优先队列。为什么Go的container/heap接口可以实现一个优先队列呢？
-这是因为Go的container/heap定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。">
-    </span>
-    
-    <header class="post-header">
-      
- <h1  class="post-title" itemprop="name headline">
-  
-  
-  Go的heap和源码分析
-  
-  
-   </h1> 
-
-<div class="post-meta-container">
-  <div class="post-meta-items">
-    
-
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-calendar"></i>
-  </span>
-  <span class="post-meta-item-text" title="发表于">
-    发表于：
-  </span>
-  <time title="创建时间：2023-03-04 21:30:00 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2023-03-04 21:30:00 &#43;0800 CST">
-    2023-03-04
-  </time>
-</span>
-
-    
-    
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-folder-open"></i>
-  </span>
-  <span class="post-meta-item-text" title="分类于">
-    分类于：
-  </span>
-  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-    <a href="/categories/golang" itemprop="url" rel="index">
-      <span itemprop="name">Golang</span>
-    </a>
-  </span>
-</span>
-
-
-        
-  </div>
-  
-  <div class="post-meta-items">
-    
-<span class="post-meta-item" title="字数">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-file-word"></i>
-  </span>
-  <span class="post-meta-item-text">字数：</span>
-  <span>2723</span>
-</span>
-
-    
-<span class="post-meta-item" title="阅读">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-clock"></i>
-  </span>
-  <span class="post-meta-item-text">阅读：&asymp;</span>
-  <span>6分钟</span>
-</span>
-
-
-    
-
-
-
-
-<span class="post-meta-item" title="浏览">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-eye"></i>
-  </span>
-  <span class="post-meta-item-text">
-  浏览：
-  </span>
-  <span id="busuanzi_value_page_pv"  data-path="/post/golang/heap-sourcecode/">
-    <i class="fa fa-sync fa-spin"></i>
-  </span>
-</span>
-
-    
-  </div>
-  
-</div>
-
-    </header>
-    
-    <div class="post-body " itemprop="articleBody">
-      
-
-  <p>之前用Go实现延时队列，我使用了Go标准库中的<code>container/heap</code>接口来构建一个优先队列。为什么Go的<code>container/heap</code>接口可以实现一个优先队列呢？</p>
-<p>这是因为Go的<code>container/heap</code>定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。</p>
-<h2 id="一containerheap介绍">一、container/heap介绍
-<a class="header-anchor" href="#%e4%b8%80containerheap%e4%bb%8b%e7%bb%8d"></a>
-</h2><p>以下是<code>container/heap</code>接口实现优先队列的关键点：</p>
-<ol>
-<li><strong>定义数据结构</strong>：首先，需要定义一个数据结构来存储堆中的元素。</li>
-<li><strong>实现heap.Interface</strong>：<code>container/heap</code>接口要求实现以下方法：</li>
-</ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">Len</span>()<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#a6e22e">返回堆中元素的数量</span><span style="color:#960050;background-color:#1e0010">。</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span><span style="color:#960050;background-color:#1e0010">：</span><span style="color:#a6e22e">比较索引为</span> <span style="color:#a6e22e">i</span> <span style="color:#a6e22e">和</span> <span style="color:#a6e22e">j</span> <span style="color:#a6e22e">的两个元素</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">确定它们在堆中的顺序</span><span style="color:#960050;background-color:#1e0010">。</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>)<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#a6e22e">交换索引为</span> <span style="color:#a6e22e">i</span> <span style="color:#a6e22e">和</span> <span style="color:#a6e22e">j</span> <span style="color:#a6e22e">的两个元素</span><span style="color:#960050;background-color:#1e0010">。</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">x</span> <span style="color:#66d9ef">interface</span>{})<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#a6e22e">向堆中添加一个新元素</span><span style="color:#960050;background-color:#1e0010">。</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Pop</span>() <span style="color:#66d9ef">interface</span>{}<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#a6e22e">移除并返回堆中的最后一个元素</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">即优先级最高的元素</span><span style="color:#960050;background-color:#1e0010">。</span>
-</span></span></code></pre></div><ol start="3">
-<li><strong>初始化堆</strong>：使用<code>heap.Init()</code>函数初始化堆，确保堆的性质得到满足。</li>
-<li><strong>操作堆</strong>：通过<code>heap.Push()</code>和<code>heap.Pop()</code>来添加和移除元素，这些操作会保持堆的性质。</li>
-<li><strong>更新元素</strong>：如果需要更新堆中的元素，可以使用<code>heap.Fix()</code>来重新调整堆，确保堆的性质不被破坏。</li>
-</ol>
-<p>利用<code>container/heap</code>接口的灵活性，可以根据具体需求实现不同类型的优先队列，例如最小堆或最大堆。通过实现<code>Less</code>方法，可以定义元素之间的比较逻辑，从而控制优先级队列的行为。例如，如果要实现一个最大堆，可以在<code>Less</code>方法中使用大于号（<code>&gt;</code>）来比较元素，使得优先级最高的元素总是在堆的顶部。</p>
-<p>此外，<code>container/heap</code>还提供了一些辅助函数，如<code>heap.Push</code>, <code>heap.Pop</code>, <code>heap.Remove</code>, 和 <code>heap.Fix</code>，使用这些函数可以更容易地实现和维护优先队列。</p>
-<h2 id="二heap源码剖析">二、heap源码剖析
-<a class="header-anchor" href="#%e4%ba%8cheap%e6%ba%90%e7%a0%81%e5%89%96%e6%9e%90"></a>
-</h2><p>Go 中<code>heap</code>的相关部分可以在源码下的 <code>src/container/heap/heap.go</code> 查看。以下源代码基于 go1.23.3 版本，有删减。</p>
-<h3 id="21-核心接口">2.1 核心接口
-<a class="header-anchor" href="#21-%e6%a0%b8%e5%bf%83%e6%8e%a5%e5%8f%a3"></a>
-</h3><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Interface</span> <span style="color:#66d9ef">interface</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Interface</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">x</span> <span style="color:#a6e22e">any</span>) <span style="color:#75715e">// add x as element Len()
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Pop</span>() <span style="color:#a6e22e">any</span>   <span style="color:#75715e">// remove and return element Len() - 1.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span></code></pre></div><p>这个接口继承了<code>sort.Interface</code>接口，同时要求实现<code>Push</code>、<code>Pop</code>两个方法。<code>sort.Interface</code>的定义如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Interface</span> <span style="color:#66d9ef">interface</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Len is the number of elements in the collection.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Len</span>() <span style="color:#66d9ef">int</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Less reports whether the element with index i
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// must sort before the element with index j.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Swap swaps the elements with indexes i and j.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>sort.Interface</code> 的定义，主要是三个方法：</p>
-<ul>
-<li>Len ：返回数据集的长度；</li>
-<li>Less ：返回 i 是否小于 j；</li>
-<li>Swap ：交换 i 和 j 的值；</li>
-</ul>
-<p>换言之，如果要使用go标准库提供的<code>heap</code>，必须自己实现这些接口定义的方法，即<code>Push</code>、<code>Pop</code>、<code>Len</code>、<code>Less</code>、<code>Swap</code>。</p>
-<h3 id="22-push">2.2 Push
-<a class="header-anchor" href="#22-push"></a>
-</h3><p><code>Push</code>实现了 “从下到上”的堆化。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">Interface</span>, <span style="color:#a6e22e">x</span> <span style="color:#66d9ef">interface</span>{}) {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">x</span>) <span style="color:#75715e">// 向数据集添加一个元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">up</span>(<span style="color:#a6e22e">h</span>, <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Len</span>()<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#75715e">// 从下向上堆化
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 从下向上堆化的内容
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">up</span>(<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">Interface</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 计算当前节点j的父节点索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> (<span style="color:#a6e22e">j</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span> <span style="color:#75715e">// parent
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// 如果两个元素相等 或者 父元素小于当前元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">j</span> <span style="color:#f92672">||</span> !<span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j</span>, <span style="color:#a6e22e">i</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>  <span style="color:#75715e">// 堆化完成
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 如果当前元素小于父元素，交换父元素和当前元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 更新j为新的父节点索引，继续上移过程
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">j</span> = <span style="color:#a6e22e">i</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>up</code>这个函数会将一个节点与它的父节点比较，如果它比父节点小（在最小堆中），就与父节点交换位置，然后继续这个过程，直到节点不再违反堆的性质或者它已经是根节点。</p>
-<h3 id="23-pop">2.3 Pop
-<a class="header-anchor" href="#23-pop"></a>
-</h3><p>再来看<code>Pop</code>的源码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Pop</span>(<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">Interface</span>) <span style="color:#a6e22e">any</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Len</span>() <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>    <span style="color:#75715e">// 获取最终堆长度（去掉最后一个元素）
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Swap</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">n</span>)        <span style="color:#75715e">// 交换堆顶和最后一个元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">down</span>(<span style="color:#a6e22e">h</span>, <span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">n</span>)       <span style="color:#75715e">// 从上到下堆化
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Pop</span>()      <span style="color:#75715e">// 弹出最后一个元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">down</span>(<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">Interface</span>, <span style="color:#a6e22e">i0</span>, <span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">i0</span> <span style="color:#75715e">// 设置当前节点索引为传入的索引i0
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">j1</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span> <span style="color:#75715e">// 计算左孩子节点的索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// 如果左孩子索引j1大于或等于n（堆的元素数量），或者小于0（整数溢出的情况），则退出循环
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">j1</span> <span style="color:#f92672">&gt;=</span> <span style="color:#a6e22e">n</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">j1</span> &lt; <span style="color:#ae81ff">0</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">j</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">j1</span> <span style="color:#75715e">// 初始化j为左孩子索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// 如果右孩子节点存在（j2 &lt; n），并且右孩子比左孩子小，那么将j设置为右孩子的索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">j2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">j1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>; <span style="color:#a6e22e">j2</span> &lt; <span style="color:#a6e22e">n</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j2</span>, <span style="color:#a6e22e">j1</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">j</span> = <span style="color:#a6e22e">j2</span> <span style="color:#75715e">// 选择较小的孩子节点
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 如果当前节点i不小于孩子节点j（即不需要下移），则退出循环
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j</span>, <span style="color:#a6e22e">i</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>) <span style="color:#75715e">// 交换当前节点i和孩子节点j的位置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">i</span> = <span style="color:#a6e22e">j</span> <span style="color:#75715e">// 更新当前节点索引为下移的孩子节点索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 如果最终的i大于初始的i0，说明节点下移了，返回true；否则返回false
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">i</span> &gt; <span style="color:#a6e22e">i0</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>down</code>这个函数会将一个节点与它的子节点比较，如果它比子节点大，就与子节点交换位置，然后继续这个过程，直到节点不再违反堆的性质或者它已经是叶子节点。</p>
-<h3 id="24-初始化">2.4 初始化
-<a class="header-anchor" href="#24-%e5%88%9d%e5%a7%8b%e5%8c%96"></a>
-</h3><p>根据堆的特性可知，叶子节点不可以从上到下堆化。所以，我们找到最后非叶子节点的索引值，从这里开始做堆化操作。即调用<code>Init</code>方法，初始化堆，生成小根(大根)堆。</p>
-<p><code>Init</code>方法源码如下:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Init</span>(<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">Interface</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// heapify
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Len</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// i = 最后一个非叶子节点的 index； i &gt;= 堆顶； index 自减
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">n</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">--</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 从当前节点开始，从上到下堆化
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">down</span>(<span style="color:#a6e22e">h</span>, <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">n</span>)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>初始化一个数组堆的方法就是从数组的中间往前，对每个元素进行一次下沉的操作。</p>
-<h2 id="三实现优先队列">三、实现优先队列
-<a class="header-anchor" href="#%e4%b8%89%e5%ae%9e%e7%8e%b0%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97"></a>
-</h2><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;container/heap&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 定义优先级队列的元素类型
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#66d9ef">struct</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">value</span>    <span style="color:#66d9ef">string</span> <span style="color:#75715e">// 元素的值
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">priority</span> <span style="color:#66d9ef">int</span>    <span style="color:#75715e">// 元素的优先级
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">index</span>    <span style="color:#66d9ef">int</span>    <span style="color:#75715e">// 元素在堆中的索引，用于维护堆的性质
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 定义优先级队列，它是一个Item的切片
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">PriorityQueue</span> []<span style="color:#f92672">*</span><span style="color:#a6e22e">Item</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现heap.Interface的Len方法，返回优先级队列的长度
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">Len</span>() <span style="color:#66d9ef">int</span> { <span style="color:#66d9ef">return</span> len(<span style="color:#a6e22e">pq</span>) }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现heap.Interface的Less方法，比较两个元素的优先级
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">i</span>].<span style="color:#a6e22e">priority</span> &lt; <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">j</span>].<span style="color:#a6e22e">priority</span> <span style="color:#75715e">// 优先级越小，值越小
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现heap.Interface的Swap方法，交换两个元素的位置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">i</span>], <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">j</span>] = <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">j</span>], <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">i</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">i</span>].<span style="color:#a6e22e">index</span> = <span style="color:#a6e22e">i</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pq</span>[<span style="color:#a6e22e">j</span>].<span style="color:#a6e22e">index</span> = <span style="color:#a6e22e">j</span>
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现heap.Interface的Push方法，向优先级队列中添加新元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">x</span> <span style="color:#66d9ef">interface</span>{}) {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> len(<span style="color:#f92672">*</span><span style="color:#a6e22e">pq</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">x</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">Item</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">index</span> = <span style="color:#a6e22e">n</span> <span style="color:#75715e">// 设置新元素的索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">*</span><span style="color:#a6e22e">pq</span> = append(<span style="color:#f92672">*</span><span style="color:#a6e22e">pq</span>, <span style="color:#a6e22e">item</span>)
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现heap.Interface的Pop方法，从优先级队列中移除并返回优先级最高的元素
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">Pop</span>() <span style="color:#66d9ef">interface</span>{} {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">old</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">pq</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> len(<span style="color:#a6e22e">old</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>[<span style="color:#a6e22e">n</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">index</span> = <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#75715e">// 删除元素，设置其索引为-1
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">*</span><span style="color:#a6e22e">pq</span> = <span style="color:#a6e22e">old</span>[<span style="color:#ae81ff">0</span> : <span style="color:#a6e22e">n</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">item</span>
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 用于维护堆的性质，上移操作
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">up</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pi</span> <span style="color:#f92672">:=</span> (<span style="color:#a6e22e">i</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span> <span style="color:#75715e">// 计算父节点索引
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">pi</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">||</span> !<span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">pi</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">pi</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">i</span> = <span style="color:#a6e22e">pi</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 用于维护堆的性质，下移操作
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">pq</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PriorityQueue</span>) <span style="color:#a6e22e">down</span>(<span style="color:#a6e22e">i0</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">i0</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">j1</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">j1</span> <span style="color:#f92672">&gt;=</span> <span style="color:#a6e22e">n</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">j1</span> &lt; <span style="color:#ae81ff">0</span> { <span style="color:#75715e">// j1 &lt; 0 after int overflow
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">j</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">j1</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">j2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">j1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>; <span style="color:#a6e22e">j2</span> &lt; <span style="color:#a6e22e">n</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j2</span>, <span style="color:#a6e22e">j1</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">j</span> = <span style="color:#a6e22e">j2</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j</span>, <span style="color:#a6e22e">i</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">i</span> = <span style="color:#a6e22e">j</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">i</span> &gt; <span style="color:#a6e22e">i0</span>
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pq</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">PriorityQueue</span>{}
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">heap</span>.<span style="color:#a6e22e">Init</span>(<span style="color:#a6e22e">pq</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 添加元素到优先级队列
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">heap</span>.<span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">pq</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Item</span>{<span style="color:#a6e22e">value</span>: <span style="color:#e6db74">&#34;A&#34;</span>, <span style="color:#a6e22e">priority</span>: <span style="color:#ae81ff">2</span>})
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">heap</span>.<span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">pq</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Item</span>{<span style="color:#a6e22e">value</span>: <span style="color:#e6db74">&#34;B&#34;</span>, <span style="color:#a6e22e">priority</span>: <span style="color:#ae81ff">1</span>})
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">heap</span>.<span style="color:#a6e22e">Push</span>(<span style="color:#a6e22e">pq</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Item</span>{<span style="color:#a6e22e">value</span>: <span style="color:#e6db74">&#34;C&#34;</span>, <span style="color:#a6e22e">priority</span>: <span style="color:#ae81ff">3</span>})
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 打印优先级队列
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">pq</span>.<span style="color:#a6e22e">Len</span>() &gt; <span style="color:#ae81ff">0</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%+v &#34;</span>, <span style="color:#a6e22e">heap</span>.<span style="color:#a6e22e">Pop</span>(<span style="color:#a6e22e">pq</span>))
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
+<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="Go的heap和源码分析"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content="优先队列,源代码"><meta property="og:type" content="article"><meta property="og:title" content="Go的heap和源码分析"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/golang/heap-sourcecode/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2023-03-04 21:30:00 +0800 CST"><meta property="article:modified_time" content="2023-03-04 21:30:00 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"heap-sourcecode","permalink":"//localhost:1313/post/golang/heap-sourcecode/","title":"Go的heap和源码分析","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>Go的heap和源码分析 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
+<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><a href=#一containerheap介绍>一、container/heap介绍</a></li><li><a href=#二heap源码剖析>二、heap源码剖析</a><ul><li><a href=#21-核心接口>2.1 核心接口</a></li><li><a href=#22-push>2.2 Push</a></li><li><a href=#23-pop>2.3 Pop</a></li><li><a href=#24-初始化>2.4 初始化</a></li></ul></li><li><a href=#三实现优先队列>三、实现优先队列</a></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
+<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
+<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
+<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
+友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
+<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
+<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/golang/heap-sourcecode/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="Go的heap和源码分析"><meta itemprop=description content="之前用Go实现延时队列，我使用了Go标准库中的container/heap接口来构建一个优先队列。为什么Go的container/heap接口可以实现一个优先队列呢？
+这是因为Go的container/heap定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。"></span><header class=post-header><h1 class=post-title itemprop="name headline">Go的heap和源码分析</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
+</span><span class=post-meta-item-text title=发表于>发表于：
+</span><time title="创建时间：2023-03-04 21:30:00 +0800 CST" itemprop="dateCreated datePublished" datetime="2023-03-04 21:30:00 +0800 CST">2023-03-04
+</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
+</span><span class=post-meta-item-text title=分类于>分类于：
+</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/golang itemprop=url rel=index><span itemprop=name>Golang</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
+</span><span class=post-meta-item-text>字数：</span>
+<span>2723</span>
+</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
+</span><span class=post-meta-item-text>阅读：&ap;</span>
+<span>6分钟</span>
+</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
+</span><span class=post-meta-item-text>浏览：
+</span><span id=busuanzi_value_page_pv data-path=/post/golang/heap-sourcecode/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>之前用Go实现延时队列，我使用了Go标准库中的<code>container/heap</code>接口来构建一个优先队列。为什么Go的<code>container/heap</code>接口可以实现一个优先队列呢？</p><p>这是因为Go的<code>container/heap</code>定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。</p><h2 id=一containerheap介绍>一、container/heap介绍
+<a class=header-anchor href=#%e4%b8%80containerheap%e4%bb%8b%e7%bb%8d></a></h2><p>以下是<code>container/heap</code>接口实现优先队列的关键点：</p><ol><li><strong>定义数据结构</strong>：首先，需要定义一个数据结构来存储堆中的元素。</li><li><strong>实现heap.Interface</strong>：<code>container/heap</code>接口要求实现以下方法：</li></ol><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#a6e22e>Len</span>()<span style=color:#960050;background-color:#1e0010>：</span><span style=color:#a6e22e>返回堆中元素的数量</span><span style=color:#960050;background-color:#1e0010>。</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span><span style=color:#960050;background-color:#1e0010>：</span><span style=color:#a6e22e>比较索引为</span> <span style=color:#a6e22e>i</span> <span style=color:#a6e22e>和</span> <span style=color:#a6e22e>j</span> <span style=color:#a6e22e>的两个元素</span><span style=color:#960050;background-color:#1e0010>，</span><span style=color:#a6e22e>确定它们在堆中的顺序</span><span style=color:#960050;background-color:#1e0010>。</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>)<span style=color:#960050;background-color:#1e0010>：</span><span style=color:#a6e22e>交换索引为</span> <span style=color:#a6e22e>i</span> <span style=color:#a6e22e>和</span> <span style=color:#a6e22e>j</span> <span style=color:#a6e22e>的两个元素</span><span style=color:#960050;background-color:#1e0010>。</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>x</span> <span style=color:#66d9ef>interface</span>{})<span style=color:#960050;background-color:#1e0010>：</span><span style=color:#a6e22e>向堆中添加一个新元素</span><span style=color:#960050;background-color:#1e0010>。</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>Pop</span>() <span style=color:#66d9ef>interface</span>{}<span style=color:#960050;background-color:#1e0010>：</span><span style=color:#a6e22e>移除并返回堆中的最后一个元素</span><span style=color:#960050;background-color:#1e0010>，</span><span style=color:#a6e22e>即优先级最高的元素</span><span style=color:#960050;background-color:#1e0010>。</span>
+</span></span></code></pre></div><ol start=3><li><strong>初始化堆</strong>：使用<code>heap.Init()</code>函数初始化堆，确保堆的性质得到满足。</li><li><strong>操作堆</strong>：通过<code>heap.Push()</code>和<code>heap.Pop()</code>来添加和移除元素，这些操作会保持堆的性质。</li><li><strong>更新元素</strong>：如果需要更新堆中的元素，可以使用<code>heap.Fix()</code>来重新调整堆，确保堆的性质不被破坏。</li></ol><p>利用<code>container/heap</code>接口的灵活性，可以根据具体需求实现不同类型的优先队列，例如最小堆或最大堆。通过实现<code>Less</code>方法，可以定义元素之间的比较逻辑，从而控制优先级队列的行为。例如，如果要实现一个最大堆，可以在<code>Less</code>方法中使用大于号（<code>></code>）来比较元素，使得优先级最高的元素总是在堆的顶部。</p><p>此外，<code>container/heap</code>还提供了一些辅助函数，如<code>heap.Push</code>, <code>heap.Pop</code>, <code>heap.Remove</code>, 和 <code>heap.Fix</code>，使用这些函数可以更容易地实现和维护优先队列。</p><h2 id=二heap源码剖析>二、heap源码剖析
+<a class=header-anchor href=#%e4%ba%8cheap%e6%ba%90%e7%a0%81%e5%89%96%e6%9e%90></a></h2><p>Go 中<code>heap</code>的相关部分可以在源码下的 <code>src/container/heap/heap.go</code> 查看。以下源代码基于 go1.23.3 版本，有删减。</p><h3 id=21-核心接口>2.1 核心接口
+<a class=header-anchor href=#21-%e6%a0%b8%e5%bf%83%e6%8e%a5%e5%8f%a3></a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Interface</span> <span style=color:#66d9ef>interface</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>sort</span>.<span style=color:#a6e22e>Interface</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>x</span> <span style=color:#a6e22e>any</span>) <span style=color:#75715e>// add x as element Len()
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>Pop</span>() <span style=color:#a6e22e>any</span>   <span style=color:#75715e>// remove and return element Len() - 1.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></code></pre></div><p>这个接口继承了<code>sort.Interface</code>接口，同时要求实现<code>Push</code>、<code>Pop</code>两个方法。<code>sort.Interface</code>的定义如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Interface</span> <span style=color:#66d9ef>interface</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Len is the number of elements in the collection.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>Len</span>() <span style=color:#66d9ef>int</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Less reports whether the element with index i
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// must sort before the element with index j.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Swap swaps the elements with indexes i and j.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>sort.Interface</code> 的定义，主要是三个方法：</p><ul><li>Len ：返回数据集的长度；</li><li>Less ：返回 i 是否小于 j；</li><li>Swap ：交换 i 和 j 的值；</li></ul><p>换言之，如果要使用go标准库提供的<code>heap</code>，必须自己实现这些接口定义的方法，即<code>Push</code>、<code>Pop</code>、<code>Len</code>、<code>Less</code>、<code>Swap</code>。</p><h3 id=22-push>2.2 Push
+<a class=header-anchor href=#22-push></a></h3><p><code>Push</code>实现了 “从下到上”的堆化。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>, <span style=color:#a6e22e>x</span> <span style=color:#66d9ef>interface</span>{}) {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>x</span>) <span style=color:#75715e>// 向数据集添加一个元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>up</span>(<span style=color:#a6e22e>h</span>, <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Len</span>()<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) <span style=color:#75715e>// 从下向上堆化
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 从下向上堆化的内容
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>up</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 计算当前节点j的父节点索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> (<span style=color:#a6e22e>j</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span> <span style=color:#75715e>// parent
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#75715e>// 如果两个元素相等 或者 父元素小于当前元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>j</span> <span style=color:#f92672>||</span> !<span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>j</span>, <span style=color:#a6e22e>i</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>  <span style=color:#75715e>// 堆化完成
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 如果当前元素小于父元素，交换父元素和当前元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span>)
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 更新j为新的父节点索引，继续上移过程
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>j</span> = <span style=color:#a6e22e>i</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>up</code>这个函数会将一个节点与它的父节点比较，如果它比父节点小（在最小堆中），就与父节点交换位置，然后继续这个过程，直到节点不再违反堆的性质或者它已经是根节点。</p><h3 id=23-pop>2.3 Pop
+<a class=header-anchor href=#23-pop></a></h3><p>再来看<code>Pop</code>的源码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Pop</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>) <span style=color:#a6e22e>any</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>n</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Len</span>() <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>    <span style=color:#75715e>// 获取最终堆长度（去掉最后一个元素）
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Swap</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>n</span>)        <span style=color:#75715e>// 交换堆顶和最后一个元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>down</span>(<span style=color:#a6e22e>h</span>, <span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>n</span>)       <span style=color:#75715e>// 从上到下堆化
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Pop</span>()      <span style=color:#75715e>// 弹出最后一个元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>down</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>, <span style=color:#a6e22e>i0</span>, <span style=color:#a6e22e>n</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>i0</span> <span style=color:#75715e>// 设置当前节点索引为传入的索引i0
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>for</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>j1</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>2</span><span style=color:#f92672>*</span><span style=color:#a6e22e>i</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span> <span style=color:#75715e>// 计算左孩子节点的索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#75715e>// 如果左孩子索引j1大于或等于n（堆的元素数量），或者小于0（整数溢出的情况），则退出循环
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>j1</span> <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>n</span> <span style=color:#f92672>||</span> <span style=color:#a6e22e>j1</span> &lt; <span style=color:#ae81ff>0</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>j</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>j1</span> <span style=color:#75715e>// 初始化j为左孩子索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#75715e>// 如果右孩子节点存在（j2 &lt; n），并且右孩子比左孩子小，那么将j设置为右孩子的索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>j2</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>j1</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>; <span style=color:#a6e22e>j2</span> &lt; <span style=color:#a6e22e>n</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>j2</span>, <span style=color:#a6e22e>j1</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>j</span> = <span style=color:#a6e22e>j2</span> <span style=color:#75715e>// 选择较小的孩子节点
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 如果当前节点i不小于孩子节点j（即不需要下移），则退出循环
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> !<span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>j</span>, <span style=color:#a6e22e>i</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span>) <span style=color:#75715e>// 交换当前节点i和孩子节点j的位置
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>i</span> = <span style=color:#a6e22e>j</span> <span style=color:#75715e>// 更新当前节点索引为下移的孩子节点索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 如果最终的i大于初始的i0，说明节点下移了，返回true；否则返回false
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>i</span> &gt; <span style=color:#a6e22e>i0</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>down</code>这个函数会将一个节点与它的子节点比较，如果它比子节点大，就与子节点交换位置，然后继续这个过程，直到节点不再违反堆的性质或者它已经是叶子节点。</p><h3 id=24-初始化>2.4 初始化
+<a class=header-anchor href=#24-%e5%88%9d%e5%a7%8b%e5%8c%96></a></h3><p>根据堆的特性可知，叶子节点不可以从上到下堆化。所以，我们找到最后非叶子节点的索引值，从这里开始做堆化操作。即调用<code>Init</code>方法，初始化堆，生成小根(大根)堆。</p><p><code>Init</code>方法源码如下:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Init</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// heapify
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>n</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>h</span>.<span style=color:#a6e22e>Len</span>()
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// i = 最后一个非叶子节点的 index； i &gt;= 堆顶； index 自减
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>n</span><span style=color:#f92672>/</span><span style=color:#ae81ff>2</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>; <span style=color:#a6e22e>i</span> <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>--</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 从当前节点开始，从上到下堆化
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>down</span>(<span style=color:#a6e22e>h</span>, <span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>n</span>)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>初始化一个数组堆的方法就是从数组的中间往前，对每个元素进行一次下沉的操作。</p><h2 id=三实现优先队列>三、实现优先队列
+<a class=header-anchor href=#%e4%b8%89%e5%ae%9e%e7%8e%b0%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97></a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;container/heap&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 定义优先级队列的元素类型
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Item</span> <span style=color:#66d9ef>struct</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>value</span>    <span style=color:#66d9ef>string</span> <span style=color:#75715e>// 元素的值
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>priority</span> <span style=color:#66d9ef>int</span>    <span style=color:#75715e>// 元素的优先级
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>index</span>    <span style=color:#66d9ef>int</span>    <span style=color:#75715e>// 元素在堆中的索引，用于维护堆的性质
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 定义优先级队列，它是一个Item的切片
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>PriorityQueue</span> []<span style=color:#f92672>*</span><span style=color:#a6e22e>Item</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 实现heap.Interface的Len方法，返回优先级队列的长度
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>Len</span>() <span style=color:#66d9ef>int</span> { <span style=color:#66d9ef>return</span> len(<span style=color:#a6e22e>pq</span>) }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 实现heap.Interface的Less方法，比较两个元素的优先级
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>priority</span> &lt; <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>priority</span> <span style=color:#75715e>// 优先级越小，值越小
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 实现heap.Interface的Swap方法，交换两个元素的位置
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>i</span>], <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>j</span>] = <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>j</span>], <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>i</span>]
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>index</span> = <span style=color:#a6e22e>i</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>pq</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>index</span> = <span style=color:#a6e22e>j</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 实现heap.Interface的Push方法，向优先级队列中添加新元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>x</span> <span style=color:#66d9ef>interface</span>{}) {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>n</span> <span style=color:#f92672>:=</span> len(<span style=color:#f92672>*</span><span style=color:#a6e22e>pq</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>item</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>x</span>.(<span style=color:#f92672>*</span><span style=color:#a6e22e>Item</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>item</span>.<span style=color:#a6e22e>index</span> = <span style=color:#a6e22e>n</span> <span style=color:#75715e>// 设置新元素的索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>*</span><span style=color:#a6e22e>pq</span> = append(<span style=color:#f92672>*</span><span style=color:#a6e22e>pq</span>, <span style=color:#a6e22e>item</span>)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 实现heap.Interface的Pop方法，从优先级队列中移除并返回优先级最高的元素
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>Pop</span>() <span style=color:#66d9ef>interface</span>{} {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>old</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>pq</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>n</span> <span style=color:#f92672>:=</span> len(<span style=color:#a6e22e>old</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>item</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>old</span>[<span style=color:#a6e22e>n</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>item</span>.<span style=color:#a6e22e>index</span> = <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span> <span style=color:#75715e>// 删除元素，设置其索引为-1
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#f92672>*</span><span style=color:#a6e22e>pq</span> = <span style=color:#a6e22e>old</span>[<span style=color:#ae81ff>0</span> : <span style=color:#a6e22e>n</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>item</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 用于维护堆的性质，上移操作
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>up</span>(<span style=color:#a6e22e>i</span> <span style=color:#66d9ef>int</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>pi</span> <span style=color:#f92672>:=</span> (<span style=color:#a6e22e>i</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span> <span style=color:#75715e>// 计算父节点索引
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>pi</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>||</span> !<span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>pi</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>pi</span>)
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>i</span> = <span style=color:#a6e22e>pi</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// 用于维护堆的性质，下移操作
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>pq</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>PriorityQueue</span>) <span style=color:#a6e22e>down</span>(<span style=color:#a6e22e>i0</span> <span style=color:#66d9ef>int</span>, <span style=color:#a6e22e>n</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>i0</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>j1</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>2</span><span style=color:#f92672>*</span><span style=color:#a6e22e>i</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>j1</span> <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>n</span> <span style=color:#f92672>||</span> <span style=color:#a6e22e>j1</span> &lt; <span style=color:#ae81ff>0</span> { <span style=color:#75715e>// j1 &lt; 0 after int overflow
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>j</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>j1</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>j2</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>j1</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>; <span style=color:#a6e22e>j2</span> &lt; <span style=color:#a6e22e>n</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>j2</span>, <span style=color:#a6e22e>j1</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>j</span> = <span style=color:#a6e22e>j2</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> !<span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Less</span>(<span style=color:#a6e22e>j</span>, <span style=color:#a6e22e>i</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Swap</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span>)
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>i</span> = <span style=color:#a6e22e>j</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>i</span> &gt; <span style=color:#a6e22e>i0</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>pq</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>PriorityQueue</span>{}
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>heap</span>.<span style=color:#a6e22e>Init</span>(<span style=color:#a6e22e>pq</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 添加元素到优先级队列
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>heap</span>.<span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>pq</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Item</span>{<span style=color:#a6e22e>value</span>: <span style=color:#e6db74>&#34;A&#34;</span>, <span style=color:#a6e22e>priority</span>: <span style=color:#ae81ff>2</span>})
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>heap</span>.<span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>pq</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Item</span>{<span style=color:#a6e22e>value</span>: <span style=color:#e6db74>&#34;B&#34;</span>, <span style=color:#a6e22e>priority</span>: <span style=color:#ae81ff>1</span>})
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>heap</span>.<span style=color:#a6e22e>Push</span>(<span style=color:#a6e22e>pq</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Item</span>{<span style=color:#a6e22e>value</span>: <span style=color:#e6db74>&#34;C&#34;</span>, <span style=color:#a6e22e>priority</span>: <span style=color:#ae81ff>3</span>})
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 打印优先级队列
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>for</span> <span style=color:#a6e22e>pq</span>.<span style=color:#a6e22e>Len</span>() &gt; <span style=color:#ae81ff>0</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Printf</span>(<span style=color:#e6db74>&#34;%+v &#34;</span>, <span style=color:#a6e22e>heap</span>.<span style=color:#a6e22e>Pop</span>(<span style=color:#a6e22e>pq</span>))
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>定义了一个Item结构体来表示优先级队列中的元素，它包含元素的值、优先级和一个索引。
 PriorityQueue是一个Item的切片，实现了heap.Interface接口。
-使用heap.Init()初始化优先级队列，然后使用heap.Push()添加元素，最后使用heap.Pop()移除并打印元素。</p>
-
-
-    </div>
-    <footer class="post-footer">
-      
-
-
-<div class="post-tags">
-  
-    <a href="/tags/%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97">
-    优先队列
-  </a>
-  
-    <a href="/tags/%e6%ba%90%e4%bb%a3%e7%a0%81">
-    源代码
-  </a>
-  
-</div>
-
-
-
-<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
-
-
-<hr/>
-
-
-
-
-
-
-
-
-
-
-
-<div class="post-nav">
-  <div class="post-nav-next post-nav-item">
-    
-    <a href="/post/golang/tag-and-reflect/" rel="next" title="Go的结构体标签与反射">
-      <i class="fa fa-chevron-left"></i> Go的结构体标签与反射
-    </a>
-    
-  </div>
-  <div class="post-nav-prev post-nav-item">
-    
-    <a href="/post/mq/delayed-queue/" rel="prev" title="Golang实现一个基于本地存储的延时队列">
-      Golang实现一个基于本地存储的延时队列
-      <i class="fa fa-chevron-right"></i>
-    </a>
-    
-  </div>
-</div>
-
-
-
-    </footer>
-  </article>
-</div>
-
-      
-    </div>
-  </main>
-  <footer class="footer">
-    <div class="footer-inner">
-      
-
-<div class="copyright">
-  &copy;
-  <span itemprop="copyrightYear">
-    
-    
-    
-    2010 - 2024
-    
-    
-  </span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder"></span>
-</div>
-
-<div class="powered-by">
-  
-  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
-</div>
-
-
-
-
-
- 
-
-
-
-
-
-    </div>
-  </footer>
-
-  
-
-
-
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
-
-
-<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-<script type="text/javascript" src="/js/main.js" defer></script>
-
-
-
-
-
-</body>
-
-</html>
+使用heap.Init()初始化优先级队列，然后使用heap.Push()添加元素，最后使用heap.Pop()移除并打印元素。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/%e4%bc%98%e5%85%88%e9%98%9f%e5%88%97>优先队列
+</a><a href=/tags/%e6%ba%90%e4%bb%a3%e7%a0%81>源代码</a></div><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/golang/tag-and-reflect/ rel=next title=Go的结构体标签与反射><i class="fa fa-chevron-left"></i> Go的结构体标签与反射</a></div><div class="post-nav-prev post-nav-item"><a href=/post/mq/delayed-queue/ rel=prev title=Golang实现一个基于本地存储的延时队列>Golang实现一个基于本地存储的延时队列
+<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
+<span itemprop=copyrightYear>2010 - 2024
+</span><span class=with-love><i class="fa fa-heart"></i>
+</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script></body></html>

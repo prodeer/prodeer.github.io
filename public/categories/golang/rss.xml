@@ -1,75 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Golang on 呦呦鹿鸣</title>
-    <link>//localhost:1313/categories/golang/</link>
-    <description>Recent content in Golang on 呦呦鹿鸣</description>
-    <generator>Hugo</generator>
-    <language>zh-CN</language>
-    <lastBuildDate>Wed, 29 Mar 2023 23:30:00 +0800</lastBuildDate>
-    <atom:link href="//localhost:1313/categories/golang/rss.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Go的结构体标签与反射</title>
-      <link>//localhost:1313/post/golang/tag-and-reflect/</link>
-      <pubDate>Wed, 29 Mar 2023 23:30:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/tag-and-reflect/</guid>
-      <description>&lt;h2 id=&#34;一结构体标签&#34;&gt;一、结构体标签&#xA;&lt;a class=&#34;header-anchor&#34; href=&#34;#%e4%b8%80%e7%bb%93%e6%9e%84%e4%bd%93%e6%a0%87%e7%ad%be&#34;&gt;&lt;/a&gt;&#xA;&lt;/h2&gt;&lt;p&gt;结构体标签是附加在结构体字段上的小块元数据字符串，格式为 &lt;code&gt;key:&amp;quot;value&amp;quot;&lt;/code&gt;，其中 &lt;code&gt;key&lt;/code&gt; 是标签名，&lt;code&gt;value&lt;/code&gt; 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的heap和源码分析</title>
-      <link>//localhost:1313/post/golang/heap-sourcecode/</link>
-      <pubDate>Sat, 04 Mar 2023 21:30:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/heap-sourcecode/</guid>
-      <description>&lt;p&gt;之前用Go实现延时队列，我使用了Go标准库中的&lt;code&gt;container/heap&lt;/code&gt;接口来构建一个优先队列。为什么Go的&lt;code&gt;container/heap&lt;/code&gt;接口可以实现一个优先队列呢？&lt;/p&gt;&#xA;&lt;p&gt;这是因为Go的&lt;code&gt;container/heap&lt;/code&gt;定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的弱引用</title>
-      <link>//localhost:1313/post/golang/weak-reference/</link>
-      <pubDate>Mon, 09 Jan 2023 00:13:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/weak-reference/</guid>
-      <description>&lt;p&gt;在学习观察者模式的时候，看到观察者模式的实现方式之一有弱引用，所以专门学习了一下这个知识点。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>用Golang实现一个消息队列</title>
-      <link>//localhost:1313/post/golang/implement-queue/</link>
-      <pubDate>Sun, 04 Dec 2022 20:00:20 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/implement-queue/</guid>
-      <description>&lt;p&gt;Go的&lt;code&gt;channel&lt;/code&gt;是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的定时器之Time.Ticker</title>
-      <link>//localhost:1313/post/golang/time-ticker/</link>
-      <pubDate>Fri, 22 Apr 2022 22:47:20 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/time-ticker/</guid>
-      <description>&lt;h3 id=&#34;一引子&#34;&gt;一、引子&#xA;&lt;a class=&#34;header-anchor&#34; href=&#34;#%e4%b8%80%e5%bc%95%e5%ad%90&#34;&gt;&lt;/a&gt;&#xA;&lt;/h3&gt;&lt;p&gt;面试官问了一道题：每秒钟调用一次proc并保证程序不退出。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;proc&lt;/span&gt;() {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    panic(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ok&amp;#34;&lt;/span&gt;)&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这道题考察的知识点主要有：&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;定时执行任务&lt;/li&gt;&#xA;&lt;li&gt;捕获 &lt;code&gt;panic&lt;/code&gt; 错误&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;这里主要学习、了解 &lt;code&gt;Time.Ticker&lt;/code&gt; 的实现，其源代码基于 &lt;code&gt;Go 1.17.9&lt;/code&gt; 版本，主要在 &lt;code&gt;src/time/tick.go&lt;/code&gt; 文件中，包含了一个结构体和四个函数。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的WaitGroup源码分析</title>
-      <link>//localhost:1313/post/golang/waitgroup-sourcecode/</link>
-      <pubDate>Fri, 01 Apr 2022 09:00:20 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/waitgroup-sourcecode/</guid>
-      <description>&lt;p&gt;&lt;code&gt;WaitGroup&lt;/code&gt; 是开发中经常用到的并发控制手段，其源代码在 &lt;code&gt;src/sync/waitgroup.go&lt;/code&gt; 文件中，定义了 1 个结构体和 4 个方法：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;&lt;code&gt;WaitGroup{}&lt;/code&gt;&lt;/strong&gt;：结构体。&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;&lt;code&gt;state()&lt;/code&gt;&lt;/strong&gt;：内部方法，在 &lt;code&gt;Add()&lt;/code&gt;、&lt;code&gt;Wait()&lt;/code&gt; 中调用。&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;&lt;code&gt;Add()&lt;/code&gt;&lt;/strong&gt;：添加任务数、改变任务数。&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;&lt;code&gt;Done()&lt;/code&gt;&lt;/strong&gt;：完成任务，其实就是 &lt;code&gt;Add(-1)&lt;/code&gt;。&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;&lt;code&gt;Wait()&lt;/code&gt;&lt;/strong&gt;：阻塞等待所有任务的完成。&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;以下源代码基于 &lt;code&gt;Go 1.17.5&lt;/code&gt; 版本，有删减。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的Select的用法</title>
-      <link>//localhost:1313/post/golang/select/</link>
-      <pubDate>Sun, 10 Oct 2021 23:52:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/select/</guid>
-      <description>&lt;p&gt;Go 的通道有两种操作方式，一种是带 range 子句的 for 语句，另一种则是 select 语句，它是专门为了操作通道而存在的。这里主要介绍 select 的用法。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的Channel发送和接收</title>
-      <link>//localhost:1313/post/golang/channel/</link>
-      <pubDate>Tue, 24 Aug 2021 01:46:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/channel/</guid>
-      <description>&lt;p&gt;先来看一道面试题：&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;对已经关闭的 chan 进行读写，会怎么样？为什么？&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在上一篇学习 Go 协程的文章中，知道 go 关键字可以用来开启一个 goroutine 进行任务处理，但多个任务之间如果需要通信，就需要用到通道（channel）了。&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Go的Waitgroup和锁</title>
-      <link>//localhost:1313/post/golang/waitgroup/</link>
-      <pubDate>Tue, 18 May 2021 00:13:00 +0800</pubDate>
-      <guid>//localhost:1313/post/golang/waitgroup/</guid>
-      <description>&lt;p&gt;学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。&lt;/p&gt;</description>
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Golang on 呦呦鹿鸣</title><link>//localhost:1313/categories/golang/</link><description>Recent content in Golang on 呦呦鹿鸣</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Wed, 29 Mar 2023 23:30:00 +0800</lastBuildDate><atom:link href="//localhost:1313/categories/golang/rss.xml" rel="self" type="application/rss+xml"/><item><title>Go的结构体标签与反射</title><link>//localhost:1313/post/golang/tag-and-reflect/</link><pubDate>Wed, 29 Mar 2023 23:30:00 +0800</pubDate><guid>//localhost:1313/post/golang/tag-and-reflect/</guid><description>&lt;h2 id="一结构体标签">一、结构体标签
+&lt;a class="header-anchor" href="#%e4%b8%80%e7%bb%93%e6%9e%84%e4%bd%93%e6%a0%87%e7%ad%be">&lt;/a>
+&lt;/h2>&lt;p>结构体标签是附加在结构体字段上的小块元数据字符串，格式为 &lt;code>key:&amp;quot;value&amp;quot;&lt;/code>，其中 &lt;code>key&lt;/code> 是标签名，&lt;code>value&lt;/code> 是标签的值。一个字段可以有多个标签，标签之间用空格分隔。&lt;/p></description></item><item><title>Go的heap和源码分析</title><link>//localhost:1313/post/golang/heap-sourcecode/</link><pubDate>Sat, 04 Mar 2023 21:30:00 +0800</pubDate><guid>//localhost:1313/post/golang/heap-sourcecode/</guid><description>&lt;p>之前用Go实现延时队列，我使用了Go标准库中的&lt;code>container/heap&lt;/code>接口来构建一个优先队列。为什么Go的&lt;code>container/heap&lt;/code>接口可以实现一个优先队列呢？&lt;/p>
+&lt;p>这是因为Go的&lt;code>container/heap&lt;/code>定义了一套完整的方法，使得任何实现了这些方法的数据结构都能够作为堆来使用。优先队列是堆的一种应用，它允许快速访问最高（或最低）优先级的元素。&lt;/p></description></item><item><title>Go的弱引用</title><link>//localhost:1313/post/golang/weak-reference/</link><pubDate>Mon, 09 Jan 2023 00:13:00 +0800</pubDate><guid>//localhost:1313/post/golang/weak-reference/</guid><description>&lt;p>在学习观察者模式的时候，看到观察者模式的实现方式之一有弱引用，所以专门学习了一下这个知识点。&lt;/p></description></item><item><title>用Golang实现一个消息队列</title><link>//localhost:1313/post/golang/implement-queue/</link><pubDate>Sun, 04 Dec 2022 20:00:20 +0800</pubDate><guid>//localhost:1313/post/golang/implement-queue/</guid><description>&lt;p>Go的&lt;code>channel&lt;/code>是并发编程中的一种同步通信机制，天然支持并发请求，因此可以用来实现消息队列。这里实现一个能够处理并发请求的消息队列。&lt;/p></description></item><item><title>Go的定时器之Time.Ticker</title><link>//localhost:1313/post/golang/time-ticker/</link><pubDate>Fri, 22 Apr 2022 22:47:20 +0800</pubDate><guid>//localhost:1313/post/golang/time-ticker/</guid><description>&lt;h3 id="一引子">一、引子
+&lt;a class="header-anchor" href="#%e4%b8%80%e5%bc%95%e5%ad%90">&lt;/a>
+&lt;/h3>&lt;p>面试官问了一道题：每秒钟调用一次proc并保证程序不退出。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">package&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">func&lt;/span> &lt;span style="color:#a6e22e">proc&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> panic(&lt;span style="color:#e6db74">&amp;#34;ok&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这道题考察的知识点主要有：&lt;/p>
+&lt;ol>
+&lt;li>定时执行任务&lt;/li>
+&lt;li>捕获 &lt;code>panic&lt;/code> 错误&lt;/li>
+&lt;/ol>
+&lt;p>这里主要学习、了解 &lt;code>Time.Ticker&lt;/code> 的实现，其源代码基于 &lt;code>Go 1.17.9&lt;/code> 版本，主要在 &lt;code>src/time/tick.go&lt;/code> 文件中，包含了一个结构体和四个函数。&lt;/p></description></item><item><title>Go的WaitGroup源码分析</title><link>//localhost:1313/post/golang/waitgroup-sourcecode/</link><pubDate>Fri, 01 Apr 2022 09:00:20 +0800</pubDate><guid>//localhost:1313/post/golang/waitgroup-sourcecode/</guid><description>&lt;p>&lt;code>WaitGroup&lt;/code> 是开发中经常用到的并发控制手段，其源代码在 &lt;code>src/sync/waitgroup.go&lt;/code> 文件中，定义了 1 个结构体和 4 个方法：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;code>WaitGroup{}&lt;/code>&lt;/strong>：结构体。&lt;/li>
+&lt;li>&lt;strong>&lt;code>state()&lt;/code>&lt;/strong>：内部方法，在 &lt;code>Add()&lt;/code>、&lt;code>Wait()&lt;/code> 中调用。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Add()&lt;/code>&lt;/strong>：添加任务数、改变任务数。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Done()&lt;/code>&lt;/strong>：完成任务，其实就是 &lt;code>Add(-1)&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>&lt;code>Wait()&lt;/code>&lt;/strong>：阻塞等待所有任务的完成。&lt;/li>
+&lt;/ul>
+&lt;p>以下源代码基于 &lt;code>Go 1.17.5&lt;/code> 版本，有删减。&lt;/p></description></item><item><title>Go的Select的用法</title><link>//localhost:1313/post/golang/select/</link><pubDate>Sun, 10 Oct 2021 23:52:00 +0800</pubDate><guid>//localhost:1313/post/golang/select/</guid><description>&lt;p>Go 的通道有两种操作方式，一种是带 range 子句的 for 语句，另一种则是 select 语句，它是专门为了操作通道而存在的。这里主要介绍 select 的用法。&lt;/p></description></item><item><title>Go的Channel发送和接收</title><link>//localhost:1313/post/golang/channel/</link><pubDate>Tue, 24 Aug 2021 01:46:00 +0800</pubDate><guid>//localhost:1313/post/golang/channel/</guid><description>&lt;p>先来看一道面试题：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>对已经关闭的 chan 进行读写，会怎么样？为什么？
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在上一篇学习 Go 协程的文章中，知道 go 关键字可以用来开启一个 goroutine 进行任务处理，但多个任务之间如果需要通信，就需要用到通道（channel）了。&lt;/p></description></item><item><title>Go的Waitgroup和锁</title><link>//localhost:1313/post/golang/waitgroup/</link><pubDate>Tue, 18 May 2021 00:13:00 +0800</pubDate><guid>//localhost:1313/post/golang/waitgroup/</guid><description>&lt;p>学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。&lt;/p></description></item></channel></rss>

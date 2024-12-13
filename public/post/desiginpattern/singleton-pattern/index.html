@@ -1,983 +1,133 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
-
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)" />
-
-<meta name="generator" content="Hugo 0.139.0">
-<link rel="shortcut icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/x-icon" href="/imgs/icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/imgs/icons/favicon_16x16_next.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/imgs/icons/favicon_32_32_next.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/imgs/icons/apple_touch_icon_next.png">
-<meta itemprop="name" content="Golang实现单例模式（Singleton Pattern）" />
-<meta itemprop="description" content="" />
-<meta name="description" content="" />
-
-
-<meta itemprop="datePublished" ZgotmplZ />
-
-
-<meta itemprop="dateModified" ZgotmplZ />
-
-
-
-
-
-<meta itemprop="image" content="//localhost:1313/imgs/liulu_avatar.png" />
-<meta itemprop="keywords" content="" />
-
-
-<meta property="og:type" content="article" />
-<meta property="og:title" content="Golang实现单例模式（Singleton Pattern）" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="/imgs/liulu_avatar.png" />
-<meta property="og:image:width" content="312" />
-<meta property="og:image:height" content="312" />
-<meta property="og:image:type" content="image/jpeg/png/svg/jpg" />
-<meta property="og:url" content="//localhost:1313/post/desiginpattern/singleton-pattern/"/>
-<meta property="og:site_name" content="呦呦鹿鸣" />
-<meta property="og:locale" content="zh-CN"/>
-
-<meta property="article:author" content="" />
-<meta property="article:published_time" content="2022-11-30 14:52:01 &#43;0800 CST" />
-<meta property="article:modified_time" content="2022-11-30 14:52:01 &#43;0800 CST" />
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/animate.css/4.1.1/animate.min.css" /> 
-
-  
-  <link type="text/css" rel="stylesheet" href="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css" /> 
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-
-
-  
-<script type="text/javascript">
-(function(){
-  localDB = {
-    set: function (key, value, ttl) {
-      if (ttl === 0) return;
-      const now = new Date();
-      const expiryDay = ttl * 86400000;
-      const item = {
-        value: value,
-        expiry: now.getTime() + expiryDay
-      };
-      localStorage.setItem(key, JSON.stringify(item));
-    },
-    get: function (key) {
-      const itemStr = localStorage.getItem(key);
-      if (!itemStr) {
-        return undefined;
-      }
-  
-      const item = JSON.parse(itemStr);
-      const now = new Date();
-  
-      if (now.getTime() > item.expiry) {
-        localStorage.removeItem(key);
-        return undefined;
-      }
-      return item.value;
-    }
-  };
-
-  theme = {
-    active: function() {
-      const localState = localDB.get('theme');
-      if (localState == undefined) return;
-      theme.toggle(localState);
-      window.matchMedia("(prefers-color-scheme: dark)").addListener(function (evt) {
-        theme.toggle(evt.matches ? 'dark' : 'light');
-      });
-    },
-
-    toggle: function (theme) {
-      document.documentElement.setAttribute('data-theme',  theme);
-      localDB.set('theme', theme, 2);
-      
-      const iframe = document.querySelector('iframe.giscus-frame');
-      if (iframe) {
-        const config = { setConfig: { theme: theme } };
-        iframe.contentWindow.postMessage({ giscus: config }, 'https://giscus.app');
-      }
-    }
-  };
-
-  theme.active();
-})(window);
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script class="next-config" data-name="page" type="application/json">{"comments":false,"isHome":false,"isPage":true,"path":"singleton-pattern","permalink":"//localhost:1313/post/desiginpattern/singleton-pattern/","title":"Golang实现单例模式（Singleton Pattern）","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script>
-
-
-
-
-  <script type="text/javascript">
-document.addEventListener('DOMContentLoaded', () => {
-  var script = document.createElement('script');
-    
-  script.charset = "UTF-8";
-  script.src     = "https:\/\/busuanzi.ibruce.info\/busuanzi\/2.3\/busuanzi.pure.mini.js";
-  script.async   = false
-  script.defer   = true
-  
-  document.head.appendChild(script);
-  script.onload = function() {
-    NexT.utils.fmtBusuanzi();
-  }
-});
-</script>
-  
-
-
-
-  <title>Golang实现单例模式（Singleton Pattern） - 呦呦鹿鸣</title>
-  <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage"  class="use-motion" >
-  <div class="headband"></div>
-  <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner">
-        
-<div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="" role="button">
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-    
-
-    <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <h1 class="site-title">呦呦鹿鸣</h1>
-      <i class="logo-line"></i>
-    </a>
-    
-      <p class="site-subtitle" itemprop="description">prodeer&#39;s Blog</p>
-    
-    
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-      
-      <i class="fa fa-search fa-fw fa-lg"></i>
-      
-    </div>
-  </div>
-</div>
-
-
-<nav class="site-nav">
-  <ul class="main-menu menu">    
-  
-    
-    <li class="menu-item menu-item-home">
-      <a href="/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-home hvr-icon"></i>首页
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-about">
-      <a href="/about/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-user hvr-icon"></i>关于
-        
-        
-      </a>
-      
-    </li>
-  
-    
-    <li class="menu-item menu-item-archives">
-      <a href="/archives/" class=" hvr-icon-pulse " rel="section">
-        <i class="fa fa-archive hvr-icon"></i>归档
-        
-        
-          <span class="badge">19</span>
-        
-      </a>
-      
-    </li>
-      
-
-  
-    <li class="menu-item menu-item-search">
-      <a role="button" class="popup-trigger hvr-icon-pulse">
-        <i class="fa fa-search fa-fw hvr-icon"></i>搜索
-      </a>
-    </li>
-  
-  </ul>
-</nav>
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-      
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off" maxlength="80"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close" role="button">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div class="search-result-container no-result">
-  <div class="search-result-icon">
-    <i class="fa fa-spinner fa-pulse fa-5x"></i>
-  </div>
-</div>
-      
-    </div>
-  </div>
-
-      </div>
-      
-      
-      <div class="toggle sidebar-toggle" role="button">
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-  <span class="toggle-line"></span>
-</div>
-
-<aside class="sidebar">
-  <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-toc">
-        文章目录
-      </li>
-      <li class="sidebar-nav-overview">
-        站点概览
-      </li>
-    </ul>
-    <div class="sidebar-panel-container">
-      
-      <div class="post-toc-wrap sidebar-panel">
-        <div class="post-toc animated"><nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li>
-          <ul>
-            <li><a href="#一使用场景">一、使用场景</a></li>
-            <li><a href="#二优点">二、优点</a></li>
-            <li><a href="#三缺点">三、缺点</a></li>
-            <li><a href="#四实现方式">四、实现方式</a>
-              <ul>
-                <li><a href="#1-懒汉式">1. 懒汉式</a></li>
-                <li><a href="#2-双重检查锁定使用互斥锁syncmutex">2. 双重检查锁定（使用互斥锁sync.Mutex）</a></li>
-                <li><a href="#3-饿汉式">3. 饿汉式</a></li>
-                <li><a href="#4-使用synconce">4. 使用sync.Once</a></li>
-                <li><a href="#5-使用init函数">5. 使用init函数</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav></div>
-      </div>
-      
-      <div class="site-overview-wrap sidebar-panel">
-        
-<div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  
-    <img class="site-author-image" itemprop="image" alt=""
-    src="/imgs/img-lazy-loading.gif" data-src="/imgs/liulu_avatar.png">
-  
-  <p class="site-author-name" itemprop="name"></p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-
-
-<div class="site-state-wrap site-overview-item animated">
-  <nav class="site-state">
-    <div class="site-state-item site-state-posts">
-      <a href="/archives/">
-        <span class="site-state-item-count">19</span>
-        <span class="site-state-item-name">日志</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-categories">
-      <a href="/categories/">
-        <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">分类</span>
-      </a>
-    </div>
-    <div class="site-state-item site-state-tags">
-      <a href="/tags/">
-        <span class="site-state-item-count">8</span>
-        <span class="site-state-item-name">标签</span>
-      </a>
-    </div>
-  </nav>
-</div>
-
-
-<div class="links-of-social site-overview-item animated">
-
-
-</div>
-
-
-
-<div class="cc-license animated" itemprop="license">
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank" title="共享知识">
-    <img src="/imgs/img-lazy-loading.gif" data-src="/imgs/cc/big/by_nc_sa.svg" alt="共享知识">
-  </a>
-</div>
-
-
-
-
-<div class="links-of-blogroll site-overview-item animated">
-  <div class="links-of-blogroll-title">
-    
-    <i class="fa fa-globe fa-fw"></i>
-    
-    友情链接
-  </div>
-  <ul class="links-of-blogroll-list">
-    
-    
-    
-    
-    <li class="links-of-blogroll-item">
-      <a href="https://www.cnblogs.com/sunshineliulu" title="https://www.cnblogs.com/sunshineliulu" target="_blank">呦呦鹿鸣</a>
-    </li>
-    
-  </ul>
-</div>
-
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  
-    
-<div id="siteinfo-card-widget" class="sidebar-card-widget">
-  <div class="item-headline">
-    <i class="fas fa-chart-line"></i>
-    <span>网站资讯</span>
-  </div>
-  <div class="siteinfo">
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa-solid fa-calendar-check"></i>已运行：</div>
-      <div class="item-count" id="runTimes" data-publishdate="2021-05-18T00:13:00&#43;08:00"></div>
-    </div>
-    
-    
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-user"></i>总访客数：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_uv"><i class="fa fa-sync fa-spin"></i></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name">
-        <i class="fas fa fa-eye"></i>页面浏览：
-      </div>
-      <div class="item-count" id="busuanzi_value_site_pv"><i class="fa fa-sync fa-spin"></i></div>
-    </div> 
-        
-        
-    
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-font"></i>总字数：</div>
-      <div class="item-count" id="wordsCount" data-count="37487"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-mug-hot"></i>阅读约：</div>
-      <div class="item-count" id="readTimes" data-times="86"></div>
-    </div>
-    <div class="siteinfo-item">
-      <div class="item-name"><i class="fa fa-clock-rotate-left"></i>最后更新于：</div>
-      <div class="item-count" id="last-push-date" data-lastpushdate="2023-03-29T23:30:00&#43;08:00"></div>
-    </div>
-  </div>
-</div>
-  
-
-  
-</aside>
-<div class="sidebar-dimmer"></div>
-
-      
-    </header>
-    
-    <div class="tool-buttons" >
-    
-  
-  <div id="toggle-theme" class="button" title="深浅模式切换">
-    <i class="fas fa-adjust"></i>
-  </div>
-  
-  <div class="back-to-top" role="button" title="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
- 
-</div>
-
-
-  <div class="reading-progress-bar"></div>
-
-
-
-  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
-
-
-
-
-
-
-
-  <script type="text/javascript" src="//sidecar.gitter.im/dist/sidecar.v1.js" async></script>
-<script type="text/javascript">
-((window.gitter = {}).chat = {}).options = {
-  room: "hugo-next/community"
-};
-</script>   
-
-
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
-    <div class="main-inner post posts-expand">
-      
-      
-  <div class="post-block">
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    
-    <link itemprop="mainEntityOfPage" href="//localhost:1313/post/desiginpattern/singleton-pattern/">
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/imgs/liulu_avatar.png">
-      <meta itemprop="name" content="">
-    </span>
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-    </span>
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Golang实现单例模式（Singleton Pattern）">
-      <meta itemprop="description" content="单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。">
-    </span>
-    
-    <header class="post-header">
-      
- <h1  class="post-title" itemprop="name headline">
-  
-  
-  Golang实现单例模式（Singleton Pattern）
-  
-  
-   </h1> 
-
-<div class="post-meta-container">
-  <div class="post-meta-items">
-    
-
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-calendar"></i>
-  </span>
-  <span class="post-meta-item-text" title="发表于">
-    发表于：
-  </span>
-  <time title="创建时间：2022-11-30 14:52:01 &#43;0800 CST" itemprop="dateCreated datePublished" datetime="2022-11-30 14:52:01 &#43;0800 CST">
-    2022-11-30
-  </time>
-</span>
-
-    
-    
-
-<span class="post-meta-item">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-folder-open"></i>
-  </span>
-  <span class="post-meta-item-text" title="分类于">
-    分类于：
-  </span>
-  <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-    <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F" itemprop="url" rel="index">
-      <span itemprop="name">设计模式</span>
-    </a>
-  </span>
-</span>
-
-
-        
-  </div>
-  
-  <div class="post-meta-items">
-    
-<span class="post-meta-item" title="字数">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-file-word"></i>
-  </span>
-  <span class="post-meta-item-text">字数：</span>
-  <span>1794</span>
-</span>
-
-    
-<span class="post-meta-item" title="阅读">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-clock"></i>
-  </span>
-  <span class="post-meta-item-text">阅读：&asymp;</span>
-  <span>4分钟</span>
-</span>
-
-
-    
-
-
-
-
-<span class="post-meta-item" title="浏览">
-  <span class="post-meta-item-icon">
-    <i class="fas fa-solid fa-eye"></i>
-  </span>
-  <span class="post-meta-item-text">
-  浏览：
-  </span>
-  <span id="busuanzi_value_page_pv"  data-path="/post/desiginpattern/singleton-pattern/">
-    <i class="fa fa-sync fa-spin"></i>
-  </span>
-</span>
-
-    
-  </div>
-  
-</div>
-
-    </header>
-    
-    <div class="post-body " itemprop="articleBody">
-      
-
-  <p>单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。</p>
-<h3 id="一使用场景">一、使用场景
-<a class="header-anchor" href="#%e4%b8%80%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af"></a>
-</h3><ol>
-<li>
-<p><strong>配置管理器</strong>：当配置信息被整个应用程序共享时，使用单例模式可以确保配置信息只被初始化一次。</p>
-</li>
-<li>
-<p><strong>连接池</strong>：数据库连接池通常使用单例模式，以确保整个应用程序中只有一个连接池实例。</p>
-</li>
-</ol>
-<ol start="3">
-<li>
-<p><strong>日志记录器</strong>：日志记录器通常作为单例实现，以确保所有日志消息都发送到同一个日志文件或日志系统中。</p>
-</li>
-<li>
-<p><strong>硬件接口</strong>：如打印机、扫描仪等硬件设备的控制，通常只允许一个实例与硬件交互。</p>
-</li>
-</ol>
-<ol start="5">
-<li><strong>线程池</strong>：线程池管理线程的创建和销毁，使用单例模式可以避免创建过多的线程。</li>
-</ol>
-<h3 id="二优点">二、优点
-<a class="header-anchor" href="#%e4%ba%8c%e4%bc%98%e7%82%b9"></a>
-</h3><ol>
-<li>
-<p><strong>节省资源</strong>：由于只创建一个实例，可以节省内存和系统资源。</p>
-</li>
-<li>
-<p><strong>控制访问</strong>：可以严格控制对实例的访问，确保实例的线程安全和数据的一致性。</p>
-</li>
-<li>
-<p><strong>简化代码</strong>：通过全局访问点，可以简化代码，避免在多个地方创建实例。</p>
-</li>
-</ol>
-<h3 id="三缺点">三、缺点
-<a class="header-anchor" href="#%e4%b8%89%e7%bc%ba%e7%82%b9"></a>
-</h3><ol>
-<li>
-<p><strong>全局状态</strong>：单例模式创建了一个全局访问点，可能导致代码间的耦合性增加，使得代码维护和测试变得更加困难。</p>
-</li>
-<li>
-<p><strong>扩展性问题</strong>：单例模式的核心是全局只有一个实例。如果未来需要扩展为多个实例，或者需要支持多种类型的单例，单例模式可能需要重构。</p>
-</li>
-<li>
-<p><strong>单点故障</strong>：如果单例对象是系统中的关键组件，它的失败可能会导致整个系统的故障。</p>
-</li>
-<li>
-<p><strong>难以单元测试</strong>：单例模式的全局状态使得单元测试变得复杂，因为测试代码可能会相互干扰，或者需要在每个测试用例中重置单例状态。</p>
-</li>
-</ol>
-<h3 id="四实现方式">四、实现方式
-<a class="header-anchor" href="#%e5%9b%9b%e5%ae%9e%e7%8e%b0%e6%96%b9%e5%bc%8f"></a>
-</h3><p>实现单例模式时，常见的有懒汉式（延迟加载）、饿汉式（预先加载）、双重检查锁定（Double-Checked Locking）等，这里主要用 Golang 来实现。</p>
-<h4 id="1-懒汉式">1. 懒汉式
-<a class="header-anchor" href="#1-%e6%87%92%e6%b1%89%e5%bc%8f"></a>
-</h4><p>懒汉式单例模式在第一次被使用时才创建实例。这种方式的好处是只有在需要时才创建实例，节省资源。缺点是每次访问都需要检查实例是否已经被创建，可能会影响性能。</p>
-<p>此外，懒汉式在多线程环境下需要特别注意线程安全问题，比如，在多线程环境中，如果两个线程同时检查到实例未被创建，并且都去创建实例，就会创建多个实例，违反了单例模式的原则，于是就有了双重检查锁定的优化实现。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// Singleton 结构体定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">struct</span>{}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// instance 指向单例实例的指针
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// GetInstance 返回单例实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">GetInstance</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">instance</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Singleton</span>{}
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">instance</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="2-双重检查锁定使用互斥锁syncmutex">2. 双重检查锁定（使用互斥锁sync.Mutex）
-<a class="header-anchor" href="#2-%e5%8f%8c%e9%87%8d%e6%a3%80%e6%9f%a5%e9%94%81%e5%ae%9a%e4%bd%bf%e7%94%a8%e4%ba%92%e6%96%a5%e9%94%81syncmutex"></a>
-</h4><p>在懒汉式实现的基础上，使用一个互斥锁<code>sync.Mutex</code>来确保在多线程环境下只有一个goroutine能够创建单例实例。进行两次检查（双重检查锁定），以避免在实例已经被创建后，每次调用<code>GetInstance</code>方法时都进行不必要的锁定。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;sync&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// Singleton 结构体定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">struct</span>{}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// instance 指向单例实例的指针
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// lock 用于确保线程安全
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lock</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// GetInstance 返回单例实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">GetInstance</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 双重检查锁定
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Lock</span>()
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 再次检查instance是否为nil，防止多个goroutine同时进入这个分支
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">instance</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Singleton</span>{}
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">Unlock</span>()
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">instance</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="3-饿汉式">3. 饿汉式
-<a class="header-anchor" href="#3-%e9%a5%bf%e6%b1%89%e5%bc%8f"></a>
-</h4><p>饿汉式单例模式在类被加载时就创建实例，这种方式的好处是简单且线程安全，因为实例在类加载时就已经创建好了，此时还没有线程执行类的代码，所以不存在线程安全问题。缺点是不管是否需要，实例都会被创建，这可能会导致不必要的资源占用，特别是在实例化过程比较耗时或者占用资源较多的情况下。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// Singleton 结构体定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">struct</span>{}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// instance 指向单例实例的指针
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// GetInstance 返回单例实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">GetInstance</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">instance</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="4-使用synconce">4. 使用sync.Once
-<a class="header-anchor" href="#4-%e4%bd%bf%e7%94%a8synconce"></a>
-</h4><p>sync.Once类型提供了一种线程安全的方式来确保某个操作只执行一次，非常适合实现单例模式。使用<code>sync.Once</code>类型来确保实例只被初始化一次，即使在多线程环境中。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;sync&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// Singleton 结构体定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">struct</span>{}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// instance 指向单例实例的指针
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// once 用于确保instance只被初始化一次
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">once</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// GetInstance 返回单例实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">GetInstance</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">Singleton</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 只执行一次初始化
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">once</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">instance</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Singleton</span>{}
-</span></span><span style="display:flex;"><span>    })
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">instance</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>sync.Once</code>的<code>Do</code>方法通过内部的互斥锁（mutex）实现了必要的同步机制，以保证即使有多个<code>goroutine</code>同时调用<code>GetInstance</code>方法，<code>func()</code>内的代码也只会被执行一次，确保了线程安全性。</p>
-<h4 id="5-使用init函数">5. 使用init函数
-<a class="header-anchor" href="#5-%e4%bd%bf%e7%94%a8init%e5%87%bd%e6%95%b0"></a>
-</h4><p>利用Go的<code>init</code>函数来初始化单例实例。<code>init</code>函数在包被初始化时自动调用，确保实例在任何其他代码执行之前被创建。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// Singleton 结构体定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">singleton</span> <span style="color:#66d9ef">struct</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// instance 指向单例实例的指针
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">instance</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">singleton</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// init 确保包被初始化时自动初始化实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">instance</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">singleton</span>{}
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// GetInstance 返回单例实例
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">getInstance</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">singleton</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">instance</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div>
-
-
-    </div>
-    <footer class="post-footer">
-      
-
-
-
-
-<div class="addthis_inline_share_toolbox" style="text-align: center;"></div>
-
-
-<hr/>
-
-
-
-
-
-
-
-
-
-
-
-<div class="post-nav">
-  <div class="post-nav-next post-nav-item">
-    
-    <a href="/post/golang/implement-queue/" rel="next" title="用Golang实现一个消息队列">
-      <i class="fa fa-chevron-left"></i> 用Golang实现一个消息队列
-    </a>
-    
-  </div>
-  <div class="post-nav-prev post-nav-item">
-    
-    <a href="/post/system/vehicle-active/" rel="prev" title="车辆激活（扫码激活）的实现">
-      车辆激活（扫码激活）的实现
-      <i class="fa fa-chevron-right"></i>
-    </a>
-    
-  </div>
-</div>
-
-
-
-    </footer>
-  </article>
-</div>
-
-      
-    </div>
-  </main>
-  <footer class="footer">
-    <div class="footer-inner">
-      
-
-<div class="copyright">
-  &copy;
-  <span itemprop="copyrightYear">
-    
-    
-    
-    2010 - 2024
-    
-    
-  </span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder"></span>
-</div>
-
-<div class="powered-by">
-  
-  由 <a href='https://gohugo.io' title='0.139.0' target='_blank'>Hugo</a> &amp; <a href='https://github.com/hugo-next/hugo-theme-next' title='4.6.3' target='_blank'>Hugo NexT.Gemini</a> 强力驱动
-</div>
-
-
-
-
-
- 
-
-
-
-
-
-    </div>
-  </footer>
-
-  
-
-
-
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/animejs/3.2.2/anime.min.js" crossorigin="anonymous" defer></script>
- 
-  
-  <script type="text/javascript" src="//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js" crossorigin="anonymous" defer></script>
-
-
-<script class="next-config" data-name="main" type="application/json">{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1000,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-<script type="text/javascript" src="/js/main.js" defer></script>
-
-
-
-
-
-</body>
-
-</html>
+<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="Golang实现单例模式（Singleton Pattern）"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content><meta property="og:type" content="article"><meta property="og:title" content="Golang实现单例模式（Singleton Pattern）"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/desiginpattern/singleton-pattern/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2022-11-30 14:52:01 +0800 CST"><meta property="article:modified_time" content="2022-11-30 14:52:01 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"singleton-pattern","permalink":"//localhost:1313/post/desiginpattern/singleton-pattern/","title":"Golang实现单例模式（Singleton Pattern）","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>Golang实现单例模式（Singleton Pattern） - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
+<span class=badge>19</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><ul><li><a href=#一使用场景>一、使用场景</a></li><li><a href=#二优点>二、优点</a></li><li><a href=#三缺点>三、缺点</a></li><li><a href=#四实现方式>四、实现方式</a><ul><li><a href=#1-懒汉式>1. 懒汉式</a></li><li><a href=#2-双重检查锁定使用互斥锁syncmutex>2. 双重检查锁定（使用互斥锁sync.Mutex）</a></li><li><a href=#3-饿汉式>3. 饿汉式</a></li><li><a href=#4-使用synconce>4. 使用sync.Once</a></li><li><a href=#5-使用init函数>5. 使用init函数</a></li></ul></li></ul></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>19</span>
+<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>5</span>
+<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>8</span>
+<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
+友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
+<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=37487></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=86></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2023-03-29T23:30:00+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
+<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/desiginpattern/singleton-pattern/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="Golang实现单例模式（Singleton Pattern）"><meta itemprop=description content="单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。"></span><header class=post-header><h1 class=post-title itemprop="name headline">Golang实现单例模式（Singleton Pattern）</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
+</span><span class=post-meta-item-text title=发表于>发表于：
+</span><time title="创建时间：2022-11-30 14:52:01 +0800 CST" itemprop="dateCreated datePublished" datetime="2022-11-30 14:52:01 +0800 CST">2022-11-30
+</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
+</span><span class=post-meta-item-text title=分类于>分类于：
+</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F itemprop=url rel=index><span itemprop=name>设计模式</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
+</span><span class=post-meta-item-text>字数：</span>
+<span>1794</span>
+</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
+</span><span class=post-meta-item-text>阅读：&ap;</span>
+<span>4分钟</span>
+</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
+</span><span class=post-meta-item-text>浏览：
+</span><span id=busuanzi_value_page_pv data-path=/post/desiginpattern/singleton-pattern/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>单例模式（Singleton Pattern）是一种常用的软件设计模式，其核心思想是确保一个类只有一个实例，并提供一个全局访问点来获取这个实例。这种模式在很多场景下都非常有用，特别是在需要控制资源访问的情况下。</p><h3 id=一使用场景>一、使用场景
+<a class=header-anchor href=#%e4%b8%80%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af></a></h3><ol><li><p><strong>配置管理器</strong>：当配置信息被整个应用程序共享时，使用单例模式可以确保配置信息只被初始化一次。</p></li><li><p><strong>连接池</strong>：数据库连接池通常使用单例模式，以确保整个应用程序中只有一个连接池实例。</p></li></ol><ol start=3><li><p><strong>日志记录器</strong>：日志记录器通常作为单例实现，以确保所有日志消息都发送到同一个日志文件或日志系统中。</p></li><li><p><strong>硬件接口</strong>：如打印机、扫描仪等硬件设备的控制，通常只允许一个实例与硬件交互。</p></li></ol><ol start=5><li><strong>线程池</strong>：线程池管理线程的创建和销毁，使用单例模式可以避免创建过多的线程。</li></ol><h3 id=二优点>二、优点
+<a class=header-anchor href=#%e4%ba%8c%e4%bc%98%e7%82%b9></a></h3><ol><li><p><strong>节省资源</strong>：由于只创建一个实例，可以节省内存和系统资源。</p></li><li><p><strong>控制访问</strong>：可以严格控制对实例的访问，确保实例的线程安全和数据的一致性。</p></li><li><p><strong>简化代码</strong>：通过全局访问点，可以简化代码，避免在多个地方创建实例。</p></li></ol><h3 id=三缺点>三、缺点
+<a class=header-anchor href=#%e4%b8%89%e7%bc%ba%e7%82%b9></a></h3><ol><li><p><strong>全局状态</strong>：单例模式创建了一个全局访问点，可能导致代码间的耦合性增加，使得代码维护和测试变得更加困难。</p></li><li><p><strong>扩展性问题</strong>：单例模式的核心是全局只有一个实例。如果未来需要扩展为多个实例，或者需要支持多种类型的单例，单例模式可能需要重构。</p></li><li><p><strong>单点故障</strong>：如果单例对象是系统中的关键组件，它的失败可能会导致整个系统的故障。</p></li><li><p><strong>难以单元测试</strong>：单例模式的全局状态使得单元测试变得复杂，因为测试代码可能会相互干扰，或者需要在每个测试用例中重置单例状态。</p></li></ol><h3 id=四实现方式>四、实现方式
+<a class=header-anchor href=#%e5%9b%9b%e5%ae%9e%e7%8e%b0%e6%96%b9%e5%bc%8f></a></h3><p>实现单例模式时，常见的有懒汉式（延迟加载）、饿汉式（预先加载）、双重检查锁定（Double-Checked Locking）等，这里主要用 Golang 来实现。</p><h4 id=1-懒汉式>1. 懒汉式
+<a class=header-anchor href=#1-%e6%87%92%e6%b1%89%e5%bc%8f></a></h4><p>懒汉式单例模式在第一次被使用时才创建实例。这种方式的好处是只有在需要时才创建实例，节省资源。缺点是每次访问都需要检查实例是否已经被创建，可能会影响性能。</p><p>此外，懒汉式在多线程环境下需要特别注意线程安全问题，比如，在多线程环境中，如果两个线程同时检查到实例未被创建，并且都去创建实例，就会创建多个实例，违反了单例模式的原则，于是就有了双重检查锁定的优化实现。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Singleton 结构体定义
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Singleton</span> <span style=color:#66d9ef>struct</span>{}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// instance 指向单例实例的指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// GetInstance 返回单例实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>GetInstance</span>() <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>nil</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>instance</span> = <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Singleton</span>{}
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>instance</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=2-双重检查锁定使用互斥锁syncmutex>2. 双重检查锁定（使用互斥锁sync.Mutex）
+<a class=header-anchor href=#2-%e5%8f%8c%e9%87%8d%e6%a3%80%e6%9f%a5%e9%94%81%e5%ae%9a%e4%bd%bf%e7%94%a8%e4%ba%92%e6%96%a5%e9%94%81syncmutex></a></h4><p>在懒汉式实现的基础上，使用一个互斥锁<code>sync.Mutex</code>来确保在多线程环境下只有一个goroutine能够创建单例实例。进行两次检查（双重检查锁定），以避免在实例已经被创建后，每次调用<code>GetInstance</code>方法时都进行不必要的锁定。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#e6db74>&#34;sync&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Singleton 结构体定义
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Singleton</span> <span style=color:#66d9ef>struct</span>{}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// instance 指向单例实例的指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// lock 用于确保线程安全
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>lock</span> <span style=color:#a6e22e>sync</span>.<span style=color:#a6e22e>Mutex</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// GetInstance 返回单例实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>GetInstance</span>() <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 双重检查锁定
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>nil</span> {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>lock</span>.<span style=color:#a6e22e>Lock</span>()
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 再次检查instance是否为nil，防止多个goroutine同时进入这个分支
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>nil</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>instance</span> = <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Singleton</span>{}
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>lock</span>.<span style=color:#a6e22e>Unlock</span>()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>instance</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=3-饿汉式>3. 饿汉式
+<a class=header-anchor href=#3-%e9%a5%bf%e6%b1%89%e5%bc%8f></a></h4><p>饿汉式单例模式在类被加载时就创建实例，这种方式的好处是简单且线程安全，因为实例在类加载时就已经创建好了，此时还没有线程执行类的代码，所以不存在线程安全问题。缺点是不管是否需要，实例都会被创建，这可能会导致不必要的资源占用，特别是在实例化过程比较耗时或者占用资源较多的情况下。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Singleton 结构体定义
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Singleton</span> <span style=color:#66d9ef>struct</span>{}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// instance 指向单例实例的指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// GetInstance 返回单例实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>GetInstance</span>() <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>instance</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=4-使用synconce>4. 使用sync.Once
+<a class=header-anchor href=#4-%e4%bd%bf%e7%94%a8synconce></a></h4><p>sync.Once类型提供了一种线程安全的方式来确保某个操作只执行一次，非常适合实现单例模式。使用<code>sync.Once</code>类型来确保实例只被初始化一次，即使在多线程环境中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#e6db74>&#34;sync&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Singleton 结构体定义
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Singleton</span> <span style=color:#66d9ef>struct</span>{}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// instance 指向单例实例的指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// once 用于确保instance只被初始化一次
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>once</span> <span style=color:#a6e22e>sync</span>.<span style=color:#a6e22e>Once</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// GetInstance 返回单例实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>GetInstance</span>() <span style=color:#f92672>*</span><span style=color:#a6e22e>Singleton</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// 只执行一次初始化
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>once</span>.<span style=color:#a6e22e>Do</span>(<span style=color:#66d9ef>func</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>instance</span> = <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>Singleton</span>{}
+</span></span><span style=display:flex><span>    })
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>instance</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>sync.Once</code>的<code>Do</code>方法通过内部的互斥锁（mutex）实现了必要的同步机制，以保证即使有多个<code>goroutine</code>同时调用<code>GetInstance</code>方法，<code>func()</code>内的代码也只会被执行一次，确保了线程安全性。</p><h4 id=5-使用init函数>5. 使用init函数
+<a class=header-anchor href=#5-%e4%bd%bf%e7%94%a8init%e5%87%bd%e6%95%b0></a></h4><p>利用Go的<code>init</code>函数来初始化单例实例。<code>init</code>函数在包被初始化时自动调用，确保实例在任何其他代码执行之前被创建。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Singleton 结构体定义
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>singleton</span> <span style=color:#66d9ef>struct</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// instance 指向单例实例的指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>instance</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>singleton</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// init 确保包被初始化时自动初始化实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>init</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>instance</span> = <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>singleton</span>{}
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// GetInstance 返回单例实例
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>getInstance</span>() <span style=color:#f92672>*</span><span style=color:#a6e22e>singleton</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>instance</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></div><footer class=post-footer><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"><a href=/post/golang/implement-queue/ rel=next title=用Golang实现一个消息队列><i class="fa fa-chevron-left"></i> 用Golang实现一个消息队列</a></div><div class="post-nav-prev post-nav-item"><a href=/post/system/vehicle-active/ rel=prev title=车辆激活（扫码激活）的实现>车辆激活（扫码激活）的实现
+<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
+<span itemprop=copyrightYear>2010 - 2024
+</span><span class=with-love><i class="fa fa-heart"></i>
+</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script></body></html>
