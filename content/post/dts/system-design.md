@@ -1,14 +1,17 @@
 +++
 date = '2023-04-16T22:10:00+08:00'
-title = '构建分布式任务调度系统（二）：系统设计'
+title = '构建分布式任务调度系统（二）：系统设计与实现'
 categories = ['分布式任务调度']
 tags = ['分布式任务调度']
 draft = false
+mermaid = true
 +++
 
 ## 一、什么是分布式任务调度
 
 任务调度是指基于**给定的时间点**，**给定的时间间隔**或者给定执行次数自动的**执行任务**。分布式调度系统用于处理需要在多个服务器或计算节点上并行执行的复杂计算任务，提高任务调度的效率、可靠性和可扩展性。
+
+<!--more-->
 
 ## 二、分布式任务调度的关键点
 
@@ -170,10 +173,117 @@ draft = false
 2. **Go-Cron**：具备高可用性和任务分片能力，etcd 保证任务一致性，但架构复杂，etcd 和 MongoDB 增加运维成本。适合复杂分布式调度场景。
 3. **Jobor**：轻量级架构，任务队列易扩展，适合高并发任务执行。但对 Redis 队列依赖较重，可能出现队列阻塞。
 
-## 五、小结
-设计大规模、高并发和高可用的分布式任务调度系统，可以从以下几个方面去考虑：
-- **高可用性**：无状态部署、主备调度、动态 Worker 管理。
-- **任务可靠性**：重试机制、死信队列、幂等性保证。
-- **任务调度优化**：支持多种调度策略和任务分片。
-- **系统监控**：任务和集群状态监控、实时日志与告警通知。
-- **可扩展性**：支持插件扩展、API 接入与任务编排功能。
+## 五、代码实现
+
+这里基于 **Go**、**MySQL** 和 **时间轮算法** 实现一个分布式任务调度系统。我会围绕以下设计来进行：
+
+1. **任务存储**：基于 **MySQL** 进行任务元数据的持久化。
+2. **时间轮调度**：用时间轮算法管理任务的触发时间和调度逻辑。
+3. **分布式支持**：通过 **分布式锁** 和任务状态管理来确保任务不会被多个节点重复执行。
+4. **Worker 执行**：节点监听任务调度，并负责任务的具体执行。
+
+### 5.1 数据库表设计
+
+设计 MySQL 数据库中的表来存储任务信息和执行记录。
+
+**job 表**：存储任务的基本信息。
+
+```sql
+CREATE TABLE `job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `cron_expression` varchar(255) NOT NULL COMMENT 'Cron expression',
+  `status` enum('PENDING','RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'PENDING',
+  `next_run_time` datetime NOT NULL COMMENT 'Next run time',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+**job\_instance 表**：存储任务的执行记录。
+
+```sql
+CREATE TABLE `job_instance` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) NOT NULL,
+  `run_time` datetime NOT NULL COMMENT 'Actual run time',
+  `status` enum('PENDING','RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'PENDING',
+  `start_time` datetime DEFAULT NULL COMMENT 'Start time',
+  `end_time` datetime DEFAULT NULL COMMENT 'End time',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+```
+
+### 5.2 时间轮算法实现
+
+核心代码见[ 构建分布式任务调度系统（一）：时间轮](https://prodeer.tech/post/dts/timing-wheel/)
+
+### 5.3 分布式支持
+1. **任务锁定**：通过数据库更新操作确保任务不会被多个节点同时获取。
+2. **节点标识**：通过唯一标识符区分不同调度节点，结合心跳机制检测节点活跃性。
+3. **任务回收**：对于长时间未完成的任务（节点崩溃等原因），检测 lock_time 超时后将任务重新分配。
+4. **负载均衡**：多个节点根据任务锁定机制自主拉取任务，实现负载均衡。
+
+### 5.4 任务调度服务
+
+实现一个任务调度服务，它将查询数据库中即将执行的任务，并将它们添加到时间轮中。
+
+```go
+type Scheduler struct {
+    timingWheel *TimingWheel
+    db          *sql.DB
+}
+
+func NewScheduler(db *sql.DB) *Scheduler {
+    timingWheel := NewTimingWheel(100, 1*time.Second)
+    return &Scheduler{
+        timingWheel: timingWheel,
+        db:          db,
+    }
+}
+
+func (s *Scheduler) Schedule() {
+    // 这里需要实现从数据库查询即将执行的任务，并添加到时间轮中
+    // ...
+}
+
+func main() {
+    db, err := sql.Open("mysql", "user:password@/dbname")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    scheduler := NewScheduler(db)
+    scheduler.Schedule()
+
+    // 启动时间轮
+    timingWheel := NewTimingWheel(100, 1*time.Second)
+    timingWheel.Start()
+}
+```
+
+### 5.5 错误处理和重试机制
+{{< mermaid bc="#white" >}}
+graph LR
+    A[任务状态更新设计] -->|事务管理| B[使用事务确保操作原子性]
+    A -->|错误处理| D[执行任务代码中添加错误处理]
+    D --> E[失败时更新状态为失败]
+    D --> F[成功时更新状态为完成]
+    A -->|定期检查和清理| G[定期清理已完成或失败的任务，保持数据库性能]
+    A -->|索引优化| I[在关键字段上创建索引，提高查询效率]
+    A -->|备份和恢复策略| K[定期备份数据库]
+{{< /mermaid >}}
+
+### 5.6 调度流程总结
+
+1. **初始化**：创建时间轮，设置轮的大小和时间间隔。
+2. **查询任务**：从`job`表中查询需要执行的任务。
+3. **添加任务**：将任务添加到时间轮中，根据`next_trigger_time`计算延迟时间。
+4. **执行任务**：时间轮到期时，执行任务。
+5. **更新状态**：执行完成后，更新`job_instance`表中的执行记录。
