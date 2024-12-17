@@ -131,6 +131,62 @@ draft = false
 
 分层时间轮的设计允许系统有效地处理不同时间粒度的任务，并且可以处理长周期任务，而不需要在单个时间轮中分配大量的时间槽。通过将任务在不同层级之间移动，可以优化内存使用并保持时间轮的效率。
 
+## 四、时间轮算法的实现
+```go
+// 时间轮结构体
+type TimingWheel struct {
+    slots        []chan Task // 时间槽，每个槽是一个通道，用于存储到期时间相同的任务
+    current      int          // 当前时间槽的索引，随着时间的流逝，这个索引会循环增加
+    interval     time.Duration // 时间槽的时间间隔
+    timer        *time.Ticker  // 定时器，用于触发时间轮的转动
+    taskQueue    chan Task     // 任务队列，用于存储待添加到时间轮的任务
+}
+
+// 时间轮的初始化
+func NewTimingWheel(slots int, interval time.Duration) *TimingWheel {
+    // 创建一个具有指定数量时间槽和时间间隔的TimingWheel实例。
+    tw := &TimingWheel{
+        slots:       make([]chan Task, slots),
+        current:     0,
+        interval:    interval,
+        taskQueue:   make(chan Task, 100),
+    }
+    // 初始化每个时间槽为一个缓冲通道，用于存储任务。
+    for i := range tw.slots {
+        tw.slots[i] = make(chan Task, 10)
+    }
+    // 创建一个定时器，每隔interval时间触发一次。
+    tw.timer = time.NewTicker(interval)
+    // 启动一个后台goroutine来运行时间轮。
+    go tw.run()
+    
+    return tw
+}
+
+// 添加任务到时间轮
+func (tw *TimingWheel) AddTask(task Task, delay time.Duration) {
+    // 根据任务的延迟时间计算出应该放置的任务槽位。
+    slotIndex := (int(delay / tw.interval) + tw.current) % len(tw.slots)
+    // 将任务发送到对应的时间槽通道中。
+    tw.slots[slotIndex] <- task
+}
+
+// 时间轮的运行逻辑
+// 定时器触发时，时间轮向前移动一个时间槽。
+// 启动一个goroutine来处理当前时间槽中的所有任务。
+// 任务被执行后，从时间槽中移除。
+func (tw *TimingWheel) run() {
+    for range tw.timer.C {
+        tw.current = (tw.current + 1) % len(tw.slots)
+        go func(slot int) {
+            for task := range tw.slots[slot] {
+                task.Run()
+            }
+        }(tw.current)
+    }
+}
+```
+
 
 ## 附：参考链接：
 1. [时间轮详解](https://zhuanlan.zhihu.com/p/102476356)
