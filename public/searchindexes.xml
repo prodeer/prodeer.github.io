@@ -1,7 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  2015 年毕业后一直从事后端开发工作， 写过 PHP，会一点 Java，现今主要从事 Golang 开发，目标是一个又一个的十年之约。
-先后就业于教育、出行、车联网行业，世界在变，我们也要变，跟上节奏，一起向前。
-每一次挑战，都是成长的机会。我期待在不断变化的世界中，对技术的热爱与追求永远不变。
-  </content></entry><entry><title>构建分布式任务调度系统（二）：系统设计与实现</title><url>/post/dts/system-design/</url><categories><category>分布式任务调度</category></categories><tags><tag>分布式任务调度</tag></tags><content type="html">  一、什么是分布式任务调度 任务调度是指基于给定的时间点，给定的时间间隔或者给定执行次数自动的执行任务。分布式调度系统用于处理需要在多个服务器或计算节点上并行执行的复杂计算任务，提高任务调度的效率、可靠性和可扩展性。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/about/</url><categories/><tags/><content type="html">  Hey，我是一只野鹿呀。
+自2015年毕业后，我一直从事后端开发工作。是机缘巧合，也是命运使然，目标是一个又一个的十年之约。在这个瞬息万变的世界里，我对技术的热爱和追求始终不变。
+我通过写博客记录自己的所见所思，若有不足之处，还请多多指教。
+与世界交手的第N年，愿你我依旧保持热爱与勇气，仍兴味盎然，不畏岁月漫长。
+技术栈 语言：熟悉 Golang、PHP，了解 Java、Python 中间件：MySQL、Redis、RabbitMQ、RocketMQ、Kafka、ES 云原生：K8s、Docker 系统：高并发、问题排查、性能优化   </content></entry><entry><title>团队PK赛：分布式任务分片与数据一致性解决方案</title><url>/post/system/team-pk/</url><categories><category>系统设计</category></categories><tags><tag>任务分片</tag><tag>数据一致性</tag></tags><content type="html"><![CDATA[  团队PK赛是一种激励司机通过组织或自由报名形成小团队，并针对特定业务指标进行竞赛的活动。在满足基本入围条件后，城市会根据排名发放奖励。本文记录当时遇到的问题和解决方案。
+挑战一：数据拉取与并行计算 问题描述：
+排行榜需要从特征团队拉取数据，如果单机串行处理，面对大量活动时可能无法及时完成数据处理；单机并行处理又可能导致资源耗尽。因此，需要实现多机并行计算。
+解决思路：
+方案1：一致性哈希
+通过Apollo或GetHosts获取当前机器列表，使用取模方式分配SQL查询，以拉取并处理数据。这需要考虑节点不可用的情况，可能需要引入探活组件。
+方案2：分布式主从模型
+使用多个Docker机，以Redis作为锁，选择一个master Docker机执行定时任务，通过Nginx负载均衡分配任务。
+方案3：MQ任务分发
+在方案2的基础上，需要一个主进程来推送任务，然后分发到MQ。使用拉模式，并使用ACK保障任务的已执行。
+解决方案：方案3
+使用定时任务从特征团队拉取数据，并通过MQ进行任务分发，实现并行计算。利用MQ拉取和ACK机制，确保消息的有效一次性处理，并控制消费速度。
+sequenceDiagram participant Crontab participant 后台 participant MQ participant REDIS participant 特征团队 Crontab -&gt;&gt; 后台: 活动计算 (30min/次) 后台 -&gt;&gt; 后台: 待处理，活动列表 后台 -&gt;&gt; MQ: 活动分片 (活动ID+团队ID+版本号) MQ -&gt;&gt; MQ: 消息推送 MQ -&gt;&gt; 后台: MQ消息（sdk拉） 后台 -&gt;&gt; 后台: 解析活动分片 后台 -&gt;&gt; REDIS: 获取分片版本数据 REDIS -&gt;&gt; REDIS: 版本是否存在？ alt 版本存在 REDIS -&gt;&gt; MQ: ACK end alt 版本不存在 后台 -&gt;&gt; 后台: 获取分片成员 后台 -&gt;&gt; 特征团队: 获取所有成员版本数据 特征团队 -&gt;&gt; 特征团队: 计算分片指标 特征团队 --&gt;&gt; REDIS: 返回数据 end REDIS -&gt;&gt; REDIS: 版本是否存在？ alt 版本存在 REDIS -&gt;&gt; MQ: ACK end alt 版本不存在 REDIS -&gt;&gt; REDIS: …  ]]></content></entry><entry><title>构建分布式任务调度系统（二）：系统设计与实现</title><url>/post/dts/system-design/</url><categories><category>分布式任务调度</category></categories><tags><tag>分布式任务调度</tag></tags><content type="html">  一、什么是分布式任务调度 任务调度是指基于给定的时间点，给定的时间间隔或者给定执行次数自动的执行任务。分布式调度系统用于处理需要在多个服务器或计算节点上并行执行的复杂计算任务，提高任务调度的效率、可靠性和可扩展性。
 二、分布式任务调度的关键点 分布式：平台需要是可以分布式部署的，各个节点之间可以无状态和无限的水平扩展； 任务调度：涉及到任务状态管理、任务调度请求的发送与接收、具体任务的分配、任务的具体执行； 配置中心：可以感知整个集群的状态、任务信息的注册。
 三、分布式任务调度系统设计 3.1 高可用设计 Web模块 和 Server模块： 提供 无状态部署，使用 Nginx 或 Load Balancer 进行请求负载均衡。 Server 模块实现 主从切换 或 集群部署，避免单点故障。 注册中心： 使用分布式注册中心（如 etcd、Zookeeper 或 Consul）来保证注册中心自身的高可用性。 Scheduler模块： 支持 任务主备调度 和 Leader选举，避免任务调度中心单点失效。 3.2 任务执行可靠性 任务重试与失败处理： 设计 重试机制：支持任务失败后的重试（按时间间隔、次数、优先级等配置）。 死信队列（DLQ）：将重试失败的任务存储到专门的队列中，方便后续人工介入处理。 幂等性保证： 在任务下发和执行时，增加幂等性检查，防止任务被重复执行。 任务状态存储： 将任务执行的中间状态和结果持久化到存储（如 MySQL、PostgreSQL 或 Elasticsearch），确保任务状态可靠记录。 3.3 Worker 节点的动态管理 健康检查： Scheduler 通过心跳机制定时检测 Worker 节点的存活状态。 动态扩容与缩容： 支持 自动发现 和 自动注册 新增的 Worker 节点，动态调整任务分配。 结合集群监控，判断 Worker 负载，自动将任务从高负载节点迁移到低负载节点。 3.4 任务调度优化 调度策略：支持多种调度策略，包括： 轮询调度：任务平均分配给 Worker 节点。 最少负载调度：将任务分配给负载最低的 Worker 节点。 优先级调度：高优先级任务优先执行。 分片调度：将任务切分成多个小任务，并分发到多个 Worker。 任务分布式锁： 使用 Redis、etcd 或 Zookeeper 实现分布式锁，确保任务不会被 …  </content></entry><entry><title>构建分布式任务调度系统（一）：时间轮</title><url>/post/dts/timing-wheel/</url><categories><category>分布式任务调度</category></categories><tags><tag>分布式任务调度</tag><tag>时间轮</tag></tags><content type="html">  时间轮（Timing Wheel）是一种高效的数据结构，用于管理定时任务或事件。在分布式任务调度系统等场景中经常可以看到时间轮的实现，以实现对大量定时任务的高效调度。
 一、为什么用时间轮 相比传统的队列形式的调度器来说，时间轮能够批量高效的管理各种延时任务、周期任务、通知任务等等。
