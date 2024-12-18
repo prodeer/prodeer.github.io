@@ -194,10 +194,10 @@ params:
 
   # 用户自定义文件配置
   # Define custom file paths.
-  # customFilePath:
+  customFilePath:
   #   sidebar: custom_sidebar.html
   #   footer: custom_footer.html
-  #   style: /css/custom_style.css
+    style: /css/custom_style.css
 
   # 知识共享国际许可 4.0
   # 更多信息： https://creativecommons.org/about/cclicenses/
