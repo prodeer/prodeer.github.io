@@ -1,7 +1,7 @@
 +++
 date = '2023-04-16T22:10:00+08:00'
 title = '构建分布式任务调度系统（二）：系统设计与实现'
-categories = ['分布式任务调度']
+categories = ['分布式']
 tags = ['分布式任务调度']
 draft = false
 mermaid = true

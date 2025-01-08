@@ -1,0 +1,184 @@
+<!doctype html><html lang=zh-CN data-theme=light><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: light)"><meta name=generator content="Hugo 0.139.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/x-icon href=/imgs/icons/favicon.ico><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon_16x16_next.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon_32_32_next.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/apple_touch_icon_next.png><meta itemprop=name content="掌握 JuiceFS：数据存储的基本单元"><meta itemprop=description content><meta name=description content><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="//localhost:1313/imgs/liulu_avatar.png"><meta itemprop=keywords content="分布式文件系统,JuiceFS"><meta property="og:type" content="article"><meta property="og:title" content="掌握 JuiceFS：数据存储的基本单元"><meta property="og:description" content><meta property="og:image" content="/imgs/liulu_avatar.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="//localhost:1313/post/distributed/juicefs-data-storage/"><meta property="og:site_name" content="呦呦鹿鸣"><meta property="og:locale" content="zh-CN"><meta property="article:author" content><meta property="article:published_time" content="2025-01-08 18:58:22 +0800 CST"><meta property="article:modified_time" content="2025-01-08 18:58:22 +0800 CST"><link type=text/css rel=stylesheet href=//localhost:1313/3rd/font-awesome/6.6.0/css/all.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/animate.css/4.1.1/animate.min.css><link type=text/css rel=stylesheet href=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.css><link rel=stylesheet href=/css/main.css><style type=text/css>.post-footer,.flinks-list-footer hr:after{content:"~ 我可是有底线的哟 ~"}</style><link rel=stylesheet type=text/css href=/css/custom_style.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return void 0;const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),void 0):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"mermaid":{"js":{"file":"dist/mermaid.min.js","name":"mermaid","version":"10.9.1"}},"path":"juicefs-data-storage","permalink":"//localhost:1313/post/distributed/juicefs-data-storage/","title":"掌握 JuiceFS：数据存储的基本单元","waline":{"js":[{"alias":"@waline/client","alias_name":"waline","file":"dist/pageview.js","name":"pageview","version":"2.15.8"},{"alias":"@waline/client","alias_name":"waline","file":"dist/comment.js","name":"comment","version":"2.15.8"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>掌握 JuiceFS：数据存储的基本单元 - 呦呦鹿鸣</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>呦呦鹿鸣</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>prodeer's Blog</p></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about/ class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
+<span class=badge>24</span></a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
+<span class=toggle-line></span>
+<span class=toggle-line></span></div><aside class=sidebar><div class="sidebar-inner sidebar-nav-active sidebar-toc-active"><ul class=sidebar-nav><li class=sidebar-nav-toc>文章目录</li><li class=sidebar-nav-overview>站点概览</li></ul><div class=sidebar-panel-container><div class="post-toc-wrap sidebar-panel"><div class="post-toc animated"><nav id=TableOfContents><ul><li><ul><li><ul><li><a href=#一juicefs-的技术架构>一、JuiceFS 的技术架构</a></li><li><a href=#二juicefs-数据存储的基本单元>二、JuiceFS 数据存储的基本单元</a></li><li><a href=#三juicefs-中-chunkslice-和-block-的应用场景>三、JuiceFS 中 Chunk、Slice 和 Block 的应用场景</a><ul><li><a href=#场景一大文件的顺序写入>场景一：大文件的顺序写入</a></li><li><a href=#场景二小文件的随机写入>场景二：小文件的随机写入</a></li><li><a href=#场景三文件的追加写入>场景三：文件的追加写入</a></li><li><a href=#场景四文件的覆盖写入>场景四：文件的覆盖写入</a></li></ul></li><li><a href=#小结>小结</a></li></ul></li></ul></li></ul></nav></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author site-overview-item animated" itemprop=author itemscope itemtype=http://schema.org/Person><img class=site-author-image itemprop=image alt src=/imgs/img-lazy-loading.gif data-src=/imgs/liulu_avatar.png><p class=site-author-name itemprop=name></p><div class=site-description itemprop=description></div></div><div class="site-state-wrap site-overview-item animated"><nav class=site-state><div class="site-state-item site-state-posts"><a href=/archives/><span class=site-state-item-count>24</span>
+<span class=site-state-item-name>日志</span></a></div><div class="site-state-item site-state-categories"><a href=/categories/><span class=site-state-item-count>7</span>
+<span class=site-state-item-name>分类</span></a></div><div class="site-state-item site-state-tags"><a href=/tags/><span class=site-state-item-count>14</span>
+<span class=site-state-item-name>标签</span></a></div></nav></div><div class="links-of-social site-overview-item animated"></div><div class="cc-license animated" itemprop=license><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh class=cc-opacity rel=noopener target=_blank title=共享知识><img src=/imgs/img-lazy-loading.gif data-src=/imgs/cc/big/by_nc_sa.svg alt=共享知识></a></div><div class="links-of-blogroll site-overview-item animated"><div class=links-of-blogroll-title><i class="fa fa-globe fa-fw"></i>
+友情链接</div><ul class=links-of-blogroll-list><li class=links-of-blogroll-item><a href=https://www.cnblogs.com/sunshineliulu title=https://www.cnblogs.com/sunshineliulu target=_blank>呦呦鹿鸣</a></li></ul></div></div></div></div><div id=siteinfo-card-widget class=sidebar-card-widget><div class=item-headline><i class="fas fa-chart-line"></i>
+<span>网站资讯</span></div><div class=siteinfo><div class=siteinfo-item><div class=item-name><i class="fa-solid fa-calendar-check"></i>已运行：</div><div class=item-count id=runTimes data-publishdate=2021-05-18T00:13:00+08:00></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-user"></i>总访客数：</div><div class=item-count id=busuanzi_value_site_uv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fas fa fa-eye"></i>页面浏览：</div><div class=item-count id=busuanzi_value_site_pv><i class="fa fa-sync fa-spin"></i></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-font"></i>总字数：</div><div class=item-count id=wordsCount data-count=51234></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-mug-hot"></i>阅读约：</div><div class=item-count id=readTimes data-times=116></div></div><div class=siteinfo-item><div class=item-name><i class="fa fa-clock-rotate-left"></i>最后更新于：</div><div class=item-count id=last-push-date data-lastpushdate=2025-01-08T18:58:22+08:00></div></div></div></div></aside><div class=sidebar-dimmer></div></header><div class=tool-buttons><div id=toggle-theme class=button title=深浅模式切换><i class="fas fa-adjust"></i></div><div class=back-to-top role=button title=返回顶部><i class="fa fa-arrow-up"></i>
+<span>0%</span></div></div><div class=reading-progress-bar></div><a role=button class="book-mark-link book-mark-link-fixed"></a><script type=text/javascript src=//sidecar.gitter.im/dist/sidecar.v1.js async></script><script type=text/javascript>((window.gitter={}).chat={}).options={room:"hugo-next/community"}</script><noscript><div class=noscript-warning>Theme NexT works best with JavaScript enabled</div></noscript><div class="main-inner post posts-expand"><div class=post-block><article itemscope itemtype=http://schema.org/Article class=post-content lang><link itemprop=mainEntityOfPage href=//localhost:1313/post/distributed/juicefs-data-storage/><span hidden itemprop=author itemscope itemtype=http://schema.org/Person><meta itemprop=image content="/imgs/liulu_avatar.png"><meta itemprop=name content></span><span hidden itemprop=publisher itemscope itemtype=http://schema.org/Organization><meta itemprop=name content><meta itemprop=description content></span><span hidden itemprop=post itemscope itemtype=http://schema.org/CreativeWork><meta itemprop=name content="掌握 JuiceFS：数据存储的基本单元"><meta itemprop=description content="传统文件系统只能使用本地磁盘存储数据和对应的元数据，JuiceFS 会将数据格式化以后存储在对象存储，同时会将文件的元数据存储在元数据引擎，具有很好的扩展性，可以轻松处理大量数据和高并发访问。本文学习JuiceFS 文件系统的架构和它的Chunk、Slice 和 Block。"></span><header class=post-header><h1 class=post-title itemprop="name headline">掌握 JuiceFS：数据存储的基本单元</h1><div class=post-meta-container><div class=post-meta-items><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-calendar"></i>
+</span><span class=post-meta-item-text title=发表于>发表于：
+</span><time title="创建时间：2025-01-08 18:58:22 +0800 CST" itemprop="dateCreated datePublished" datetime="2025-01-08 18:58:22 +0800 CST">2025-01-08
+</time></span><span class=post-meta-item><span class=post-meta-item-icon><i class="fas fa-solid fa-folder-open"></i>
+</span><span class=post-meta-item-text title=分类于>分类于：
+</span><span itemprop=about itemscope itemtype=http://schema.org/Thing><a href=/categories/%E5%88%86%E5%B8%83%E5%BC%8F itemprop=url rel=index><span itemprop=name>分布式</span></a></span></span></div><div class=post-meta-items><span class=post-meta-item title=字数><span class=post-meta-item-icon><i class="fas fa-solid fa-file-word"></i>
+</span><span class=post-meta-item-text>字数：</span>
+<span>2735</span>
+</span><span class=post-meta-item title=阅读><span class=post-meta-item-icon><i class="fas fa-solid fa-clock"></i>
+</span><span class=post-meta-item-text>阅读：&ap;</span>
+<span>6分钟</span>
+</span><span class=post-meta-item title=浏览><span class=post-meta-item-icon><i class="fas fa-solid fa-eye"></i>
+</span><span class=post-meta-item-text>浏览：
+</span><span id=busuanzi_value_page_pv data-path=/post/distributed/juicefs-data-storage/><i class="fa fa-sync fa-spin"></i></span></span></div></div></header><div class=post-body itemprop=articleBody><p>传统文件系统只能使用本地磁盘存储数据和对应的元数据，JuiceFS 会将数据格式化以后存储在对象存储，同时会将文件的元数据存储在元数据引擎，具有很好的扩展性，可以轻松处理大量数据和高并发访问。本文学习JuiceFS 文件系统的架构和它的Chunk、Slice 和 Block。</p><h3 id=一juicefs-的技术架构>一、JuiceFS 的技术架构
+<a class=header-anchor href=#%e4%b8%80juicefs-%e7%9a%84%e6%8a%80%e6%9c%af%e6%9e%b6%e6%9e%84></a></h3><p>JuiceFS 文件系统由三个部分组成：JuiceFS 客户端（Client）、数据存储（Data Storage）、元数据引擎（Metadata Engine）。</p><ul><li><strong>JuiceFS 客户端（Client）</strong>：所有文件读写，以及碎片合并、回收站文件过期删除等后台任务，均在客户端中发生。客户端需要同时与对象存储和元数据引擎打交道。客户端支持多种接入方式。</li><li><strong>数据存储（Data Storage）</strong>：文件将会被切分上传至对象存储服务。JuiceFS 支持几乎所有的公有云对象存储，同时也支持 OpenStack Swift、Ceph、MinIO 等私有化的对象存储。</li><li><strong>元数据引擎（Metadata Engine）</strong>：用于存储文件元数据（metadata）。</li></ul><div class=mermaid align=center style=background:#white>graph TD
+subgraph JuiceFS 客户端 [JuiceFS 客户端]
+G1[客户端]
+G1 -->|文件读写| H1[对象存储]
+G1 -->|元数据操作| I1[元数据引擎]
+end
+subgraph 接入方式 [接入方式]
+A1[FUSE]
+A2[Hadoop Java SDK]
+A3[Kubernetes CSI 驱动]
+A4[S3 网关]
+A5[WebDAV 服务]
+end
+A1 -->|挂载到服务器| B1[POSIX 兼容]
+A2 -->|替代 HDFS| C1[Hadoop]
+A3 -->|提供海量存储| D1[Kubernetes]
+A4 -->|直接接入| E1[S3 兼容应用]
+A5 -->|HTTP 协议| F1[WebDAV 客户端]
+subgraph 数据存储 [数据存储]
+H1 --> J1[公有云对象存储]
+H1 --> J2[私有化对象存储]
+end
+subgraph 元数据引擎 [元数据引擎]
+I1 --> N1[Redis]
+I1 --> O1[TiKV]
+I1 --> P1[MySQL/MariaDB]
+I1 --> Q1[PostgreSQL]
+I1 --> R1[SQLite]
+end
+B1 --> G1
+C1 --> G1
+D1 --> G1
+E1 --> G1
+F1 --> G1</div><h3 id=二juicefs-数据存储的基本单元>二、JuiceFS 数据存储的基本单元
+<a class=header-anchor href=#%e4%ba%8cjuicefs-%e6%95%b0%e6%8d%ae%e5%ad%98%e5%82%a8%e7%9a%84%e5%9f%ba%e6%9c%ac%e5%8d%95%e5%85%83></a></h3><p>在 JuiceFS 中，Chunk、Slice 和 Block 是文件存储和处理的三个核心概念，它们共同构成了 JuiceFS 的数据管理机制。</p><div class=mermaid align=center style=background:#white>graph TD
+A[文件] --> B[Chunk]
+B -->|一个文件由一个或多个组成| C[Chunk]
+C --> D[Slice]
+D -->|一个或多个 Slice 组成一个 Chunk| E[Slice]
+E --> F[Block]
+F -->|一个 Slice 可以拆分成多个 Block| G[Block]
+subgraph 说明
+H[每个 Chunk 最大 64MB]
+I[每个 Slice 不超过 64MB]
+J[每个 Block 默认最大 4MB]
+end
+C --> H
+E --> I
+G --> J</div><p>如上图所示：</p><ol><li><strong>Chunk</strong>：</li></ol><ul><li>一个 Chunk 是 JuiceFS 中文件存储的基本单位，每个 Chunk 的大小固定，最大为 64MB。</li><li>文件被分割成一个个 Chunk，每个 Chunk 包含文件的一部分数据。</li><li>Chunk 的设计允许 JuiceFS 优化大文件的存储和访问性能，因为可以独立地处理和访问每个 Chunk。</li></ul><ol start=2><li><strong>Slice</strong>：</li></ol><ul><li>Slice 是文件写入操作的逻辑单元，它表示文件中的一段连续数据。</li><li>一个 Slice 属于一个 Chunk，并且不能跨越 Chunk 边界，因此 Slice 的长度不会超过 64MB。</li><li>当文件被写入时，数据首先被写入到 Slice 中。Slice 可以看作是文件在内存中的缓冲区，当需要持久化数据时，Slice 中的数据会被写入到 Block 中。</li></ul><ol start=3><li><strong>Block</strong>：</li></ol><ul><li>Block 是 JuiceFS 中数据的物理存储单元，它是对象存储中实际存储数据的最小单位。</li><li>为了提高写入性能，Slice 在持久化到对象存储时会被进一步拆分成多个 Block，每个 Block 默认最大为 4MB。</li><li>Block 可以并发写入对象存储，这有助于提高大文件写入的性能。</li><li>在对象存储中，Block 以数字编号的文件形式存在，这些文件与 Chunk 和 Slice 的对应关系由元数据引擎管理。</li></ul><p>这三者的协同工作方式如下：</p><ul><li>当用户写入文件时，数据首先被写入到 Slice 中。</li><li>如果文件写入操作是连续的，那么每个 Chunk 可能只包含一个 Slice。</li><li>当调用 flush 操作或者 JuiceFS 客户端自动触发时，Slice 中的数据会被持久化到对象存储中。</li><li>在持久化过程中，Slice 被拆分成多个 Block，这些 Block 被并发写入对象存储以提高性能。</li><li>元数据引擎记录了文件的元数据以及 Chunk、Slice 和 Block 之间的映射关系，这对于文件的读取和数据恢复至关重要。
+这种设计使得 JuiceFS 能够高效地处理大规模数据，同时保持高性能的读写操作。</li></ul><h3 id=三juicefs-中-chunkslice-和-block-的应用场景>三、JuiceFS 中 Chunk、Slice 和 Block 的应用场景
+<a class=header-anchor href=#%e4%b8%89juicefs-%e4%b8%ad-chunkslice-%e5%92%8c-block-%e7%9a%84%e5%ba%94%e7%94%a8%e5%9c%ba%e6%99%af></a></h3><h4 id=场景一大文件的顺序写入>场景一：大文件的顺序写入
+<a class=header-anchor href=#%e5%9c%ba%e6%99%af%e4%b8%80%e5%a4%a7%e6%96%87%e4%bb%b6%e7%9a%84%e9%a1%ba%e5%ba%8f%e5%86%99%e5%85%a5></a></h4><p>假设有一个大文件需要被写入 JuiceFS：</p><ol><li><strong>Chunk</strong>：文件被分割成多个 64MB 的 Chunk。如果文件大小为 160MB，那么它将被分割成 3 个 Chunk。</li><li><strong>Slice</strong>：文件的写入操作是顺序的，每个 Chunk 将包含一个 Slice。第一个 Chunk 的 Slice 将包含前 64MB 的数据，第二个包含接下来的 64MB，第三个包含剩余的 32MB。</li><li><strong>Block</strong>：当用户执行 flush 操作或 JuiceFS 客户端自动触发 flush 时，这些 Slice 将被拆分成 Block 并写入对象存储。每个 Slice 被拆分成多个 Block，例如，第一个和第二个 Chunk 的 Slice 将各被拆分成 16 个 Block（每个 4MB），第三个 Slice 将被拆分成 8 个 Block。</li></ol><div class=mermaid align=center style=background:#white>graph TB
+subgraph File["File 160MB"]
+subgraph Chunk1["Chunk 1 64MB"]
+slice1_1["Slice 1"]
+end
+subgraph Chunk2["Chunk 2 64MB"]
+slice2_1["Slice 2"]
+end
+subgraph Chunk3["Chunk 3 <64MB"]
+slice3_1["Slice 3"]
+end
+end
+subgraph Block["Block"]
+direction LR
+block1_1["Block 1 (4MB)"]
+block1_2["Block 2 (4MB)"]
+%% ... (其他 Block 节点)
+block1_16["Block 16 (4MB)"]
+block2_1["Block 1 (4MB)"]
+block2_2["Block 2 (4MB)"]
+%% ... (其他 Block 节点)
+block2_16["Block 16 (4MB)"]
+block3_1["Block 1 (4MB)"]
+block3_2["Block 2 (4MB)"]
+%% ... (其他 Block 节点)
+block3_8["Block 8 (4MB)"]
+end
+slice1_1 -->|"Split into"| block1_1
+slice1_1 --> block1_2
+%% ... (其他 Block 连接)
+slice1_1 --> block1_16
+slice2_1 -->|"Split into"| block2_1
+slice2_1 --> block2_2
+%% ... (其他 Block 连接)
+slice2_1 --> block2_16
+slice3_1 -->|"Split into"| block3_1
+slice3_1 --> block3_2
+%% ... (其他 Block 连接)
+slice3_1 --> block3_8</div><h4 id=场景二小文件的随机写入>场景二：小文件的随机写入
+<a class=header-anchor href=#%e5%9c%ba%e6%99%af%e4%ba%8c%e5%b0%8f%e6%96%87%e4%bb%b6%e7%9a%84%e9%9a%8f%e6%9c%ba%e5%86%99%e5%85%a5></a></h4><p>假设多个小文件被随机写入 JuiceFS：</p><ol><li><strong>Chunk</strong>：每个文件根据其大小被分配到一个或多个 Chunk 中。小文件可能共享同一个 Chunk。</li><li><strong>Slice</strong>：每个文件的写入操作创建一个新的 Slice。如果文件很小，可能不足以填满一个 Block，但仍然会创建一个新的 Slice。</li><li><strong>Block</strong>：当这些小文件被 flush 时，它们的 Slice 被拆分成 Block。如果一个文件只有 1MB，它可能被拆分成 3 个 Block，每个 Block 大小为 4MB，最后一个 Block 只有 1MB 的有效数据。</li></ol><div class=mermaid align=center style=background:#white>graph TB
+subgraph "File"
+direction TB
+subgraph "Chunk 1"
+slice1_1["Slice 1 (Small File 1MB)"]
+slice1_2["Slice 2 (Small File 2MB)"]
+end
+subgraph "Chunk 2"
+slice2_1["Slice 1 (Small File 3MB)"]
+end
+subgraph "Block"
+direction LR
+block1_1["Block 1 (4MB)"]
+block1_2["Block 2 (4MB)"]
+block1_3["Block 3 (1MB)"]
+block2_1["Block 1 (4MB)"]
+block2_2["Block 2 (1MB)"]
+block2_3["Block 3 (4MB)"]
+end
+slice1_1 -->|"Split into"| block1_1
+slice1_1 --> block1_2
+slice1_1 --> block1_3
+slice1_2 -->|"Split into"| block2_1
+slice1_2 --> block2_2
+slice2_1 -->|"Split into"| block2_3
+end</div><h4 id=场景三文件的追加写入>场景三：文件的追加写入
+<a class=header-anchor href=#%e5%9c%ba%e6%99%af%e4%b8%89%e6%96%87%e4%bb%b6%e7%9a%84%e8%bf%bd%e5%8a%a0%e5%86%99%e5%85%a5></a></h4><p>当文件被追加写入时：</p><ol><li><strong>Chunk</strong>：如果追加的数据量不足以填满当前 Chunk，它将被添加到现有的 Chunk 中。</li><li><strong>Slice</strong>：追加写入将创建新的 Slice。如果追加的数据量很小，可能会创建多个 Slice，每个 Slice 包含少量数据。</li><li><strong>Block</strong>：当这些追加的 Slice 被 flush 时，它们将被拆分成 Block。如果追加的数据量很小，可能会产生许多小于 4MB 的 Block。</li></ol><div class=mermaid align=center style=background:#white>graph TB
+subgraph "File"
+direction TB
+subgraph "Chunk 1"
+slice1_1["Slice 1"]
+slice1_2["Slice 2"]
+slice1_3["Slice 3"]
+end
+subgraph "Block"
+direction LR
+block1_1["Block 1 (4MB)"]
+block1_2["Block 2 (2MB)"]
+block1_3["Block 3 (1MB)"]
+block1_4["Block 4 (3MB)"]
+end
+slice1_1 -->|"Flushed into"| block1_1
+slice1_2 -->|"Flushed into"| block1_2
+slice1_3 -->|"Flushed into"| block1_3
+slice1_3 -->|"Flushed into"| block1_4
+end</div><h4 id=场景四文件的覆盖写入>场景四：文件的覆盖写入
+<a class=header-anchor href=#%e5%9c%ba%e6%99%af%e5%9b%9b%e6%96%87%e4%bb%b6%e7%9a%84%e8%a6%86%e7%9b%96%e5%86%99%e5%85%a5></a></h4><p>当文件的特定部分被覆盖写入时：</p><ol><li><strong>Chunk</strong>：覆盖写入可能发生在文件的任何 Chunk 中。</li><li><strong>Slice</strong>：新的数据将创建一个新的 Slice，这个 Slice 可能与现有的 Slice 重叠。</li><li><strong>Block</strong>：当这个新的 Slice 被 flush 时，它将被拆分成 Block。如果覆盖写入导致数据量减少，可能会减少 Block 的数量；如果增加，则可能增加 Block 的数量。</li></ol><div class=mermaid align=center style=background:#white>graph TB
+subgraph "File"
+direction TB
+subgraph "Chunk 1"
+slice1_1["Slice 1 (Original Data)"]
+slice1_2["Slice 2 (Overwrite Data)"]
+end
+subgraph "Block"
+direction LR
+block1_1["Block 1 (4MB)"]
+block1_2["Block 2 (4MB)"]
+block1_3["Block 3 (2MB)"]
+end
+slice1_1 -->|"Flushed into"| block1_1
+slice1_1 --> block1_2
+slice1_2 -->|"Flushed into"| block1_3
+end</div><h3 id=小结>小结
+<a class=header-anchor href=#%e5%b0%8f%e7%bb%93></a></h3><p>JuiceFS 的元数据引擎会更新文件的元数据，包括 Chunk、Slice 和 Block 的映射关系，以及文件的最新状态。这样，无论文件如何被写入，JuiceFS 都能确保数据的一致性和可访问性。</p></div><footer class=post-footer><div class=post-tags><a href=/tags/%e5%88%86%e5%b8%83%e5%bc%8f%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f>分布式文件系统
+</a><a href=/tags/juicefs>JuiceFS</a></div><div class=addthis_inline_share_toolbox style=text-align:center></div><hr><div class=post-nav><div class="post-nav-next post-nav-item"></div><div class="post-nav-prev post-nav-item"><a href=/post/db/lsm-tree-structure/ rel=prev title=LSM-tree的数据结构>LSM-tree的数据结构
+<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div class=copyright>&copy;
+<span itemprop=copyrightYear>2010 - 2025
+</span><span class=with-love><i class="fa fa-heart"></i>
+</span><span class=author itemprop=copyrightHolder></span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.139.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.6.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div></div></footer><script type=text/javascript src=//localhost:1313/3rd/animejs/3.2.2/anime.min.js crossorigin=anonymous defer></script><script type=text/javascript src=//localhost:1313/3rd/viewerjs/1.11.6/viewer.min.js crossorigin=anonymous defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":false,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"//localhost:1313/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"local","router":{"name":"local","type":"modern","url":"//localhost:1313/3rd"}},"version":"4.6.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"@waline/client","file":"dist/waline.css","name":"waline","version":"2.15.8"},"js":{"alias":"@waline/client","file":"dist/waline.js","name":"waline","version":"2.15.8"}}}</script><script type=text/javascript src=/js/main.js defer></script><script type=text/javascript src=/js/mermaid.js defer></script></body></html>
