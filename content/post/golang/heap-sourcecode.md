@@ -1,6 +1,6 @@
 +++
 date = '2023-03-04T21:30:00+08:00'
-title = 'Go的heap和源码分析'
+title = 'Golang的heap和源码分析'
 draft = false
 categories = ['Golang']
 tags = ['优先队列', '源代码']

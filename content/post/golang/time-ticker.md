@@ -1,6 +1,6 @@
 +++
 date = '2022-04-22T22:47:20+08:00'
-title = 'Go的定时器之Time.Ticker'
+title = 'Golang的定时器之Time.Ticker'
 draft = false
 categories = ['Golang']
 tags = ['Golang']

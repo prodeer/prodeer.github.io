@@ -1,6 +1,6 @@
 +++
 date = '2021-10-10T23:52:00+08:00'
-title = 'Go的Select的用法'
+title = 'Golang的Select的用法'
 draft = false
 categories = ['Golang']
 tags = ['Golang']

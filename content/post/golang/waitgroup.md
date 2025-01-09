@@ -1,6 +1,6 @@
 +++
 date = '2021-05-18T00:13:00+08:00'
-title = 'Go的Waitgroup和锁'
+title = 'Golang的Waitgroup和锁'
 draft = false
 categories = ['Golang']
 tags = ['Golang', '源代码']

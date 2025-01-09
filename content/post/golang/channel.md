@@ -1,6 +1,6 @@
 +++
 date = '2021-08-24T01:46:00+08:00'
-title = 'Go的Channel发送和接收'
+title = 'Golang的Channel发送和接收'
 draft = false
 categories = ['Golang']
 tags = ['Golang', '源代码']

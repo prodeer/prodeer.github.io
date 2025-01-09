@@ -1,6 +1,6 @@
 +++
 date = '2023-01-09T00:13:00+08:00'
-title = 'Go的弱引用'
+title = 'Golang的弱引用'
 draft = false
 categories = ['Golang']
 tags = ['Golang', '垃圾回收']
