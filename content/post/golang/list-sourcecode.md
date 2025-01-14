@@ -2,6 +2,7 @@
 date = '2024-12-30T19:30:00+08:00'
 title = 'Golang的list和源码分析'
 draft = false
+mermaid = true
 categories = ['Golang']
 tags = ['双向链表', '源代码']
 +++
@@ -86,6 +87,25 @@ func (l *List) Init() *List {
 
 `List`结构体包含一个哨兵节点（`root`），以及链表的长度（`len`）。其中，哨兵节点不存储数据。  
 `Init()`方法用于初始化或清空链表。在这个方法中，`root.next`和`root.prev`被设置为`&l.root`，确保了哨兵节点的`next`和`prev`指针都指向自己，形成了环形结构。
+
+{{< mermaid bc="#white" >}}
+graph LR
+    root(("root/sential node"))
+    headNode1["Head Node"]
+    headNode2["Node"]
+    tailNode["Tail Node"]
+    
+    root -->|next| headNode1
+    headNode1 -->|next| headNode2
+    headNode2 -->|next| tailNode
+    
+    tailNode -->|prev| headNode2
+    headNode2 -->|prev| headNode1
+    headNode1 -->|prev| root
+
+    tailNode -->|prev| root
+    root -->|next| tailNode
+{{< /mermaid >}}
 
 哨兵节点作为链表的起始和结束节点，其`next`和`prev`指针都指向自己，这种设计避免了对空链表的特殊处理，使得链表的插入和删除操作更加统一和简化。
 
