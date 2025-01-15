@@ -3,7 +3,7 @@ date = '2023-03-29T23:30:00+08:00'
 title = 'Golang的结构体标签与反射'
 draft = false
 categories = ['Golang']
-tags = ['反射', '源代码']
+tags = ['Golang', '反射', '源代码']
 +++
 
 ## 一、结构体标签

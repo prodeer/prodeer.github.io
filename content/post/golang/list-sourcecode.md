@@ -4,7 +4,7 @@ title = 'Golang的list和源码分析'
 draft = false
 mermaid = true
 categories = ['Golang']
-tags = ['双向链表', '源代码']
+tags = ['Golang', '双向链表', '源代码']
 +++
 
 刷力扣时，有这样一道题，要求**设计并实现一个满足  LRU (最近最少使用) 缓存约束的数据结构**，实现这道题用到了Go 官方库提供的`container/list`包中的List（双向链表）。

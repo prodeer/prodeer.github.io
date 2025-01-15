@@ -3,7 +3,7 @@ date = '2024-12-21T09:30:00+08:00'
 title = 'Golang的channel和源码分析'
 draft = false
 categories = ['Golang']
-tags = ['channel', '源代码']
+tags = ['Golang', '源代码']
 +++
 
 
@@ -86,8 +86,7 @@ type sudog struct {
 
 #### 1.4 hchan图解
 
-![](https://exknk14n7b.feishu.cn/space/api/box/stream/download/asynccode/?code=ZTI5MjgwMTk4ZjRiMGU1NDQ3ZWQxZDA1Y2UzODM3MDBfSVJuZDA2Rmxza1JLT3VNNXlUY1Zqbmg5N1ZiOUI0WHdfVG9rZW46RnJGdWJNQ2tzb01KRDJ4NHRvdmNNR0ZibnRkXzE3MzY4NjczODY6MTczNjg3MDk4Nl9WNA)
-
+![hchan图解图解](/channel-hchan-structure.png "hchan图解")
 **环形缓冲区**
 
 * 如果 channel 是有缓冲的，`hchan` 中的 `buf` 字段会指向一个环形缓冲区（circular buffer），用于存储待发送或待接收的元素。

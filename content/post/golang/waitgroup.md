@@ -3,7 +3,7 @@ date = '2021-05-18T00:13:00+08:00'
 title = 'Golang的Waitgroup和锁'
 draft = false
 categories = ['Golang']
-tags = ['Golang', '源代码']
+tags = ['Golang']
 +++
 
 学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。

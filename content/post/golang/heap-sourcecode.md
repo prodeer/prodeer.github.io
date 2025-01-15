@@ -3,7 +3,7 @@ date = '2023-03-04T21:30:00+08:00'
 title = 'Golang的heap和源码分析'
 draft = false
 categories = ['Golang']
-tags = ['优先队列', '源代码']
+tags = ['Golang', '优先队列', '源代码']
 +++
 
 之前用Go实现延时队列，我使用了Go标准库中的`container/heap`接口来构建一个优先队列。为什么Go的`container/heap`接口可以实现一个优先队列呢？
