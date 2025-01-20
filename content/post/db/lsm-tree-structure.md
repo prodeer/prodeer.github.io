@@ -4,6 +4,7 @@ draft = false
 mermaid = true
 title = 'LSM-tree的数据结构'
 categories = ['数据库']
+tags = ['Tree']
 +++
 
 学习 LSM-tree（Log-Structured Merge Tree）数据结构的原理、特性以及在数据库中的应用。

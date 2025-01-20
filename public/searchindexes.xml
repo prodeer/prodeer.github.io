@@ -20,7 +20,14 @@ type bmap struct { tophash [abi.MapBucketCount]uint8 } // 底层定义的常量 
 自2015年毕业后，我一直从事后端开发工作。是机缘巧合，也是命运使然，目标是一个又一个的十年之约。在这个瞬息万变的世界里，我对技术的热爱和追求始终不变。
 我通过写博客记录自己的所见所思，若有不足之处，还请多多指教。
 与世界交手的第N年，愿你我依旧保持热爱与勇气，仍兴味盎然，不畏岁月漫长。
-技术栈 语言：熟悉 Golang、PHP，了解 Java、Python 中间件：MySQL、Redis、RabbitMQ、RocketMQ、Kafka、ES 云原生：K8s、Docker 系统：高并发、问题排查、性能优化   </content></entry><entry><title>LSM-tree的数据结构</title><url>/post/db/lsm-tree-structure/</url><categories><category>数据库</category></categories><tags/><content type="html"><![CDATA[  学习 LSM-tree（Log-Structured Merge Tree）数据结构的原理、特性以及在数据库中的应用。
+技术栈 语言：熟悉 Golang、PHP，了解 Java、Python 中间件：MySQL、Redis、RabbitMQ、RocketMQ、Kafka、ES 云原生：K8s、Docker 系统：高并发、问题排查、性能优化   </content></entry><entry><title>MySQL B+树的层数计算</title><url>/post/db/mysql-b+tree-calculate/</url><categories><category>数据库</category></categories><tags><tag>MySQL</tag><tag>Tree</tag></tags><content type="html">  在MySQL中，当数据量达到千万级时，B+树通常有3层。本文学习如何计算InnoDB中一棵B+树可以存放的数据数，以及如何根据数据量推算出对应的层数。
+节点存储结构 在计算机中磁盘存储数据最小单元是扇区，一个扇区的大小是512字节，而文件系统（例如XFS/EXT4）他的最小单元是块，一个块的大小是4k，而对于我们的InnoDB存储引擎也有自己的最小储存单元——页（Page），一个页的大小是16K。
+InnoDB存储引擎的最小存储单元是页，页可以用于存放数据也可以用于存放键值+指针，在B+树中叶子节点存放数据，非叶子节点存放键值+指针。
+索引组织表通过非叶子节点的二分查找法以及指针确定数据在哪个页中，进而在去数据页中查找到需要的数据。
+容量计算 叶子节点：假设一行记录的数据大小为1k，InnoDB存储引擎的页大小默认为16k，那么一个叶子节点（即一个页）可以存储16条记录。 非叶子节点：假设主键ID为bigint类型，长度为8字节，指针大小在InnoDB源码中为6字节，这样一共14字节，一个页中能存放多少这样的单元，就代表有多少指针，即 16384/（8+6）=1170个指针。 层数计算 B+树的树高为1时，意味着所有数据都存储在根节点（同时也是叶子节点）上。此时，数据量的大小取决于根节点的容量，即根节点可以存储多少条记录。
+当B+树高为2甚至更高时，存在一个根节点和若干个叶子节点，那么这棵B+树的存放总记录数为：根节点指针数*单个叶子节点记录行数。
+一层B+树：InnoDB存储引擎的页大小默认为16KB，假设每条记录的大小为1KB，那么根节点可以存储16条记录。 两层B+树：根节点为非叶子节点，有1170个指针，每个指针指向一个叶子节点，每个叶子节点有16条记录，所以总共可以存放1170×16=18720条记录。 三层B+树：根节点为非叶子节点，有1170个指针，每个指针指向一个非叶子节点，这些非叶子节点又各有1170个指针指向叶子节点，每个叶子节点有16条记录，所以总共可以存放1170×1170×16=21902400条记录。 高扇出特性 B+树的节点扇出非常高，即每个节点包含的子节点数多。这使得B+树能够在较少的层数内存储大量数据，从而在千万级数据量时，通常只需要3层就能满足需求。
+磁盘IO优化 B+树通过减少树的高度，降低了磁盘IO次数。在查找数据时，一次页的 …  </content></entry><entry><title>LSM-tree的数据结构</title><url>/post/db/lsm-tree-structure/</url><categories><category>数据库</category></categories><tags><tag>Tree</tag></tags><content type="html"><![CDATA[  学习 LSM-tree（Log-Structured Merge Tree）数据结构的原理、特性以及在数据库中的应用。
 一、什么是 LSM-tree 名称：Log-Structured Merge Tree，日志结构合并树。 核心思想：硬盘的顺序写入速度比随机写入快很多，因此 LSM-tree 以仅追加的形式写入磁盘。 组成： Memtable：Memory Mutable Table，内存可变表，用于存储最近的写入操作。 SSTable：Sorted String Table，有序字符串表，是Memtable的持久化版本。 WAL：Write-Ahead Log，预写日志，用于确保数据的持久性。 二、LSM-tree 的数据写入 写入策略：LSM-tree采用“异地更新”策略，即更新数据时不会直接修改原记录，而是将新记录写入新的位置。 写入过程：数据首先写入WAL和Memtable，当Memtable达到一定大小后，会刷新到磁盘成为SSTable。 graph TD A[开始写操作] --&gt; B[记录到WAL] B --&gt; C[写入Memtable] C --&gt; D[是更新操作吗?] D -- 是 --&gt; E[在Memtable中更新数据] D -- 否 --&gt; F[在Memtable中插入新数据] E --&gt; G[Memtable达到阈值?] F --&gt; G G -- 是 --&gt; H[Memtable转为Immutable Memtable] G -- 否 --&gt; I[继续写操作] H --&gt; J[Minor Compaction] J --&gt; K[Immutable Memtable写入磁盘成为Level 0 SSTable] K --&gt; L[结束写操作] 以下是LSM-tree写数据的更新流程：
 写操作流程 记录日志（WAL）：
 所有写操作（包括插入、更新和删除）首先记录到预写日志（Write-Ahead Log, WAL）中。WAL确保数据的持久性和一致性，即使在系统崩溃的情况下，也可以通过WAL恢复数据.
