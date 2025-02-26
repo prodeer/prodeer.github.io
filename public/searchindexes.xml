@@ -49,7 +49,25 @@ Name 的标签-&amp;gt; id 的标签-&amp;gt; desc:&amp;#34;这是id标签&amp;#
 定义数据结构：首先，需要定义一个数据结构来存储堆中的元素。 实现heap.Interface：container/heap接口要求实现以下方法： Len()：返回堆中元素的数量。 Less(i, j int) bool：比较索引为 i 和 j 的两个元素，确定它们在堆中的顺序。 Swap(i, j int)：交换索引为 i 和 j 的两个元素。 Push(x interface{})：向堆中添加一个新元素。 Pop() interface{}：移除并返回堆中的最后一个元素，即优先级最高的元素。 初始化堆：使用heap.Init()函数初始化堆，确保堆的性质得到满足。 操作堆：通过heap.Push()和heap.Pop()来添加和移除元素，这些操作会保持堆的性质。 更新元素：如果需要更新堆中的元素，可以使用heap.Fix()来重新调整堆，确保堆的性质不被破坏。 利用container/heap接口的灵活性，可以根据具体需求实现不同类型的优先队列，例如最小堆或最大堆。通过实现Less方法，可以定义元素之间的比较逻辑，从而控制优先级队列的行为。例如，如果要实现一个最大堆，可以在Less方法中使用大于号（&amp;amp;gt;）来比较元素，使得优先级最高的元素总是在堆的顶部。
 此外，container/heap还提供了一些辅助函数，如heap.Push, heap.Pop, heap.Remove, 和 heap.Fix，使用这些函数可以更容易地实现和维护优先队列。
 二、heap源码剖析 Go 中heap的相关部分可以在源码下的 src/container/heap/heap.go 查看。以下源代码基于 go1.23.3 版本，有删减。
-2.1 核心接口 type Interface interface { sort.Interface …  </content></entry><entry><title>Golang实现一个基于本地存储的延时队列</title><url>/post/mq/delayed-queue/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>延时队列</tag></tags><content type="html">  一、什么是延迟队列 延迟队列是一种特殊的队列，其核心特点是队列中的消息或任务会被延迟一定时间后才能被消费或执行。这种队列广泛应用于需要延迟处理的场景，比如订单超时未支付自动取消、用户注册后一段时间未登录发送提醒等。
+2.1 核心接口 type Interface interface { sort.Interface …  </content></entry><entry><title>Golang的Defer的用法</title><url>/post/golang/defer/</url><categories><category>Golang</category></categories><tags><tag>Golang</tag></tags><content type="html">  在Go语言中，defer定义为关键字， 在开发过程中使用非常高频，本文通过常见案例来学习defer的执行机制。
+1. defer 的执行顺序是什么？ 示例代码：
+func main() { defer fmt.Println(1) // 第1个声明 → 最后执行 defer fmt.Println(2) // 第2个声明 → 最后执行 defer fmt.Println(3) // 第3个声明 → 最后执行 } 输出：
+3 2 1 解析：
+defer通过栈结构实现，遵循后进先出（LIFO）的顺序执行。最后一个defer最先执行，第一个defer最后执行。
+2. defer 的参数计算时机 示例代码：
+func test() int { i := 0 defer fmt.Println(&amp;amp;#34;defer:&amp;amp;#34;, i) // 参数 i 的值在 defer 声明时确定 i++ return i } 输出：
+defer: 0 解析：
+defer的参数在声明时立即求值，而非等到函数退出时才计算。此时 i 的值是 0，后续的 i++ 不影响已声明的 defer。
+3. defer 与闭包结合时的变量捕获 示例代码：
+func test() { i := 0 defer func() { fmt.Println(i) }() // 闭包捕获当前变量 i 的引用 i++ } 输出：
+1 解析：
+闭包通过引用捕获变量，执行时获取的是变量的最终值。i 在 defer 后自增到 1，因此输出 1。
+4. defer 如何影响返回值？ 示例1：命名返回值：
+func test() (result int) { defer func() { result++ }() return 5 // 将 result 设为 5 → 执行 defer，result++ → 最终返回 6 } 返回结果：6
+示例2：匿名返回值：
+func test() int { i := 0 defer func() { i++ }() return i // 返回值在 return 时确定为 0，后续 i++ 不影响返回值 } 返回结果：0
+解析：
+若返回值命名，defer 可以修改它（因为直接操作返回值变量）。 若返回值匿名，defer 修改的是局部变量，不影响已确定的返回值。 5. defer 在循环中的 …  </content></entry><entry><title>Golang实现一个基于本地存储的延时队列</title><url>/post/mq/delayed-queue/</url><categories><category>消息队列</category></categories><tags><tag>消息队列</tag><tag>延时队列</tag></tags><content type="html">  一、什么是延迟队列 延迟队列是一种特殊的队列，其核心特点是队列中的消息或任务会被延迟一定时间后才能被消费或执行。这种队列广泛应用于需要延迟处理的场景，比如订单超时未支付自动取消、用户注册后一段时间未登录发送提醒等。
 二、延迟队列的应用场景 电商平台订单处理：超过一定时间未支付的订单自动取消。 商品签收后自动确认：在一定时间未确认的情况下，系统自动确认收货。 用户提醒：在平台注册但一定时间内未登录的用户，发送短信提醒。 会议通知：预定会议后，在预定时间点前一定时间通知与会人员。 三、延迟队列和定时任务的区别 特性 延迟队列 定时任务 触发时间 没有固定的开始时间，而是依赖于某个事件触发后，再延迟一段时间执行任务 有明确的触发时间，通常是按照固定的时间周期执行。可以通过cron表达式来设定具体的执行时间 周期性 无周期性，通常是一次性任务 有周期性，可以设置为定期重复执行 任务数量 通常处理单个任务 一般会同时处理多个任务 实现方式 消息队列、专门的延迟队列实现 可以通过编程语言或框架提供的定时器功能实现，如Golang的Timer包 应用场景 订单超时自动取消、用户操作后的反馈提示 数据备份、日志清理等定期执行的任务 数据库压力 通常是内存队列操作，处理效率较高，不会直接给数据库带来压力 查表会给数据库带来较大的查询压力，尤其是当业务数据量较大时 时效性 可以更精确地控制任务的执行时间，适合对实效性要求较高的场景 由于执行时间的不确定性，可能无法满足对实效性要求较高的系统需求 分布式支持 更容易实现分布式支持，适合大规模和高可用性的需求 在分布式环境下可能需要额外的协调机制来保证任务的一致性，比如分布式锁 可靠性 可以实现更好的异常恢复机制，尤其是在使用持久化存储的情况下 可能在系统异常恢复后丢失任务状态，需要额外的机制来保证任务的恢复 四、Golang实现延时队列 实现一个基于本地存储的延时队列，可以通过以下步骤进行：
 定义任务结构：首先定义一个任务结构体，包含任务的执行时间和具体的任务内容。 使用优先队列：利用Go的container/heap接口实现一个优先队列，用于管理任务。优先队列可以根据任务的执行时间来排序任务。 存储任务：将任务存储在优先队列中，以便根据执行时间顺序执行。 定时检查和执行：通过一个循环，定时检查当前时间与队列中最早任务的执行时间。如果当前 …  </content></entry><entry><title>任务系统的设计</title><url>/post/system/task-system/</url><categories><category>系统设计</category></categories><tags/><content type="html"><![CDATA[  一、背景 由于业务中引入了小队、队长、导师、服务经理等角色，如何合理地安排和考核几千名司服和上万名队长的工作，就成为了不小的挑战，任务系统应运而生。
 任务系统通过接入各类事件，在不同的任务场景下将任务分配给不同的角色——司服、队长、导师等。一旦任务完成，系统通过消息队列（MQ）机制及时通知下游系统。在某些特定场景下，还会推送质检任务，并根据结果发放相应的奖励，以此激励团队成员，提高整体工作效率和质量。
