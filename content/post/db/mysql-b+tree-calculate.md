@@ -3,7 +3,7 @@ date = '2024-01-06T12:00:00+08:00'
 draft = false
 title = 'MySQL B+树的层数计算'
 categories = ['数据库']
-tags = ['MySQL', 'Tree']
+tags = ['MySQL', 'B+Tree']
 +++
 
 在MySQL中，当数据量达到千万级时，B+树通常有3层。本文学习如何计算InnoDB中一棵B+树可以存放的数据数，以及如何根据数据量推算出对应的层数。
