@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 780">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#e9ecef"/>
+    </linearGradient>
+    <linearGradient id="cronGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="100%" stop-color="#4834d4"/>
+    </linearGradient>
+    <linearGradient id="guardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e17055"/>
+      <stop offset="100%" stop-color="#d63031"/>
+    </linearGradient>
+    <linearGradient id="detectGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#00a381"/>
+    </linearGradient>
+    <linearGradient id="notifyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0984e3"/>
+      <stop offset="100%" stop-color="#0767b9"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#636e72"/>
+      <stop offset="100%" stop-color="#4a5458"/>
+    </linearGradient>
+    <linearGradient id="autoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fdcb6e"/>
+      <stop offset="100%" stop-color="#f39c12"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="780" fill="url(#bg)" rx="10"/>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="20" fill="#2c3e50">Harness 自动化管道</text>
+  <text x="480" y="56" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#636e72">cron 定时触发 → 护栏检查 → 变更检测 → 多渠道推送</text>
+
+  <!-- ============ STAGE 0: CRON TRIGGER ============ -->
+  <rect x="40" y="76" width="880" height="72" rx="8" fill="url(#cronGrad)" filter="url(#shadow)"/>
+  <text x="480" y="101" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="14" fill="#fff">⏰ Stage 0: 定时触发</text>
+  <text x="480" y="123" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.85)">
+    node-cron 注册两个任务：08:00 每日同步 + 12:30 日内检查 + WorkBuddy automation 15:30 盘后摘要
+  </text>
+
+  <!-- Arrow -->
+  <line x1="480" y1="148" x2="480" y2="170" stroke="#b2bec3" stroke-width="2"/>
+  <polygon points="474,168 480,178 486,168" fill="#b2bec3"/>
+
+  <!-- ============ STAGE 1: DATA SYNC ============ -->
+  <rect x="40" y="180" width="880" height="88" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="180" width="880" height="88" rx="8" fill="url(#cronGrad)" opacity="0.08"/>
+  <text x="60" y="204" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">Stage 1: 数据同步 &amp; 提取</text>
+  <text x="60" y="224" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">① syncAllAuthors() 同步所有作者最新观点  →  ② extractAllStarredStocks() 提取关注股票交易动作  →  ③ 新观点生成 embedding</text>
+  <text x="60" y="244" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">④ 同步结果：newViewpointIds[] + extractResult.extracted，进入变更检测</text>
+
+  <!-- Arrow (conditional: only if extracted > 0) -->
+  <line x1="480" y1="268" x2="480" y2="290" stroke="#b2bec3" stroke-width="2"/>
+  <polygon points="474,288 480,298 486,288" fill="#b2bec3"/>
+
+  <!-- ============ STAGE 2: GUARDRAILS ============ -->
+  <rect x="40" y="300" width="880" height="120" rx="8" fill="#fff" stroke="#e17055" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="300" width="880" height="120" rx="8" fill="url(#guardGrad)" opacity="0.06"/>
+  <text x="60" y="324" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">🛡️ Stage 2: 护栏检查 (checkGuardrails)</text>
+
+  <!-- Four guard cards -->
+  <rect x="60" y="338" width="195" height="65" rx="6" fill="#fff" stroke="#e17055" stroke-width="1"/>
+  <text x="157" y="357" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#d63031">🕐 静默时段</text>
+  <text x="157" y="374" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">22:00 ~ 07:00</text>
+  <text x="157" y="391" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">跨午夜时间算法</text>
+
+  <rect x="273" y="338" width="195" height="65" rx="6" fill="#fff" stroke="#e17055" stroke-width="1"/>
+  <text x="370" y="357" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#d63031">📊 频率限制</text>
+  <text x="370" y="374" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">摘要 3/天·渠道</text>
+  <text x="370" y="391" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">信号 5/天·渠道</text>
+
+  <rect x="486" y="338" width="195" height="65" rx="6" fill="#fff" stroke="#e17055" stroke-width="1"/>
+  <text x="583" y="357" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#d63031">🎯 置信度阈值</text>
+  <text x="583" y="374" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">minConfidence=0.6</text>
+  <text x="583" y="391" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">可配置·渠道级</text>
+
+  <rect x="700" y="338" width="195" height="65" rx="6" fill="#fff" stroke="#e17055" stroke-width="1"/>
+  <text x="797" y="357" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#d63031">🧊 冷却期</text>
+  <text x="797" y="374" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">同股同向 60min</text>
+  <text x="797" y="391" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">notification_log 查重</text>
+
+  <!-- Arrow -->
+  <line x1="480" y1="420" x2="480" y2="442" stroke="#b2bec3" stroke-width="2"/>
+  <polygon points="474,440 480,450 486,440" fill="#b2bec3"/>
+
+  <!-- ============ STAGE 3: CHANGE DETECTOR ============ -->
+  <rect x="40" y="452" width="880" height="96" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="452" width="880" height="96" rx="8" fill="url(#detectGrad)" opacity="0.06"/>
+  <text x="60" y="476" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">🔍 Stage 3: 变更检测 (change-detector)</text>
+
+  <rect x="60" y="488" width="415" height="45" rx="6" fill="#fff" stroke="#00b894" stroke-width="1"/>
+  <text x="267" y="507" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#00a381">📋 getDailySummary() 每日摘要</text>
+  <text x="267" y="524" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">观点统计 + 信号分布 + 高置信度信号 + Top5 股票 + Top5 作者</text>
+
+  <rect x="490" y="488" width="405" height="45" rx="6" fill="#fff" stroke="#00b894" stroke-width="1"/>
+  <text x="692" y="507" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#00a381">🚨 getSignalChanges() 增量变动</text>
+  <text x="692" y="524" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">对比上次通知时间→筛选新信号→formatSignalChanges 格式化</text>
+
+  <!-- Arrow -->
+  <line x1="480" y1="548" x2="480" y2="570" stroke="#b2bec3" stroke-width="2"/>
+  <polygon points="474,568 480,578 486,568" fill="#b2bec3"/>
+
+  <!-- ============ STAGE 4: NOTIFIER ============ -->
+  <rect x="40" y="580" width="880" height="108" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="580" width="880" height="108" rx="8" fill="url(#notifyGrad)" opacity="0.06"/>
+  <text x="60" y="604" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">📨 Stage 4: 多渠道推送 (notifier.broadcast)</text>
+
+  <!-- Four channel cards -->
+  <rect x="60" y="616" width="195" height="55" rx="6" fill="#fff" stroke="#0984e3" stroke-width="1"/>
+  <text x="157" y="638" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#0984e3">💻 Console</text>
+  <text x="157" y="657" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">默认启用·stdout 输出</text>
+
+  <rect x="273" y="616" width="195" height="55" rx="6" fill="#fff" stroke="#0984e3" stroke-width="1"/>
+  <text x="370" y="638" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#0984e3">📱 WeChat</text>
+  <text x="370" y="657" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">Claw 微小程序通道</text>
+
+  <rect x="486" y="616" width="195" height="55" rx="6" fill="#fff" stroke="#0984e3" stroke-width="1"/>
+  <text x="583" y="638" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#0984e3">🔔 DingTalk</text>
+  <text x="583" y="657" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">Webhook·Markdown</text>
+
+  <rect x="700" y="616" width="195" height="55" rx="6" fill="#fff" stroke="#0984e3" stroke-width="1"/>
+  <text x="797" y="638" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#0984e3">🪶 Feishu</text>
+  <text x="797" y="657" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">Webhook·文本卡片</text>
+
+  <!-- Arrow -->
+  <line x1="480" y1="688" x2="480" y2="710" stroke="#b2bec3" stroke-width="2"/>
+  <polygon points="474,708 480,718 486,708" fill="#b2bec3"/>
+
+  <!-- ============ BOTTOM: DB + LOG ============ -->
+  <rect x="40" y="720" width="410" height="48" rx="8" fill="url(#dbGrad)" filter="url(#shadow)"/>
+  <text x="245" y="740" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#fff">🗄️ notification_log 推送历史</text>
+  <text x="245" y="758" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(255,255,255,0.75)">sent_at + channel + type + status → 冷却期·频率统计</text>
+
+  <rect x="470" y="720" width="450" height="48" rx="8" fill="url(#autoGrad)" filter="url(#shadow)"/>
+  <text x="695" y="740" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="12" fill="#2d3436">🤖 WorkBuddy Automation 任务</text>
+  <text x="695" y="758" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(0,0,0,0.55)">盘后摘要 15:30 · 日内信号检查 12:30</text>
+</svg>

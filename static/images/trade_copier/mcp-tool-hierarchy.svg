@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720">
+  <defs>
+    <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e67e22;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#d35400;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#1e8449;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2980b9;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2471a3;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="g0" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8e44ad;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#7d3c98;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrowUp" markerWidth="8" markerHeight="8" refX="4" refY="0" orient="auto">
+      <path d="M0,8 L4,0 L8,8" fill="#95a5a6"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="880" height="720" rx="10" fill="#fafbfc"/>
+
+  <!-- Title -->
+  <text x="440" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#2c3e50">MCP Server 工具分层架构</text>
+
+  <!-- Layer 5: 自动化通知 (top) -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="58" width="800" height="84" rx="8" fill="url(#g5)"/>
+    <text x="60" y="84" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 5</text>
+    <text x="140" y="84" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">自动化通知 (4 tools)</text>
+    <text x="60" y="108" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      get_daily_digest   ·   get_signal_changes   ·   send_test_notification   ·   get_notification_log
+    </text>
+    <text x="60" y="128" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">每日摘要 / 信号变化检测 / 多渠道推送 / 推送历史</text>
+  </g>
+
+  <!-- Arrow up -->
+  <line x1="440" y1="142" x2="440" y2="158" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowUp)"/>
+
+  <!-- Layer 4: 语义搜索 -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="162" width="800" height="84" rx="8" fill="url(#g4)"/>
+    <text x="60" y="188" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 4</text>
+    <text x="140" y="188" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">语义搜索 (4 tools)</text>
+    <text x="60" y="212" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      semantic_search_viewpoints   ·   build_semantic_context   ·   index_viewpoint_embedding   ·   get_semantic_stats
+    </text>
+    <text x="60" y="232" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">自然语言搜索观点 / RAG 上下文构建 / 向量索引 / 索引统计</text>
+  </g>
+
+  <!-- Arrow up -->
+  <line x1="440" y1="246" x2="440" y2="262" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowUp)"/>
+
+  <!-- Layer 3: 聚合分析 -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="266" width="800" height="84" rx="8" fill="url(#g3)"/>
+    <text x="60" y="292" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 3</text>
+    <text x="140" y="292" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">聚合分析 (3 tools)</text>
+    <text x="60" y="316" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      summarize_stock_signals   ·   summarize_author_style   ·   build_stock_context
+    </text>
+    <text x="60" y="336" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">信号偏向统计 / 作者操作风格 / RAG 上下文包</text>
+  </g>
+
+  <!-- Arrow up -->
+  <line x1="440" y1="350" x2="440" y2="366" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowUp)"/>
+
+  <!-- Layer 2: 交易信号 -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="370" width="800" height="84" rx="8" fill="url(#g2)"/>
+    <text x="60" y="396" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 2</text>
+    <text x="140" y="396" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">交易信号 (4 tools)</text>
+    <text x="60" y="420" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      search_trade_signals   ·   get_latest_trade_signals   ·   get_trade_actions   ·   get_viewpoint_actions
+    </text>
+    <text x="60" y="440" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">信号搜索 / 最近信号 / 交易时间线 / 观点动作</text>
+  </g>
+
+  <!-- Arrow up -->
+  <line x1="440" y1="454" x2="440" y2="470" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowUp)"/>
+
+  <!-- Layer 1: 基础查询 -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="474" width="800" height="84" rx="8" fill="url(#g1)"/>
+    <text x="60" y="500" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 1</text>
+    <text x="140" y="500" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">基础查询 (8 tools)</text>
+    <text x="60" y="524" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      list_stocks · search_stocks · get_stock_viewpoints · get_stock_summary · get_author_summary · search_viewpoints · list_authors · analyze_trade_text
+    </text>
+    <text x="60" y="544" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">股票/作者列表 · 模糊搜索 · 观点查询 · 摘要信息 · 文本分析</text>
+  </g>
+
+  <!-- Arrow up -->
+  <line x1="440" y1="558" x2="440" y2="574" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowUp)"/>
+
+  <!-- Layer 0: 数据同步+提取 -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="578" width="800" height="84" rx="8" fill="url(#g0)"/>
+    <text x="60" y="604" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Layer 0</text>
+    <text x="140" y="604" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">数据同步 + 提取 (4 tools)</text>
+    <text x="60" y="628" font-family="SF Mono,monospace" font-size="12" fill="rgba(255,255,255,0.9)">
+      sync_author_viewpoints   ·   sync_stock_discussions   ·   extract_trade_actions   ·   sync_and_extract_stock
+    </text>
+    <text x="60" y="648" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">作者同步 / 股票讨论同步 / 批量提取 / 复合工具</text>
+  </g>
+
+  <!-- Right-side labels -->
+  <!-- LLM 优先选择 -->
+  <text x="855" y="100" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,100)" text-anchor="middle">抽象层级高 ↑</text>
+  <text x="855" y="610" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,610)" text-anchor="middle">原子操作 ↓</text>
+
+  <!-- Bottom note -->
+  <text x="440" y="706" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#95a5a6">LLM 优先选择上层聚合工具，不存在时退而组合底层原子工具</text>
+</svg>

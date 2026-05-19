@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 760" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fafbfc"/>
+      <stop offset="100%" stop-color="#e9ecef"/>
+    </linearGradient>
+    <linearGradient id="input" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+    <linearGradient id="keyword" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f093fb"/><stop offset="100%" stop-color="#f5576c"/>
+    </linearGradient>
+    <linearGradient id="price" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4facfe"/><stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+    <linearGradient id="confidence" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fa709a"/><stop offset="100%" stop-color="#fee140"/>
+    </linearGradient>
+    <linearGradient id="dedup" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a18cd1"/><stop offset="100%" stop-color="#fbc2eb"/>
+    </linearGradient>
+    <linearGradient id="output" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#43e97b"/><stop offset="100%" stop-color="#38f9d7"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#868e96"/>
+    </marker>
+    <marker id="arrowDown" markerWidth="10" markerHeight="7" refX="5" refY="7" orient="auto">
+      <polygon points="0 0, 5 7, 10 0" fill="#868e96"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="760" rx="12" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#212529">信号提取引擎管道：extractTradeActions()</text>
+
+  <!-- === Step 1: Input === -->
+  <rect x="30" y="58" width="900" height="50" rx="10" fill="url(#input)" opacity="0.12"/>
+  <rect x="30" y="58" width="900" height="50" rx="10" fill="none" stroke="#667eea" stroke-width="1.5"/>
+  <text x="480" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#667eea">① 输入</text>
+  <text x="480" y="97" text-anchor="middle" font-size="11" fill="#495057">观点纯文本 (content) — "亿纬锂能 300014 还是弱，26 附近可以走了，仓位重的先减一半，等 22-23 再考虑接回来。"</text>
+
+  <line x1="480" y1="108" x2="480" y2="130" stroke="#868e96" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Step 2: Keyword Match === -->
+  <rect x="30" y="130" width="900" height="120" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="50" y="155" font-size="13" font-weight="700" fill="#f5576c">② 关键词匹配</text>
+
+  <!-- Buy keywords -->
+  <rect x="50" y="168" width="280" height="35" rx="6" fill="url(#keyword)" opacity="0.1"/>
+  <rect x="50" y="168" width="280" height="35" rx="6" fill="none" stroke="#f5576c" stroke-width="1"/>
+  <text x="190" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#f5576c">买入类: 建仓·加仓·买回·接回·抄底</text>
+
+  <!-- Sell keywords -->
+  <rect x="350" y="168" width="280" height="35" rx="6" fill="url(#keyword)" opacity="0.1"/>
+  <rect x="350" y="168" width="280" height="35" rx="6" fill="none" stroke="#f5576c" stroke-width="1"/>
+  <text x="490" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#f5576c">卖出类: 减仓·清了·走了·止盈·止损·格局</text>
+
+  <!-- Watch keywords -->
+  <rect x="650" y="168" width="260" height="35" rx="6" fill="url(#keyword)" opacity="0.1"/>
+  <rect x="650" y="168" width="260" height="35" rx="6" fill="none" stroke="#f5576c" stroke-width="1"/>
+  <text x="780" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#f5576c">观察类: 关注 (大幅降权)</text>
+
+  <text x="50" y="228" font-size="10" fill="#868e96">名词化过滤: "所有加仓" "这些加仓" → 跳过 · 重叠检测: 已被匹配的文本片段不再使用 · 反问检测: "要不要加减？" → 降权</text>
+
+  <line x1="480" y1="250" x2="480" y2="275" stroke="#868e96" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Step 3: Price Extraction === -->
+  <rect x="30" y="275" width="900" height="150" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="50" y="300" font-size="13" font-weight="700" fill="#4facfe">③ 价格提取 — 五层优先级策略</text>
+
+  <!-- 5 tiers -->
+  <rect x="50" y="315" width="168" height="45" rx="5" fill="url(#price)" opacity="0.12"/>
+  <rect x="50" y="315" width="168" height="45" rx="5" fill="none" stroke="#4facfe" stroke-width="1.2"/>
+  <text x="134" y="333" text-anchor="middle" font-size="10" font-weight="700" fill="#4facfe">T1 后方紧跟数字</text>
+  <text x="134" y="351" text-anchor="middle" font-size="8" fill="#495057">"买回395" "清仓51.8-52.5"</text>
+
+  <rect x="228" y="315" width="168" height="45" rx="5" fill="url(#price)" opacity="0.12"/>
+  <rect x="228" y="315" width="168" height="45" rx="5" fill="none" stroke="#4facfe" stroke-width="1.2"/>
+  <text x="312" y="333" text-anchor="middle" font-size="10" font-weight="700" fill="#4facfe">T2 前方紧邻区间</text>
+  <text x="312" y="351" text-anchor="middle" font-size="8" fill="#495057">"7.97-8.15清仓"</text>
+
+  <rect x="406" y="315" width="168" height="45" rx="5" fill="url(#price)" opacity="0.12"/>
+  <rect x="406" y="315" width="168" height="45" rx="5" fill="none" stroke="#4facfe" stroke-width="1.2"/>
+  <text x="490" y="333" text-anchor="middle" font-size="10" font-weight="700" fill="#4facfe">T2.5 前方近似价格</text>
+  <text x="490" y="351" text-anchor="middle" font-size="8" fill="#495057">"26附近可以走了"</text>
+
+  <rect x="584" y="315" width="168" height="45" rx="5" fill="url(#price)" opacity="0.12"/>
+  <rect x="584" y="315" width="168" height="45" rx="5" fill="none" stroke="#4facfe" stroke-width="1.2"/>
+  <text x="668" y="333" text-anchor="middle" font-size="10" font-weight="700" fill="#4facfe">T3 前方紧邻单价</text>
+  <text x="668" y="351" text-anchor="middle" font-size="8" fill="#495057">"26加仓" (排除区间尾巴)</text>
+
+  <rect x="762" y="315" width="148" height="45" rx="5" fill="url(#price)" opacity="0.12"/>
+  <rect x="762" y="315" width="148" height="45" rx="5" fill="none" stroke="#4facfe" stroke-width="1.2"/>
+  <text x="836" y="333" text-anchor="middle" font-size="10" font-weight="700" fill="#4facfe">T4/5 后方+近似</text>
+  <text x="836" y="351" text-anchor="middle" font-size="8" fill="#495057">"清仓51-52" "23以上减仓"</text>
+
+  <!-- Tier arrows -->
+  <line x1="218" y1="337" x2="225" y2="337" stroke="#4facfe" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="396" y1="337" x2="403" y2="337" stroke="#4facfe" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="574" y1="337" x2="581" y2="337" stroke="#4facfe" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="752" y1="337" x2="759" y2="337" stroke="#4facfe" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <text x="50" y="385" font-size="10" fill="#868e96">策略顺序即为优先级链 — fallthrough 设计 — 匹配到即停止 — 价格合法性校验: (0.1, 99999) — 支持区间价格 (price_low/price_high) 和近似价格 ("附近/左右/上下")</text>
+
+  <!-- Target price section -->
+  <rect x="50" y="393" width="860" height="25" rx="5" fill="url(#price)" opacity="0.06"/>
+  <text x="480" y="410" text-anchor="middle" font-size="10" fill="#4facfe">🎯 目标价提取 (并行): "目标35-36" "做到30" "至少做到28" — 排除回顾性、卖出触发价、非价格用法</text>
+
+  <line x1="480" y1="425" x2="480" y2="452" stroke="#868e96" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Step 4: Confidence === -->
+  <rect x="30" y="452" width="900" height="105" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="50" y="477" font-size="13" font-weight="700" fill="#fa709a">④ 置信度评分 (基线 0.5)</text>
+
+  <!-- Positive factors -->
+  <rect x="50" y="490" width="280" height="30" rx="5" fill="#43e97b" fill-opacity="0.1"/>
+  <text x="190" y="510" text-anchor="middle" font-size="10" fill="#2d6a4f">+0.3 有价格 · +0.1 精确动作词 · +0.05 句首</text>
+
+  <!-- Negative factors -->
+  <rect x="350" y="490" width="560" height="30" rx="5" fill="#e03131" fill-opacity="0.06"/>
+  <text x="630" y="510" text-anchor="middle" font-size="10" fill="#c92a2a">-0.3 观察类 · -0.4 否定/泛化/反问/完成"了" · -0.5 回顾性/条件性/完成"的"</text>
+
+  <text x="50" y="545" font-size="9" fill="#868e96">置信度 &lt; 0.5 直接丢弃 · 条件 vs 推荐区分: "可以打底仓"(建议→不降权) vs "V+可以"(条件从句→-0.5) · "接回的"完成时态→-0.5</text>
+
+  <line x1="480" y1="557" x2="480" y2="582" stroke="#868e96" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Step 5-7 === -->
+  <rect x="30" y="582" width="900" height="55" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="50" y="605" font-size="13" font-weight="700" fill="#a18cd1">⑤ 去重 → ⑥ 买卖归一化 → ⑦ 目标价归属</text>
+
+  <rect x="50" y="615" width="270" height="16" rx="4" fill="url(#dedup)" opacity="0.1"/>
+  <text x="185" y="627" text-anchor="middle" font-size="9" fill="#a18cd1">Map key: action_priceLow_priceHigh</text>
+
+  <rect x="340" y="615" width="270" height="16" rx="4" fill="url(#dedup)" opacity="0.1"/>
+  <text x="475" y="627" text-anchor="middle" font-size="9" fill="#a18cd1">买回 → 加仓 (丢弃卖出)  |  踢出 → 减仓 (丢弃买入)</text>
+
+  <rect x="630" y="615" width="280" height="16" rx="4" fill="url(#dedup)" opacity="0.1"/>
+  <text x="770" y="627" text-anchor="middle" font-size="9" fill="#a18cd1">目标价优先附加到买入类 → 任意 → 独立记录</text>
+
+  <line x1="480" y1="637" x2="480" y2="662" stroke="#868e96" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Output === -->
+  <rect x="30" y="662" width="900" height="82" rx="10" fill="url(#output)" opacity="0.12"/>
+  <rect x="30" y="662" width="900" height="82" rx="10" fill="none" stroke="#43e97b" stroke-width="1.5"/>
+  <text x="480" y="686" text-anchor="middle" font-size="13" font-weight="700" fill="#43e97b">输出</text>
+
+  <!-- Output example -->
+  <rect x="60" y="696" width="840" height="38" rx="5" fill="#fff" stroke="#43e97b" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="80" y="713" font-size="10" font-family="monospace" fill="#212529">{"action":"减仓", "price_low":26, "price_high":26, "price_text":"26附近",</text>
+  <text x="80" y="727" font-size="10" font-family="monospace" fill="#212529"> "target":{"price_low":22, "price_high":23, "text":"等22-23接回来"}, "confidence":0.75}</text>
+
+  <!-- Stats badge -->
+  <rect x="760" y="670" width="155" height="20" rx="10" fill="#43e97b" fill-opacity="0.2"/>
+  <text x="837" y="684" text-anchor="middle" font-size="9" font-weight="600" fill="#2d6a4f">600行 · 0依赖 · &lt;1s/2K条</text>
+</svg>

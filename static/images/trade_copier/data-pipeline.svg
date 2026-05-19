@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 520" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#e9ecef"/>
+    </linearGradient>
+    <linearGradient id="api" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+    <linearGradient id="scraper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a18cd1"/>
+      <stop offset="100%" stop-color="#fbc2eb"/>
+    </linearGradient>
+    <linearGradient id="db" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#43e97b"/>
+      <stop offset="100%" stop-color="#38f9d7"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="880" height="520" rx="12" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="440" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#212529">数据管道：从爱股票 API 到 SQLite</text>
+
+  <!-- === API Layer === -->
+  <rect x="25" y="60" width="830" height="120" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="45" y="86" font-size="13" font-weight="700" fill="#4facfe">爱股票 API 层</text>
+
+  <!-- API Box 1 -->
+  <rect x="45" y="100" width="370" height="65" rx="8" fill="url(#api)" opacity="0.15"/>
+  <rect x="45" y="100" width="370" height="65" rx="8" fill="none" stroke="#4facfe" stroke-width="1.5"/>
+  <text x="65" y="122" font-size="12" font-weight="700" fill="#4facfe">live_center_v3.php</text>
+  <text x="65" y="140" font-size="10" fill="#495057">GET  •  按时间倒序拉取作者直播间消息流</text>
+  <text x="65" y="155" font-size="10" fill="#868e96">id=l_id&amp;before=rec_time&amp;source=pc&amp;act=msg</text>
+
+  <!-- API Box 2 -->
+  <rect x="465" y="100" width="370" height="65" rx="8" fill="url(#api)" opacity="0.15"/>
+  <rect x="465" y="100" width="370" height="65" rx="8" fill="none" stroke="#4facfe" stroke-width="1.5"/>
+  <text x="485" y="122" font-size="12" font-weight="700" fill="#4facfe">liveCenterSearch</text>
+  <text x="485" y="140" font-size="10" fill="#495057">POST  •  在作者全量历史中搜索含股票关键词的观点</text>
+  <text x="485" y="155" font-size="10" fill="#868e96">search=股票名&amp;before=0&amp;id=l_id</text>
+
+  <!-- Arrows from API to Scraper -->
+  <line x1="230" y1="180" x2="230" y2="210" stroke="#6c757d" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="650" y1="180" x2="650" y2="210" stroke="#6c757d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === Scraper Layer === -->
+  <rect x="25" y="210" width="830" height="100" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="45" y="236" font-size="13" font-weight="700" fill="#a18cd1">scraper.js — parseMessage() 解析管道</text>
+
+  <rect x="45" y="250" width="140" height="45" rx="6" fill="url(#scraper)" opacity="0.12"/>
+  <rect x="45" y="250" width="140" height="45" rx="6" fill="none" stroke="#a18cd1" stroke-width="1"/>
+  <text x="115" y="269" text-anchor="middle" font-size="11" font-weight="600" fill="#a18cd1">图片处理</text>
+  <text x="115" y="285" text-anchor="middle" font-size="9" fill="#868e96">image join</text>
+
+  <rect x="205" y="250" width="140" height="45" rx="6" fill="url(#scraper)" opacity="0.12"/>
+  <rect x="205" y="250" width="140" height="45" rx="6" fill="none" stroke="#a18cd1" stroke-width="1"/>
+  <text x="275" y="269" text-anchor="middle" font-size="11" font-weight="600" fill="#a18cd1">股票解析</text>
+  <text x="275" y="285" text-anchor="middle" font-size="9" fill="#868e96">sz/sh/hk→纯代码</text>
+
+  <rect x="365" y="250" width="140" height="45" rx="6" fill="url(#scraper)" opacity="0.12"/>
+  <rect x="365" y="250" width="140" height="45" rx="6" fill="none" stroke="#a18cd1" stroke-width="1"/>
+  <text x="435" y="269" text-anchor="middle" font-size="11" font-weight="600" fill="#a18cd1">HTML 清洗</text>
+  <text x="435" y="285" text-anchor="middle" font-size="9" fill="#868e96">stripHtml()</text>
+
+  <rect x="525" y="250" width="140" height="45" rx="6" fill="url(#scraper)" opacity="0.12"/>
+  <rect x="525" y="250" width="140" height="45" rx="6" fill="none" stroke="#a18cd1" stroke-width="1"/>
+  <text x="595" y="269" text-anchor="middle" font-size="11" font-weight="600" fill="#a18cd1">转发处理</text>
+  <text x="595" y="285" text-anchor="middle" font-size="9" fill="#868e96">forward_info</text>
+
+  <rect x="685" y="250" width="150" height="45" rx="6" fill="url(#scraper)" opacity="0.12"/>
+  <rect x="685" y="250" width="150" height="45" rx="6" fill="none" stroke="#a18cd1" stroke-width="1"/>
+  <text x="760" y="269" text-anchor="middle" font-size="11" font-weight="600" fill="#a18cd1">时间转换</text>
+  <text x="760" y="285" text-anchor="middle" font-size="9" fill="#868e96">timestamp→ISO</text>
+
+  <!-- Little arrows between scraper steps -->
+  <line x1="185" y1="272" x2="202" y2="272" stroke="#a18cd1" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="345" y1="272" x2="362" y2="272" stroke="#a18cd1" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="505" y1="272" x2="522" y2="272" stroke="#a18cd1" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="665" y1="272" x2="682" y2="272" stroke="#a18cd1" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Arrow from Scraper to DB -->
+  <line x1="440" y1="310" x2="440" y2="350" stroke="#6c757d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- === DB Layer === -->
+  <rect x="25" y="350" width="830" height="130" rx="10" fill="#fff" filter="url(#shadow)" stroke="#dee2e6" stroke-width="1"/>
+  <text x="45" y="376" font-size="13" font-weight="700" fill="#43e97b">SQLite 存储层</text>
+
+  <!-- DB Tables -->
+  <rect x="45" y="395" width="185" height="68" rx="6" fill="url(#db)" opacity="0.1"/>
+  <rect x="45" y="395" width="185" height="68" rx="6" fill="none" stroke="#43e97b" stroke-width="1.5"/>
+  <text x="137" y="415" text-anchor="middle" font-size="12" font-weight="700" fill="#43e97b">authors</text>
+  <text x="137" y="433" text-anchor="middle" font-size="9" fill="#495057">aigupiao_lid, name</text>
+  <text x="137" y="448" text-anchor="middle" font-size="9" fill="#868e96">作者信息</text>
+
+  <rect x="252" y="395" width="185" height="68" rx="6" fill="url(#db)" opacity="0.1"/>
+  <rect x="252" y="395" width="185" height="68" rx="6" fill="none" stroke="#43e97b" stroke-width="1.5"/>
+  <text x="344" y="415" text-anchor="middle" font-size="12" font-weight="700" fill="#43e97b">viewpoints</text>
+  <text x="344" y="433" text-anchor="middle" font-size="9" fill="#495057">content, rec_time</text>
+  <text x="344" y="448" text-anchor="middle" font-size="9" fill="#868e96">观点主表</text>
+
+  <rect x="459" y="395" width="185" height="68" rx="6" fill="url(#db)" opacity="0.1"/>
+  <rect x="459" y="395" width="185" height="68" rx="6" fill="none" stroke="#43e97b" stroke-width="1.5"/>
+  <text x="551" y="415" text-anchor="middle" font-size="12" font-weight="700" fill="#43e97b">stocks</text>
+  <text x="551" y="433" text-anchor="middle" font-size="9" fill="#495057">code, is_starred</text>
+  <text x="551" y="448" text-anchor="middle" font-size="9" fill="#868e96">股票池</text>
+
+  <rect x="666" y="395" width="170" height="68" rx="6" fill="url(#db)" opacity="0.1"/>
+  <rect x="666" y="395" width="170" height="68" rx="6" fill="none" stroke="#43e97b" stroke-width="1.5"/>
+  <text x="751" y="415" text-anchor="middle" font-size="12" font-weight="700" fill="#43e97b">viewpoint_stocks</text>
+  <text x="751" y="433" text-anchor="middle" font-size="9" fill="#495057">M:N 关联</text>
+  <text x="751" y="448" text-anchor="middle" font-size="9" fill="#868e96">去重索引</text>
+
+  <!-- Sync hint -->
+  <text x="440" y="500" text-anchor="middle" font-size="11" fill="#868e96">翻页游标 before=rec_time  +  请求间隔 300ms  +  边界检查 rec_time &lt;= lastRecTime</text>
+</svg>

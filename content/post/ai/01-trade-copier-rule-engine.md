@@ -1,12 +1,10 @@
 +++
 date = '2026-05-18T10:00:00+08:00'
 draft = false
-title = 'TradeCopier 系列（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
+title = '从零到 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
 categories = ['AI 大模型']
 series = ['trade_copier']
 +++
-
----
 
 ## 引子：韭菜的自我修养
 
@@ -48,19 +46,11 @@ series = ['trade_copier']
 
 ![作者列表侧边栏](/images/trade_copier/screenshot-authors-list.png)
 
-### 信号总览 Dashboard
-
-![Dashboard 信号总览](/images/trade_copier/screenshot-dashboard.png)
-
-从上到下四个区块：
-- **全局概览卡**：整体偏多还是偏空，各种信号有多少，覆盖了多少只股票
-- **股票信号分布表**：每只关注股票的买/卖/观察信号数量，红=买入，绿=卖出，灰=观察（遵循 A 股红涨绿跌惯例）
-- **最近信号列表**：带操作标签、股票名、价格、作者、时间、内容摘要
-- **作者排名**：谁最近信号最多
-
 ---
 
 ## 怎么从爱股票抓数据
+
+![数据管道架构图](/images/trade_copier/data-pipeline.svg)
 
 ### 两个 API 端点
 
@@ -76,8 +66,6 @@ series = ['trade_copier']
 两个 API 都不需要 Cookie，只需要参数填对——最关键的是 `id` 参数必须是**直播间 ID**（`l_id`），不是用户 ID（`u_id`）。这个坑是我从作者主页 HTML 里正则提取 `"l_id":"4277"` 才填上的。
 
 ### 数据模型
-
-![数据管道架构图](/images/trade_copier/data-pipeline.png)
 
 核心三张表：
 
@@ -352,7 +340,7 @@ function normalizeBuySell(results) {
 
 ## 小结
 
-好了，这个小工具算是跑起来了。
+好了，这个网站算是跑起来了。
 
 1. **抓取数据**：两个爱股票 API 端点 + 增量同步翻页逻辑 + 数据清洗
 2. **信号提取引擎**：纯规则 NLU，五层价格提取策略 + 七因子置信度 + 买卖归一化 + 目标价提取
@@ -361,4 +349,4 @@ function normalizeBuySell(results) {
 
 ---
 
-*下一篇：[MCP Server：27 个工具让 LLM 直接调用你的数据系统](../02-trade-copier-mcp-server/)*
+*下一篇：[从零到 Agent（二）：MCP Server —— 让 LLM 直接调用你的数据系统](../02-trade-copier-mcp-server/)*

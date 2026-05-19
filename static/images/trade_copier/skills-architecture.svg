@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 620">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fafbfc"/>
+      <stop offset="100%" stop-color="#edf2f7"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter>
+    <marker id="arr" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#5b6f82"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="8" refX="3.5" refY="8" orient="auto">
+      <polygon points="0,0 7,0 3.5,8" fill="#5b6f82"/>
+    </marker>
+  </defs>
+
+  <rect width="920" height="620" rx="10" fill="url(#bg)"/>
+  <text x="460" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#2c3e50">Skills 架构：在用户意图与 MCP 工具之间</text>
+
+  <!-- User layer -->
+  <rect x="30" y="60" width="860" height="52" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="460" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#2c3e50">用户自然语言</text>
+  <text x="460" y="101" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#7f8c8d">"分析一下北方稀土最近的信号"　　　"king 最近在看什么"　　　"信号总览"</text>
+
+  <!-- Arrow down -->
+  <line x1="460" y1="112" x2="460" y2="138" stroke="#5b6f82" stroke-width="2" marker-end="url(#arr2)"/>
+
+  <!-- Skill matching -->
+  <rect x="130" y="142" width="660" height="42" rx="8" fill="#f39c12" filter="url(#shadow)"/>
+  <text x="460" y="162" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">LLM 意图识别 → Skill 匹配</text>
+  <text x="460" y="177" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(255,255,255,0.85)">触发语匹配 · 意图路由 · 工具链选择</text>
+
+  <!-- 5 arrows down to 5 skills -->
+  <line x1="200" y1="184" x2="200" y2="208" stroke="#5b6f82" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <line x1="340" y1="184" x2="340" y2="208" stroke="#5b6f82" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <line x1="460" y1="184" x2="460" y2="208" stroke="#5b6f82" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <line x1="580" y1="184" x2="580" y2="208" stroke="#5b6f82" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <line x1="720" y1="184" x2="720" y2="208" stroke="#5b6f82" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+  <!-- 5 skills -->
+  <!-- stock-analyst -->
+  <rect x="40" y="212" width="158" height="150" rx="8" fill="#fff" stroke="#2980b9" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="40" y="212" width="158" height="32" rx="8" fill="#2980b9"/>
+  <rect x="40" y="234" width="158" height="10" fill="#2980b9"/>
+  <text x="119" y="233" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">🔍 stock-analyst</text>
+  <text x="54" y="260" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">触发语</text>
+  <text x="54" y="274" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">分析XX股票</text>
+  <text x="54" y="286" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">XX有什么信号</text>
+  <line x1="54" y1="294" x2="184" y2="294" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="54" y="307" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">工具链</text>
+  <text x="54" y="321" font-family="SF Mono,monospace" font-size="7" fill="#2980b9">search_stocks</text>
+  <text x="54" y="333" font-family="SF Mono,monospace" font-size="7" fill="#2980b9">→ summarize_signals</text>
+  <text x="54" y="345" font-family="SF Mono,monospace" font-size="7" fill="#2980b9">→ build_context</text>
+  <text x="54" y="358" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">(deep dive)</text>
+
+  <!-- author-analyst -->
+  <rect x="210" y="212" width="158" height="150" rx="8" fill="#fff" stroke="#27ae60" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="210" y="212" width="158" height="32" rx="8" fill="#27ae60"/>
+  <rect x="210" y="234" width="158" height="10" fill="#27ae60"/>
+  <text x="289" y="233" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">👤 author-analyst</text>
+  <text x="224" y="260" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">触发语</text>
+  <text x="224" y="274" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">分析XX操作风格</text>
+  <text x="224" y="286" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">XX最近在看什么</text>
+  <line x1="224" y1="294" x2="354" y2="294" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="224" y="307" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">工具链</text>
+  <text x="224" y="321" font-family="SF Mono,monospace" font-size="7" fill="#27ae60">list_authors</text>
+  <text x="224" y="333" font-family="SF Mono,monospace" font-size="7" fill="#27ae60">→ summarize_style</text>
+  <text x="224" y="345" font-family="SF Mono,monospace" font-size="7" fill="#27ae60">→ get_author_...</text>
+  <text x="224" y="358" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">(详情)</text>
+
+  <!-- signal-scanner -->
+  <rect x="380" y="212" width="158" height="150" rx="8" fill="#fff" stroke="#e67e22" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="380" y="212" width="158" height="32" rx="8" fill="#e67e22"/>
+  <rect x="380" y="234" width="158" height="10" fill="#e67e22"/>
+  <text x="459" y="233" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">📊 signal-scanner</text>
+  <text x="394" y="260" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">触发语</text>
+  <text x="394" y="274" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">信号总览</text>
+  <text x="394" y="286" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">最近有什么交易信号</text>
+  <line x1="394" y1="294" x2="524" y2="294" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="394" y="307" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">工具链</text>
+  <text x="394" y="321" font-family="SF Mono,monospace" font-size="7" fill="#e67e22">GET /dashboard/signals</text>
+  <text x="394" y="333" font-family="SF Mono,monospace" font-size="7" fill="#e67e22">→ search_signals</text>
+  <text x="394" y="345" font-family="SF Mono,monospace" font-size="7" fill="#e67e22">→ author-stats</text>
+  <text x="394" y="358" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">HTTP + MCP 混合</text>
+
+  <!-- semantic-searcher -->
+  <rect x="550" y="212" width="158" height="150" rx="8" fill="#fff" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="550" y="212" width="158" height="32" rx="8" fill="#8e44ad"/>
+  <rect x="550" y="234" width="158" height="10" fill="#8e44ad"/>
+  <text x="629" y="233" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">🧠 semantic-search</text>
+  <text x="564" y="260" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">触发语</text>
+  <text x="564" y="274" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">搜索关于XX的观点</text>
+  <text x="564" y="286" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">有没有人提到XX</text>
+  <line x1="564" y1="294" x2="694" y2="294" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="564" y="307" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">工具链</text>
+  <text x="564" y="321" font-family="SF Mono,monospace" font-size="7" fill="#8e44ad">semantic_search</text>
+  <text x="564" y="333" font-family="SF Mono,monospace" font-size="7" fill="#8e44ad">→ build_semantic_ctx</text>
+  <text x="564" y="345" font-family="SF Mono,monospace" font-size="7" fill="#8e44ad">→ get_semantic_stats</text>
+  <text x="564" y="358" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">(索引健康检查)</text>
+
+  <!-- harness-automation -->
+  <rect x="720" y="212" width="158" height="150" rx="8" fill="#fff" stroke="#c0392b" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="720" y="212" width="158" height="32" rx="8" fill="#c0392b"/>
+  <rect x="720" y="234" width="158" height="10" fill="#c0392b"/>
+  <text x="799" y="233" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#fff">⚡ harness-auto</text>
+  <text x="734" y="260" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">触发语</text>
+  <text x="734" y="274" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">推送今日摘要</text>
+  <text x="734" y="286" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">测试通知渠道</text>
+  <line x1="734" y1="294" x2="864" y2="294" stroke="#ecf0f1" stroke-width="1"/>
+  <text x="734" y="307" font-family="system-ui,sans-serif" font-size="9" fill="#2c3e50" font-weight="600">工具链</text>
+  <text x="734" y="321" font-family="SF Mono,monospace" font-size="7" fill="#c0392b">get_daily_digest</text>
+  <text x="734" y="333" font-family="SF Mono,monospace" font-size="7" fill="#c0392b">→ signal_changes</text>
+  <text x="734" y="345" font-family="SF Mono,monospace" font-size="7" fill="#c0392b">→ send_notification</text>
+  <text x="734" y="358" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">→ 经过护栏</text>
+
+  <!-- Arrows from skills down to tool layer -->
+  <line x1="119" y1="362" x2="119" y2="398" stroke="#2980b9" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+  <line x1="289" y1="362" x2="289" y2="398" stroke="#27ae60" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+  <line x1="459" y1="362" x2="459" y2="398" stroke="#e67e22" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+  <line x1="629" y1="362" x2="629" y2="398" stroke="#8e44ad" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+  <line x1="799" y1="362" x2="799" y2="398" stroke="#c0392b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+
+  <!-- MCP Tools layer -->
+  <rect x="30" y="402" width="860" height="68" rx="8" fill="#2c3e50" filter="url(#shadow)"/>
+  <text x="460" y="424" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#f1c40f">MCP 工具层 (27 tools)</text>
+  <text x="460" y="444" text-anchor="middle" font-family="SF Mono,monospace" font-size="9" fill="#95a5a6">
+    search_stocks · summarize_stock_signals · build_stock_context · get_daily_digest · semantic_search_viewpoints · list_authors · ...
+  </text>
+  <text x="460" y="460" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#5b6f82">JSON-RPC over stdin/stdout → SQLite + Python Embedding + HTTP Dashboard</text>
+
+  <!-- Arrow down to data -->
+  <line x1="460" y1="470" x2="460" y2="496" stroke="#5b6f82" stroke-width="2" marker-end="url(#arr2)"/>
+
+  <!-- Data layer -->
+  <rect x="130" y="500" width="660" height="40" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="460" y="519" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#2c3e50">数据层</text>
+  <text x="460" y="534" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d">SQLite · Python Embedding Service · 爱股票 API</text>
+
+  <!-- Decorative: step labels on left side -->
+  <g transform="translate(8, 175)">
+    <rect x="0" y="0" width="14" height="14" rx="3" fill="#f39c12"/>
+    <text x="7" y="11" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#fff">1</text>
+  </g>
+  <text x="25" y="187" font-family="system-ui,sans-serif" font-size="9" fill="#95a5a6">匹配</text>
+
+  <g transform="translate(8, 285)">
+    <rect x="0" y="0" width="14" height="14" rx="3" fill="#2980b9"/>
+    <text x="7" y="11" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#fff">2</text>
+  </g>
+  <text x="25" y="297" font-family="system-ui,sans-serif" font-size="9" fill="#95a5a6">调度</text>
+
+  <g transform="translate(8, 438)">
+    <rect x="0" y="0" width="14" height="14" rx="3" fill="#2c3e50"/>
+    <text x="7" y="11" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#f1c40f">3</text>
+  </g>
+  <text x="25" y="450" font-family="system-ui,sans-serif" font-size="9" fill="#95a5a6">执行</text>
+
+  <!-- Right side: without Skill comparison block -->
+  <rect x="840" y="212" width="68" height="150" rx="6" fill="none" stroke="#e74c3c" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="874" y="232" text-anchor="middle" font-family="system-ui,sans-serif" font-size="7" fill="#e74c3c">❌</text>
+  <text x="874" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="7" fill="#e74c3c">无 Skill</text>
+  <text x="874" y="265" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" fill="#95a5a6">LLM 从 27</text>
+  <text x="874" y="278" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" fill="#95a5a6">个工具中</text>
+  <text x="874" y="291" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" fill="#95a5a6">自行选择</text>
+  <text x="874" y="310" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" fill="#95a5a6">容易选错</text>
+  <text x="874" y="323" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" fill="#95a5a6">或遗漏</text>
+
+  <!-- Bottom decorative -->
+  <text x="460" y="570" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#95a5a6">Skill = 触发语匹配 → 工具链预设 → 响应模板 → 边界处理</text>
+  <text x="460" y="590" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#bdc3c7">纯 Markdown 文件，零运行时依赖</text>
+</svg>
