@@ -3,10 +3,8 @@ date = '2026-05-19T10:00:00+08:00'
 draft = false
 title = '从零到 Agent（二）：MCP Server —— 让 LLM 直接调用你的数据系统'
 categories = ['AI 大模型']
-series = ['trade_copier']
+series = ['viewpoint_miner']
 +++
-
-## 引子：从"打开浏览器"到"直接对话"
 
 第一篇结束时，系统能跑了，但得打开浏览器手动点。
 
@@ -234,6 +232,3 @@ WorkBuddy 通过 `~/.workbuddy/mcp.json` 发现它，配置本身很简单：
 但 MCP 工具只是"能力暴露"。真正的魔法在于**让 AI 根据用户的一句话自动编排工具链路**——这就是下一篇的主题：Skills 封装。
 
 ---
-
-*上一篇：[从零到 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎](../01-trade-copier-rule-engine/)*  
-*下一篇：[从零到 Agent（三）：Skills —— 把工具链变成 AI 的专业技能](../03-trade-copier-skills/)*

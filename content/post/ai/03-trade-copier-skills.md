@@ -3,10 +3,8 @@ date = '2026-05-21T10:00:00+08:00'
 draft = false
 title = '从零到 Agent（三）：Skills —— 把工具链变成 AI 的专业技能'
 categories = ['AI 大模型']
-series = ['trade_copier']
+series = ['viewpoint_miner']
 +++
-
-## 引子：工具太多怎么选
 
 第 2 篇搭好了 MCP Server，27 个工具整整齐齐排列在六层架构里。一切就绪——直到你实际用起来：
 
@@ -273,6 +271,3 @@ Skill 没有减少 MCP 工具的数量——27 个工具一个没少。Skill 减
 但到这里，它还有个硬伤：所有匹配都是关键词级别的。"减仓"能匹配，"北向资金流出"就抓瞎了。该安排 RAG 啦！下一篇文章会讲这个问题的解决方案：RAG 语义搜索。
 
 ---
-
-*上一篇：[MCP Server：27 个工具让 LLM 直接调用你的数据系统](02-trade-copier-mcp-server/)*  
-*下一篇：[RAG 语义搜索：当关键词不够用时](04-trade-copier-rag/)*

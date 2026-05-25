@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fafbfc"/>
+      <stop offset="100%" stop-color="#edf2f7"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/></filter>
+    <marker id="arr" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#5b6f82"/>
+    </marker>
+    <marker id="arrDown" markerWidth="7" markerHeight="8" refX="3.5" refY="8" orient="auto">
+      <polygon points="0,0 7,0 3.5,8" fill="#5b6f82"/>
+    </marker>
+    <marker id="arrBlue" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#2980b9"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="680" rx="10" fill="url(#bg)"/>
+  <text x="480" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#2c3e50">RAG 语义搜索架构：从自然语言到向量相似度</text>
+
+  <!-- Top: User Query -->
+  <rect x="280" y="56" width="400" height="44" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="480" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#2c3e50">用户自然语言查询</text>
+  <text x="480" y="92" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d">"北向资金最近在买什么"</text>
+
+  <!-- Arrow down to query encoder -->
+  <line x1="480" y1="100" x2="480" y2="128" stroke="#5b6f82" stroke-width="2" marker-end="url(#arrDown)"/>
+
+  <!-- Query Encoding step -->
+  <rect x="280" y="132" width="400" height="36" rx="8" fill="#f39c12" filter="url(#shadow)"/>
+  <text x="480" y="150" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#fff">1. 查询编码 → 768 维归一化向量</text>
+  <text x="480" y="163" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="rgba(255,255,255,0.85)">Python m3e-base 嵌入模型 (ModelScope)</text>
+
+  <!-- Arrow down -->
+  <line x1="480" y1="168" x2="480" y2="196" stroke="#5b6f82" stroke-width="2" marker-end="url(#arrDown)"/>
+
+  <!-- Batch Similarity step -->
+  <rect x="200" y="200" width="560" height="44" rx="8" fill="#2c3e50" filter="url(#shadow)"/>
+  <text x="480" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#f1c40f">2. 批量余弦相似度计算 (归一化后 = 向量点积)</text>
+  <text x="480" y="238" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#95a5a6">查询向量 · 2177 条索引向量 → Float32Array 扁平遍历 → Sort top-k</text>
+
+  <!-- Arrow down -->
+  <line x1="480" y1="244" x2="480" y2="272" stroke="#5b6f82" stroke-width="2" marker-end="url(#arrDown)"/>
+
+  <!-- Filter + Rank -->
+  <rect x="200" y="276" width="560" height="44" rx="8" fill="#27ae60" filter="url(#shadow)"/>
+  <text x="480" y="296" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">3. 过滤 + 排序：minScore ≥ 0.5，可选 stockId/authorId 限定</text>
+  <text x="480" y="314" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(255,255,255,0.85)">补充观点内容、作者名、股票名 → 结构化结果</text>
+
+  <!-- Arrow down -->
+  <line x1="480" y1="320" x2="480" y2="348" stroke="#5b6f82" stroke-width="2" marker-end="url(#arrDown)"/>
+
+  <!-- Output -->
+  <rect x="240" y="352" width="480" height="44" rx="8" fill="#8e44ad" filter="url(#shadow)"/>
+  <text x="480" y="372" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">4. 输出: { score, snippet, author, stock }[]</text>
+  <text x="480" y="390" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(255,255,255,0.85)">RAG-ready: 观点片段 + 股票结构化信息 → 送进 LLM 生成回答</text>
+
+  <!-- ====== Bottom: Architecture Layers ====== -->
+  <rect x="40" y="430" width="880" height="220" rx="12" fill="#fff" stroke="#ddd" stroke-width="1" filter="url(#shadow)"/>
+
+  <!-- Layer labels -->
+  <rect x="56" y="446" width="100" height="188" rx="6" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="106" y="470" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#2c3e50">MCP</text>
+  <text x="106" y="485" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#2c3e50">Layer 4</text>
+  <line x1="76" y1="496" x2="136" y2="496" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="106" y="515" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">4 工具</text>
+  <text x="106" y="528" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">JSON-RPC</text>
+
+  <!-- MCP tools -->
+  <rect x="170" y="446" width="174" height="48" rx="6" fill="#8e44ad" fill-opacity="0.1" stroke="#8e44ad" stroke-width="1"/>
+  <text x="257" y="466" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#8e44ad">semantic_search_viewpoints</text>
+  <text x="257" y="484" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">query, limit, minScore, stockId, authorId</text>
+
+  <rect x="358" y="446" width="174" height="48" rx="6" fill="#2980b9" fill-opacity="0.1" stroke="#2980b9" stroke-width="1"/>
+  <text x="445" y="466" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#2980b9">build_semantic_context</text>
+  <text x="445" y="484" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">语义搜索 + 股票信号融合</text>
+
+  <rect x="546" y="446" width="174" height="48" rx="6" fill="#27ae60" fill-opacity="0.1" stroke="#27ae60" stroke-width="1"/>
+  <text x="633" y="466" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#27ae60">index_viewpoint_embedding</text>
+  <text x="633" y="484" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">手动触发单条索引</text>
+
+  <rect x="734" y="446" width="174" height="48" rx="6" fill="#e67e22" fill-opacity="0.1" stroke="#e67e22" stroke-width="1"/>
+  <text x="821" y="466" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#e67e22">get_semantic_stats</text>
+  <text x="821" y="484" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">total, dim, memoryMB, ready</text>
+
+  <!-- Separation line -->
+  <line x1="56" y1="506" x2="904" y2="506" stroke="#e8e8e8" stroke-width="1"/>
+
+  <!-- Node.js semantic-search.js -->
+  <rect x="170" y="512" width="738" height="48" rx="6" fill="#2c3e50"/>
+  <text x="200" y="532" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#f1c40f">Node.js: lib/semantic-search.js</text>
+  <text x="200" y="552" font-family="system-ui,sans-serif" font-size="9" fill="#95a5a6">Float32Array 内存索引 (6.4 MB) · batchSimilarity 扁平遍历 · cosine = dot · addToIndex / removeFromIndex</text>
+
+  <!-- Separation line -->
+  <line x1="56" y1="570" x2="904" y2="570" stroke="#e8e8e8" stroke-width="1"/>
+
+  <!-- Bottom: Python + SQLite -->
+  <rect x="170" y="576" width="360" height="48" rx="6" fill="#2980b9" fill-opacity="0.1" stroke="#2980b9" stroke-width="1"/>
+  <text x="350" y="596" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#2980b9">Python embedding-service.py</text>
+  <text x="350" y="616" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">sentence-transformers + m3e-base / normalize / JSON Lines 协议</text>
+
+  <rect x="544" y="576" width="364" height="48" rx="6" fill="#27ae60" fill-opacity="0.1" stroke="#27ae60" stroke-width="1"/>
+  <text x="726" y="596" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#27ae60">SQLite: viewpoint_embeddings 表</text>
+  <text x="726" y="616" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">BLOB 存储 embedding · INSERT OR REPLACE · 2177/2213 (98.4%)</text>
+
+  <!-- Arrows between layers -->
+  <!-- MCP → Node -->
+  <line x1="540" y1="506" x2="540" y2="512" stroke="#5b6f82" stroke-width="1" marker-end="url(#arrDown)"/>
+  <!-- Node → Python -->
+  <line x1="350" y1="512" x2="350" y2="576" stroke="#5b6f82" stroke-width="1" marker-end="url(#arrDown)"/>
+  <!-- Node → SQLite -->
+  <line x1="726" y1="512" x2="726" y2="576" stroke="#5b6f82" stroke-width="1" marker-end="url(#arrDown)"/>
+  <!-- Python → SQLite (via Node) -->
+  <line x1="544" y1="600" x2="544" y2="600" stroke="#95a5a6" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="556" y="604" font-family="system-ui,sans-serif" font-size="7" fill="#95a5a6">via Node.js</text>
+
+  <!-- Side annotations -->
+  <!-- Right: pipeline steps -->
+  <rect x="840" y="132" width="100" height="264" rx="6" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="890" y="154" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#2c3e50" font-weight="600">向量路径</text>
+  <line x1="860" y1="162" x2="920" y2="162" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="890" y="180" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#f39c12">查询→向量</text>
+  <text x="890" y="198" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#2c3e50">768维</text>
+  <text x="890" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#2c3e50">归一化</text>
+  <line x1="860" y1="232" x2="920" y2="232" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="890" y="250" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#2c3e50">点积=cos</text>
+  <text x="890" y="268" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#2c3e50">sort top-k</text>
+  <line x1="860" y1="280" x2="920" y2="280" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="890" y="298" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#27ae60">minScore</text>
+  <text x="890" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#27ae60">≥ 0.5</text>
+  <line x1="860" y1="328" x2="920" y2="328" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="890" y="346" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#8e44ad">snippet</text>
+  <text x="890" y="364" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#8e44ad">score</text>
+  <text x="890" y="382" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#8e44ad">author</text>
+
+  <!-- Bottom stats -->
+  <text x="480" y="660" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#95a5a6">本地化全链路：Python 子进程 → Node.js 内存索引 → SQLite 持久化 → MCP 工具 → LLM 生成回答</text>
+</svg>

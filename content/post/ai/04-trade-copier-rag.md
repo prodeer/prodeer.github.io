@@ -1,0 +1,609 @@
++++
+date = '2026-05-24T10:00:00+08:00'
+draft = false
+title = '从零到 Agent（四）：让 LLM 读懂投资观点 —— 本地化 RAG 语义搜索的完整实现'
+categories = ['AI 大模型']
+series = ['viewpoint_miner']
++++
+
+一个已有数据但"读不懂"的系统，如何一步步获得语义搜索和 AI 对话能力？
+<!--more-->
+
+网站投入使用后，积累了几千条观点。这个数据量不大，用 SQL LIKE 查询完全足够。它每天自动抓取多位股评作者的观点，用纯规则引擎提取交易信号（建仓、减仓、止盈、止损等），然后以时间线的方式呈现给用户。
+
+但有个痛点：**搜索只能靠关键词匹配。**
+
+搜"茅台"能找到提到茅台的观点，但搜"白酒龙头"却找不到——尽管很多观点讨论的就是茅台。搜"看空"能匹配到原文有"看空"二字的，但"不乐观""谨慎""风险较大"这些表述就搜不到。
+
+更具体地说，关键词搜索在以下场景完全失效：
+
+| 维度 | 关键词 LIKE | 语义搜索 |
+|---|---|---|
+| "北向资金买什么" | 只匹配含"北向资金"+"买"的记录 | 同时匹配"外资流入""北上加仓""北向抄底" |
+| "某某最近在看什么" | 需要知道作者写了哪些股票名 | 直接理解意图，匹配相关讨论 |
+| "市场情绪如何" | 无法表达 | 匹配"情绪回暖""恐慌释放""分歧加大"等 |
+| 排序 | 按时间排序，相关性未知 | 按语义相似度排序，最相关的排前面 |
+| 误匹配 | 否定表达也被匹配 | 语义方向一致，天然过滤无关内容 |
+
+![关键词 vs 语义搜索](/images/trade_copier/keyword-vs-semantic.svg)
+
+语义搜索不是替代关键词搜索，而是解决关键词搜索解决不了的问题——**当用户用自然语言提问时，系统需要"理解"而不是"匹配"。**
+
+于是，RAG（Retrieval-Augmented Generation，检索增强生成）进入了我的视野。
+
+---
+
+## 项目背景
+
+先交代一下技术栈和系统现状，方便后文理解：
+
+| 维度 | 选型 |
+|------|------|
+| 后端 | Express + better-sqlite3 |
+| 前端 | 原生 JS（无框架），单页应用 |
+| 数据库 | SQLite，7 张表（authors, stocks, viewpoints, viewpoint_stocks, trade_actions, viewpoint_embeddings 等） |
+| Embedding | m3e-base（768 维中文向量模型），Python 子进程 |
+| MCP Server | 25 个工具，通过 stdio 协议与 LLM 客户端通信 |
+| 交易信号提取 | 纯规则引擎，不依赖 LLM |
+| LLM 推理 | oMLX 本地推理，Qwen3.5-9B-MLX-4bit（4bit 量化） |
+
+关键数字：**2177 条观点**已经建好了向量索引，占内存 **6.4 MB**。
+
+## RAG 是什么？为什么选它？
+
+RAG 的核心思路用一句话概括：**先检索，再生成。**
+
+传统搜索是"搜到什么给你看什么"；RAG 是"搜到相关内容后，让 LLM 读一遍，再用自己的话回答你"。
+
+为什么不用纯 LLM？因为：
+1. **我的数据是私有的**——股评作者的观点不在训练集里，LLM 不知道
+2. **实时性**——今天的观点，LLM 昨天还没见过
+3. **准确性**——纯 LLM 容易编造（幻觉），RAG 要求基于检索到的事实回答
+
+为什么不用 Fine-tuning？因为：
+1. **数据量不够**——2000 条观点微调不出好模型
+2. **数据在变**——每天新增观点，总不能天天微调
+3. **成本**——RAG 只需要一次 embedding，推理成本为零
+
+所以 RAG 是最务实的选择。
+
+## 架构全景：从数据到智能的三层设计
+
+![RAG 架构图：三层阶段递进 + 内部数据流](/images/trade_copier/rag-architecture.svg)
+
+
+整个 RAG 能力分为三个阶段：
+
+| 阶段 | 能力 | 核心价值 |
+|------|------|---------|
+| Phase 0 | Embedding 索引 + MCP 工具 | 数据有了向量表示，但只在 MCP 客户端可用 |
+| Phase 1 | 语义搜索 Web UI | 用户在浏览器里就能语义搜索，还能看"相关观点" |
+| Phase 2 | RAG Chat 对话界面 | AI 读了检索结果后用自己的话回答，附引用来源 |
+
+下面逐层展开。
+
+---
+
+## Phase 0：RAG 的"地基" — embedding 模型
+
+选 embedding 模型时只有两个要求：**中文效果好、能离线跑。**
+
+候选：
+
+| 模型 | 维度 | 优势 | 劣势 |
+|---|---|---|---|
+| OpenAI text-embedding-3 | 1536 | 最强效果 | 要钱，数据出境 |
+| bge-large-zh | 1024 | 中文 SOTA | 模型大（1.3GB），加载慢 |
+| m3e-base | 768 | 模型小（420MB），中文专项优化 | 社区模型 |
+
+选了 m3e-base。理由很实际：
+
+1. **420MB** 模型体积，启动 5 秒内完成，不需要 GPU
+2. **768 维**向量，比 bge 的 1024 维少了 25%，内存省下来就是速度
+3. **ModelScope 国内镜像**可用，不受 HuggingFace 网络限制
+
+模型路径通过环境变量控制：
+
+```python
+_default_model_path = os.path.expanduser('~/.cache/modelscope/Jerry0/m3e-base')
+model_name = os.environ.get('EMBEDDING_MODEL_PATH', _default_model_path)
+```
+
+下载一次，永久缓存。换机器只需要把 `~/.cache/modelscope/` 拷过去。
+
+---
+
+### Embedding 生成：Python 子进程的 stdin/stdout 协议
+
+为什么用 Python 子进程而不是 HTTP 服务？因为 **简单**——不需要端口管理、不需要额外的进程监控、启动即用。
+
+通信协议极简——JSON Lines：
+
+```
+Node.js → Python:  {"id": 1, "text": "白酒龙头近期承压"}
+Python → Node.js:  {"id": 1, "embedding_b64": "base64编码的float32向量"}
+```
+
+Python 端（`embedding-service.py`）核心只有 20 行：
+
+```python
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer(model_name)
+
+# 就绪信号
+print(json.dumps({"status": "ready", "dim": model.get_sentence_embedding_dimension()}))
+
+# 主循环：逐行读 JSON，编码后返回
+for line in sys.stdin:
+    req = json.loads(line)
+    vec = model.encode(req['text'], normalize_embeddings=True)
+    packed = struct.pack(f'{len(vec)}f', *vec)
+    print(json.dumps({"id": req['id'], "embedding_b64": base64.b64encode(packed).decode()}))
+```
+
+注意 `normalize_embeddings=True`——归一化后，余弦相似度 = 向量点积，省去了分母的计算。
+
+---
+
+### 向量存储与索引：SQLite BLOB + 内存 Float32Array
+
+没有用 Pinecone、Milvus 这些向量数据库，因为数据量小（2000+ 条）、查询场景简单（只做 top-K 相似度搜索），杀鸡不需要牛刀。
+
+Pinecone 和 Pinecone、Milvus 的索引优化主要针对百万级以上，对于几千条向量的场景，一个 `Float32Array` 的朴素遍历比任何索引结构都快——没有树结构开销，没有 RPC 延迟，纯内存操作。
+
+**持久化**：SQLite 的 BLOB 字段存 base64 解码后的 float32 向量。
+
+**内存索引**：启动时从 SQLite 加载所有向量，拼成一个扁平 `Float32Array`。搜索时用 `for` 循环批量算点积：
+
+索引结构：
+
+```javascript
+let viewpointEmbeddings = new Map();  // viewpointId → Float32Array
+let embeddingArray = null;            // 扁平 Float32Array，所有向量拼接
+let idArray = null;                   // viewpointId 数组，与 embeddingArray 对应
+```
+
+三层变量各司其职：
+- `viewpointEmbeddings` Map：按 ID 快速查找单个向量，用于增删操作
+- `embeddingArray` 扁平数组：批量相似度计算的连续内存布局，最大化 CPU 缓存命中
+- `idArray`：与扁平数组位置一一对应，用来把索引位置映射回 viewpoint ID
+
+加载索引时，从 SQLite 读 BLOB，解码为 Float32Array，拼成扁平数组：
+
+```javascript
+function loadIndex() {
+  const rows = db.prepare('SELECT viewpoint_id, embedding FROM viewpoint_embeddings').all();
+  const vectors = [];
+  idArray = [];
+  for (const row of rows) {
+    const vec = b64ToVec(row.embedding.toString('base64')); // BLOB → base64 → Float32Array
+    vectors.push(vec);
+    idArray.push(row.viewpoint_id);
+  }
+  embeddingArray = new Float32Array(vectors.length * dim);
+  for (let i = 0; i < vectors.length; i++) {
+    embeddingArray.set(vectors[i], i * dim);
+  }
+}
+```
+
+2177 条 × 768 维 = 6.4 MB 连续内存。一个现代 CPU 的 L3 缓存（通常 8-32 MB）完全装得下。
+
+---
+
+### 增量索引：索引怎么保持新鲜？
+
+全量索引通过 `node scripts/build-embeddings.js` 完成，支持三种模式：
+
+```bash
+node scripts/build-embeddings.js              # 增量：只索引未生成的
+node scripts/build-embeddings.js --force      # 强制重建全部
+node scripts/build-embeddings.js --limit 100  # 测试模式，只跑前 100 条
+```
+
+日常增量则由 `cron.js` 每日同步脚本自动处理——同步新观点后，自动调用 `indexViewpoint` 生成 embedding：
+
+```javascript
+// cron.js 中的同步钩子
+for (const v of newViewpoints) {
+  await semanticSearch.indexViewpoint(v.id, v.content);
+}
+```
+
+`addToIndex` 同时更新三层存储：
+
+```javascript
+function addToIndex(viewpointId, vec) {
+  // 1. SQLite 持久化
+  const b64 = vecToB64(vec);
+  db.prepare('INSERT OR REPLACE INTO viewpoint_embeddings ...').run(...);
+
+  // 2. 内存索引：替换已有 OR 追加新
+  const old = viewpointEmbeddings.get(viewpointId);
+  if (old) {
+    const idx = idArray.indexOf(viewpointId);
+    embeddingArray.set(vec, idx * dim);  // 原地替换
+  } else {
+    // 扩容扁平数组，追加到末尾
+    const newArray = new Float32Array((oldLen + 1) * dim);
+    newArray.set(embeddingArray);
+    newArray.set(vec, oldLen * dim);
+    embeddingArray = newArray;
+    idArray.push(viewpointId);
+  }
+  viewpointEmbeddings.set(viewpointId, vec);
+}
+```
+
+这样每天的 cron 任务跑完后，新观点自动进入向量索引，无需人工干预。
+
+### MCP Server：25 个工具但用户够不着
+
+已有的 25 个 MCP 工具中，包含 `semantic_search`、`index_viewpoint` 等语义搜索工具。但 MCP 是给 LLM 客户端用的，不是给浏览器用户用的。
+
+所以 Phase 1 的核心任务就是：**把 MCP 工具的能力，通过 Web API 暴露给前端。**
+
+---
+
+## Phase 1：语义搜索 Web UI——让浏览器"看懂"观点
+
+Phase 1 的核心是打通一条从"用户输入"到"语义结果"的完整管线：
+
+![RAG 搜索流程图](/images/trade_copier/rag-search-flow.svg)
+
+
+### 后端：三条 API 暴露语义搜索能力
+
+新建 `routes/search.js`，注册三条 API：
+
+| 路由 | 方法 | 功能 |
+|------|------|------|
+| `/api/search/semantic` | POST | 语义搜索观点 |
+| `/api/search/semantic/stats` | GET | 索引统计（条数、内存、就绪状态） |
+
+同时给已有的 `routes/viewpoints.js` 加一条：
+
+| 路由 | 方法 | 功能 |
+|------|------|------|
+| `/api/viewpoints/:id/related` | GET | 获取某条观点的相关观点 |
+
+关键设计决策：**服务未就绪时返回 503 而不是阻塞等待。**
+
+```javascript
+router.post('/semantic', async (req, res) => {
+  const stats = semanticSearch.getStats();
+  if (!stats.ready) {
+    return res.status(503).json({
+      error: '语义搜索服务正在启动中，请稍后重试',
+      ready: false,
+    });
+  }
+  // ... 执行搜索
+});
+```
+
+为什么？因为 embedding 模型加载需要 30-60 秒，如果第一个请求就阻塞等它，用户体验很差。更好的做法是服务器启动时预热，前端轮询或展示"服务加载中"。
+
+**服务器预热**——在 `server.js` 的 `app.listen` 回调中触发：
+
+```javascript
+app.listen(PORT, () => {
+  const semanticSearch = require('./lib/semantic-search');
+  semanticSearch.init().then(() => {
+    console.log(`[语义搜索] 服务就绪: ${stats.total} 条向量, 内存 ${stats.memoryMB} MB`);
+  }).catch(err => {
+    console.warn(`[语义搜索] 服务启动失败: ${err.message}`);
+  });
+});
+```
+
+### 前端：搜索模式切换 + 相关观点面板
+
+**搜索模式切换**：在搜索框上方加了一排按钮，用户可以在"关键词"和"语义"两种模式间切换。
+
+![RAG 架构图](/images/trade_copier/rag-web-demo.png)
+
+
+切换模式后，如果搜索框里有内容，会立刻以新模式重新搜索。两种搜索的体验差异非常大：
+
+- 关键词搜索：精确匹配，搜"茅台"只能找到含"茅台"的观点
+- 语义搜索：理解意图，搜"白酒龙头"也能找到讨论茅台的观点
+
+### 踩坑记录
+
+#### 1. better-sqlite3 的 NODE_MODULE_VERSION 不匹配
+
+报错：
+```
+Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION 137
+```
+
+原因：managed node（v22.22.2, MODULE_VERSION=127）与 better-sqlite3 编译时的系统 node（v24.4.1, MODULE_VERSION=137）不兼容。
+
+解决：**必须用系统 node 启动服务器**：
+```bash
+/opt/homebrew/bin/node server.js
+```
+
+#### 2. Python embedding service 找不到 sentence_transformers
+
+`python3` 默认解析到 managed Python 3.13，而 `sentence_transformers` 装在系统 Python 3.9 下。
+
+解决：硬编码系统 Python 路径，并支持环境变量覆盖：
+```javascript
+const pythonCmd = process.env.PYTHON_CMD || '/usr/bin/python3';
+```
+
+#### 3. Embedding service 启动超时
+
+默认 30 秒超时，但 m3e-base 模型加载需要 40-60 秒。
+
+解决：超时时间增加到 120 秒。
+
+#### 4. 并发 init 导致多个 Python 子进程
+
+多个请求同时触发 `init()` 时，可能启动多个 Python 子进程。
+
+解决：加入 `initPromise` 锁：
+```javascript
+async function init() {
+  if (ready) return;
+  if (initPromise) return initPromise; // 防止并发
+  initPromise = (async () => {
+    await startEmbeddingService();
+    loadIndex();
+  })();
+  return initPromise;
+}
+```
+
+---
+
+## Phase 2：RAG Chat 对话界面——让系统"开口说话"
+
+### Phase 1 vs Phase 2：到底有什么区别？
+
+这是我最常被问到的问题。用一个类比来解释：
+
+**Phase 1 是图书管理员**——你问他"有没有关于白酒行业观点的书"，他给你搬来一摞书，你自己读。
+
+**Phase 2 是研究助手**——你问他"大家对白酒行业怎么看"，他不仅去找相关资料，还会读完之后给你写一份总结，而且每个结论都标注了出处。
+
+技术上的区别：
+
+| 维度 | Phase 1 语义搜索 | Phase 2 RAG Chat |
+|------|-----------------|-----------------|
+| 输出 | 原始观点列表（原文） | LLM 生成的回答（总结/对比/分析） |
+| 理解力 | 只做"语义匹配"（找相似的） | 真正"理解"内容后重新组织语言 |
+| 交互方式 | 单次搜索 | 多轮对话（有上下文记忆） |
+| 引用 | 通过相似度分数间接判断 | 明确标注每个论据来自哪个作者 |
+| 适合场景 | "我想看关于 X 的原始观点" | "帮我总结/对比/分析 X" |
+
+用更直观的流程图：
+
+```
+Phase 1（语义搜索）：
+  用户输入 → Embedding → 向量搜索 → 返回相似观点列表
+
+Phase 2（RAG Chat）：
+  用户输入 → Embedding → 向量搜索 → 拼装上下文 → LLM 生成回答 → 流式返回
+                                         ↑                ↓
+                                    （检索增强）      （引用溯源）
+```
+
+Phase 2 在 Phase 1 的基础上多了两个关键环节：**上下文拼装**和 **LLM 生成**。
+
+### 后端：检索 → 拼 Prompt → 调 LLM → 流式返回
+
+核心模块 `lib/rag-chat.js`，只做四件事：
+
+**① 检索上下文**——`retrieveContext(query)`
+
+```javascript
+async function retrieveContext(query, options = {}) {
+  // 1. 语义检索 top-K 相关观点
+  const results = await semanticSearch.searchSimilar(query, { limit: cfg.topK, minScore: cfg.minScore });
+
+  // 2. 获取完整观点内容（搜索只返回前 200 字）
+  // 3. 获取关联股票和交易动作
+  // 4. 拼装结构化上下文
+  return { context: "结构化的观点文本...", sources: [...] };
+}
+```
+
+拼出来的上下文长这样：
+
+```
+[观点1] (相似度:78%)
+作者: 张三
+日期: 2025/6/3
+股票: 贵州茅台(600519)
+交易动作: 贵州茅台:减仓(1800)
+内容: 白酒龙头近期承压，短期看空至1700...
+
+[观点2] (相似度:72%)
+作者: 李四
+...
+```
+
+**② System Prompt**——约束 LLM 的行为
+
+```javascript
+const SYSTEM_PROMPT = `/no_think
+你是"股票观点分析助手"，专门帮助用户理解和分析股票市场观点。
+
+回答规则：
+- 必须基于检索到的观点回答，不要编造不存在的观点
+- 引用观点时标注来源作者（如：据[张三]观点...）
+- 如果检索到的观点不足以回答问题，如实说明
+- 对于投资建议类问题，提醒用户"以上仅为观点汇总，不构成投资建议"
+- 用中文回答，简洁有条理`;
+```
+
+注意开头的 `/no_think`——这是给 Qwen3.5 模型的指令，要求它不要进入"思考模式"。原因后面踩坑部分会讲。
+
+**③ 流式调用 LLM**——`streamChat(messages, onChunk, onDone, onError)`
+
+使用 Node.js 原生 `http`/`https` 模块，不依赖 OpenAI SDK，因为要兼容本地 oMLX 推理服务：
+
+```javascript
+const body = JSON.stringify({
+  model: cfg.model,
+  messages,
+  max_tokens: cfg.maxTokens,
+  temperature: cfg.temperature,
+  stream: true,
+  // Qwen3.5: 禁用思考模式以加速响应
+  extra_body: { chat_template_kwargs: { enable_thinking: false } },
+});
+```
+
+**④ Chat API 路由**——`routes/chat.js`
+
+```
+POST /api/chat          → SSE 流式对话
+GET  /api/chat/config   → LLM 配置状态（不暴露 key）
+DELETE /api/chat/history/:sessionId → 清空会话
+```
+
+会话历史存在内存 `Map` 中（生产环境可换 Redis），每会话保留最近 20 轮。
+
+SSE 事件类型：
+
+| 事件 | 数据 | 用途 |
+|------|------|------|
+| `sources` | `{sources: [...]}` | 先发引用信息 |
+| `chunk` | `{content: "..."}` | 逐块返回 LLM 输出 |
+| `done` | `{sessionId: "..."}` | 生成完成 |
+| `error` | `{error: "..."}` | 出错 |
+
+### 前端：SSE 流式对话 + 引用溯源
+
+![RAG Chat demo](/images/trade_copier/rag-ai-demo.png)
+
+**Chat 面板**：新增"AI 对话"Tab，包含消息区域、输入框、发送按钮和快捷建议。
+
+**SSE 流式渲染**：用 `ReadableStream` 逐块读取 SSE 事件，实时更新 AI 气泡内容：
+
+### 踩坑记录
+
+#### 1. Qwen3.5 的 reasoning_content 字段
+
+问题：Qwen3.5 模型默认开启"思考模式"，SSE 返回的 `delta` 里有两个字段：`content`（正式输出）和 `reasoning_content`（思考过程）。如果只取 `content`，前期只有 `reasoning_content` 有内容，用户会看到空白气泡等待很久。
+
+解决：两个字段都取，优先 `content`：
+```javascript
+const content = delta.content || delta.reasoning_content;
+```
+
+#### 2. /no_think 在 oMLX 中不起作用
+
+问题：在 System Prompt 开头加了 `/no_think`，但 oMLX 的实现不识别这个指令，模型依然会先"思考"30-60 秒才输出正式内容。
+
+解决：通过 oMLX 的 `extra_body` 参数禁用思考模式：
+```javascript
+extra_body: { chat_template_kwargs: { enable_thinking: false } }
+```
+`/no_think` 保留作为兼容层（万一换成其他推理框架可能有效）。
+
+#### 3. 本地 LLM 的上下文窗口限制
+
+问题：Qwen3.5-9B-4bit 的上下文窗口有限，top-K=8 + 完整观点内容 + 对话历史，容易超出窗口。
+
+解决：降低 top-K 到 5，限制 `max_tokens=1024`，对话历史只保留最近 20 轮。
+
+---
+
+## 最终效果
+
+**语义搜索**：搜"白酒龙头承压"，系统理解你想找关于白酒行业看空的观点，即使原文里没有这些词：
+
+```
+搜索: "白酒龙头承压"
+
+结果:
+┌─────────────────────────────────────────────────┐
+│ 张三  78%  贵州茅台                                │
+│ 白酒行业短期承压，龙头估值仍偏贵...                 │
+├─────────────────────────────────────────────────┤
+│ 李四  72%  五粮液                                  │
+│ 高端白酒动销放缓，二三线更不乐观...                 │
+├─────────────────────────────────────────────────┤
+│ 王五  65%  泸州老窖                                │
+│ 龙头酒企基本面没变，但市场情绪偏弱...               │
+└─────────────────────────────────────────────────┘
+```
+
+**RAG Chat**：问"最近大家对白酒怎么看"，AI 会读完所有相关观点后总结：
+
+```
+👤 最近大家对白酒怎么看？
+
+🤖 根据检索到的观点，近期白酒板块整体偏谨慎：
+
+1. 看空观点：
+   - 据[张三]观点，白酒龙头短期承压，估值仍偏贵（贵州茅台:减仓）
+   - 据[李四]观点，高端白酒动销放缓，二三线更不乐观
+
+2. 看多观点：
+   - 据[王五]观点，龙头酒企基本面没变，但市场情绪偏弱
+
+3. 分歧点：
+   短期走势存在分歧，张三和李四偏向减仓，王五认为基本面未变
+
+⚠️ 以上仅为观点汇总，不构成投资建议
+
+📎 引用来源
+[1] 张三 · 贵州茅台 78%  [2] 李四 · 五粮液 72%  [3] 王五 · 泸州老窖 65%
+```
+
+## 技术选型思考
+
+### 为什么不用向量数据库？
+
+2177 条 × 768 维 ≈ 6.4 MB。全放内存里，一次遍历 < 10ms。这量级用 Pinecone 或 Milvus 属于杀鸡用牛刀——还要考虑部署、运维、成本。当数据量到 10 万+ 时再迁移不迟。
+
+### 为什么用 Python 子进程而不是 HTTP 服务？
+
+| 方案 | 优点 | 缺点 |
+|------|------|------|
+| HTTP 服务 | 可独立部署、支持多客户端 | 需要端口管理、进程监控、跨进程序列化 |
+| Python 子进程 | 零配置、自动跟随主进程生命周期 | 只能单进程通信 |
+
+对于单服务器场景，子进程更简单。通信协议（JSON Lines）也足够轻量。
+
+### 为什么用 oMLX 本地推理而不是调云端 API？
+
+| 方案 | 优点 | 缺点 |
+|------|------|------|
+| 云端 API（DeepSeek 等） | 模型强、无硬件要求 | 需要联网、按 token 计费、数据隐私 |
+| oMLX 本地推理 | 免费、隐私、离线可用 | 模型能力受限（9B 4bit）、上下文窗口小 |
+
+我选了本地推理，因为：
+1. 股评观点是私有数据，不想发到云端
+2. 使用频率不高，免费更重要
+3. macOS + Apple Silicon 跑 oMLX 很方便
+
+但如果你要生产级质量，云端 API（DeepSeek、通义千问）的效果明显更好。
+
+### 为什么不单独部署向量搜索服务？
+
+有人可能会问：embedding service + 向量索引 + 搜索逻辑，为什么不拆成独立服务？
+
+答案还是**数据量**。2000 条观点的搜索，Node.js 单进程完全 hold 住。拆微服务带来的运维复杂度远大于性能收益。等到日活上千、数据量过万，再考虑也不迟。
+
+---
+
+## 写在最后
+
+从"关键词搜索"到"AI 对话"，整个改造的核心增量代码其实不多，关键不是代码量，而是**分层设计**：
+
+1. **数据层**（embedding + 索引）先行，保证"能搜"
+2. **搜索层**（API + 前端）让用户"能看"
+3. **生成层**（RAG Chat）让系统"能说"
+
+每一层都独立可用、可测试。
+
+语义搜索补齐了系统最后一块拼图：从"能查数据"到"能理解问题"。RAG 不是魔法，它是工程。把检索做对了，生成自然就对了。
+
+---

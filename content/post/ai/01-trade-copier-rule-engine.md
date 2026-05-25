@@ -3,10 +3,8 @@ date = '2026-05-18T10:00:00+08:00'
 draft = false
 title = '从零到 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
 categories = ['AI 大模型']
-series = ['trade_copier']
+series = ['viewpoint_miner']
 +++
-
-## 引子：韭菜的自我修养
 
 在“全民炒股”狂欢下，我，一颗小韭菜，也加入了这个炒股大军 🤭  
 
@@ -348,5 +346,3 @@ function normalizeBuySell(results) {
 到这里，系统仍然是一个**单体 Web 应用**。你必须在浏览器里打开它，手动点击按钮来同步和查看数据，还可以怎么进化呢？下一篇文章会讲一个关键转型：**如何用 MCP 协议把这套系统变成一个 AI 可以直接调用的工具箱**。
 
 ---
-
-*下一篇：[从零到 Agent（二）：MCP Server —— 让 LLM 直接调用你的数据系统](../02-trade-copier-mcp-server/)*
