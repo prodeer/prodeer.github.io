@@ -1,5 +1,9 @@
 ### Hugo ###
 
+# Build output
+public/
+resources/
+
 # OSX
 .DS_Store
 
