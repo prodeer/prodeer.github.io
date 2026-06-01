@@ -36,7 +36,7 @@
   <rect width="880" height="720" rx="10" fill="#fafbfc"/>
 
   <!-- Title -->
-  <text x="440" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#2c3e50">MCP Server 工具分层架构</text>
+  <text x="440" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#2c3e50">MCP Server 工具业务分组</text>
 
   <!-- Layer 5: 自动化通知 (top) -->
   <g filter="url(#shadow)">
@@ -120,10 +120,9 @@
   </g>
 
   <!-- Right-side labels -->
-  <!-- LLM 优先选择 -->
-  <text x="855" y="100" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,100)" text-anchor="middle">抽象层级高 ↑</text>
-  <text x="855" y="610" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,610)" text-anchor="middle">原子操作 ↓</text>
+  <text x="855" y="100" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,100)" text-anchor="middle">面向交互与通知</text>
+  <text x="855" y="610" font-family="system-ui,sans-serif" font-size="10" fill="#7f8c8d" transform="rotate(90,855,610)" text-anchor="middle">数据查询与操作</text>
 
   <!-- Bottom note -->
-  <text x="440" y="706" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#95a5a6">LLM 优先选择上层聚合工具，不存在时退而组合底层原子工具</text>
+  <text x="440" y="706" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#95a5a6">分组用于导航和说明副作用，不代表模型固定的调用顺序</text>
 </svg>
