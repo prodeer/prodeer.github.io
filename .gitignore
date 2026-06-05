@@ -7,3 +7,4 @@ resources/
 # OSX
 .DS_Store
 
+.workbuddy/
