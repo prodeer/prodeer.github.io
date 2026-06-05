@@ -1,0 +1,11 @@
+{{/* layouts/shortcodes/mermaid.html */}}
+{{/* 用法: {{< mermaid >}}graph TD; A-->B{{< /mermaid >}} */}}
+<div class="mermaid">
+{{ .Inner | safeHTML }}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  }
+</script>
