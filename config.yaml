@@ -13,6 +13,10 @@ paginate: 10
 enableRobotsTXT: true
 hasCJKLanguage: true
 
+# Minify 配置：禁用 JSON minify（Ladder 主题 JSON-LD 模板与 Hugo JSON 压缩器不兼容）
+minify:
+  disableJSON: true
+
 # 作者信息（供 RSS 等模板使用）
 Author:
   name: "prodeer"
