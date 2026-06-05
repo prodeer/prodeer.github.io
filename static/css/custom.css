@@ -1,0 +1,9 @@
+/* 自定义样式 */
+.archive .archive-content {
+    width: 80rem;
+}
+@media only screen and (max-width: 768px) {
+    .archive .archive-content {
+        width: 28rem;
+    }
+}
