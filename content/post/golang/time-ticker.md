@@ -6,9 +6,10 @@ categories = ['Golang']
 tags = ['Golang']
 +++
 
-### 一、引子
-
 面试官问了一道题：每秒钟调用一次proc并保证程序不退出。
+
+<!--more-->
+
 ```go
 package main
 
@@ -26,10 +27,10 @@ func proc() {
 
 这里主要学习、了解 `Time.Ticker` 的实现，其源代码基于 `Go 1.17.9` 版本，主要在 `src/time/tick.go` 文件中，包含了一个结构体和四个函数。
 
-### 二、Time.Ticker
+## 一、Time.Ticker
 `Ticker` 是一个周期触发定时的计时器，它会按照一个时间间隔往 `channel` 发送系统当前时间，而 `channel` 的接收者可以以固定的时间间隔从 `channel` 中读取事件。
 
-#### 2.1 结构体
+### 1.1 结构体
 ```go
 type Ticker struct {
     C <-chan Time // The channel on which the ticks are delivered.
@@ -50,7 +51,7 @@ type runtimeTimer struct {
 ```
 可以看到这个结构体包含了一个只读的通道 `C`，并每隔一段时间向其传递"tick"。
 
-#### 2.2 NewTicker()
+### 1.2 NewTicker()
 `NewTicker()` 主要包含两步：
 
 1. 创建一个 `Ticker`，主要包括其中的 `C` 属性和 `r` 属性。`r` 属性是 `runtimeTimer` 类型。
@@ -141,7 +142,7 @@ func addtimer(t *timer) {
 ```
 `addtimer` 就是将 `timer` 加到当前执行 `p` 的 `timers` 数组里面去，调用 `wakeNetPoller` 方法唤醒网络轮询器中休眠的线程，检查计时器被唤醒的时间（when）是否在当前轮询预期运行的时间内，若是，就唤醒。
 
-#### 2.3 stop()
+### 1.3 stop()
 `Stop` 关闭一个 `Ticker`，但不会关闭通道 `t.C`，防止读取通道发生错误。
 ```go
 func (t *Ticker) Stop() {
@@ -217,7 +218,7 @@ func deltimer(t *timer) bool {
 ```
 简单来说就是修改 `timer` 的状态，先修改为“已修改”，再修改为“删除”。
 
-#### 2.4 Reset()
+### 1.4 Reset()
 `Reset()` 调用 `modTimer()` 修改时间，接下来的激活将在新 `d` 后。
 ```
 func (t *Ticker) Reset(d Duration) {
@@ -231,7 +232,7 @@ func (t *Ticker) Reset(d Duration) {
 }
 ```
 
-#### 2.5 Tick()
+### 1.5 Tick()
 返回 `ticker` 的 `channel`。
 ```go
 func Tick(d Duration) <-chan Time {
@@ -242,7 +243,7 @@ func Tick(d Duration) <-chan Time {
 }
 ```
 
-### 三、小结
+## 二、小结
 
 1. Go 的定时器实质是单向通道，`time.Ticker` 结构体类型中有一个`time.Time` 类型的单向 `channel`。
 2. `ticker` 创建完之后，不是马上就有一个 `tick`，第一个 `tick` 在 x 秒之后。

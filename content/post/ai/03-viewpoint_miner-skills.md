@@ -1,7 +1,7 @@
 +++
 date = '2026-05-21T10:00:00+08:00'
 draft = false
-title = '从零到 Agent（三）：Skills —— 把工具链变成 AI 的专业技能'
+title = '构建炒股 Agent（三）：Skills —— 把工具链变成 AI 的专业技能'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++
@@ -32,7 +32,7 @@ Skill 不是一个程序模块。它是一个 **Markdown 文件**，包含：
 
 LLM 读取 Skill 文件后，行为模式发生质变：**从"从 27 个工具里选"变成"匹配到一个 Skill，按预设链路走"。**
 
-![Skills 架构图](/images/trade_copier/skills-architecture.svg)
+![Skills 架构图](/images/viewpoint_miner/skills-architecture.svg)
 
 核心思路一句话：**Skill 把工具的"选择权"变成了"匹配权"**。LLM 不再需要在 27 个工具中做排列组合决策，只需要判断"用户这句话最像哪个 Skill 的触发语"。匹配到了，工具链是写死的，不会出错。
 
@@ -257,7 +257,7 @@ Skill 没有减少 MCP 工具的数量——27 个工具一个没少。Skill 减
 
 看一下走 stock-analyst 链路的效果：
 
-![Skill 生效示意](/images/trade_copier/skill-stock-analyst-demo.png)
+![Skill 生效示意](/images/viewpoint_miner/skill-stock-analyst-demo.png)
 
 ## 小结
 

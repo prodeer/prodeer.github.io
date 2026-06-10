@@ -11,7 +11,7 @@ tags = ['LSM-Tree']
 <!--more-->
 
 
-### 一、什么是 LSM-tree
+## 一、什么是 LSM-tree
 
 - **名称**：Log-Structured Merge Tree，日志结构合并树。  
 - **核心思想**：硬盘的顺序写入速度比随机写入快很多，因此 LSM-tree 以仅追加的形式写入磁盘。  
@@ -20,7 +20,7 @@ tags = ['LSM-Tree']
   * **SSTable**：Sorted String Table，有序字符串表，是Memtable的持久化版本。
   * **WAL**：Write-Ahead Log，预写日志，用于确保数据的持久性。
 
-### 二、LSM-tree 的数据写入
+## 二、LSM-tree 的数据写入
 
 - **写入策略**：LSM-tree采用“异地更新”策略，即更新数据时不会直接修改原记录，而是将新记录写入新的位置。
 - **写入过程**：数据首先写入WAL和Memtable，当Memtable达到一定大小后，会刷新到磁盘成为SSTable。
@@ -43,7 +43,7 @@ graph TD
 
 以下是LSM-tree写数据的更新流程：
 
-#### 写操作流程
+### 写操作流程
 
 1. **记录日志（WAL）**：  
    所有写操作（包括插入、更新和删除）首先记录到预写日志（Write-Ahead Log, WAL）中。WAL确保数据的持久性和一致性，即使在系统崩溃的情况下，也可以通过WAL恢复数据.
@@ -59,14 +59,14 @@ graph TD
 4. **Minor Compaction**：  
    Immutable Memtable会被写入磁盘，形成SSTable的Level 0层。这个过程称为Minor Compaction。
 
-#### 更新操作的具体步骤
+### 更新操作的具体步骤
 
 * **更新在内存中的数据**：  
   如果待更新的数据已经在Memtable中，直接在Memtable中更新该数据，创建一个新的版本。
 * **更新在磁盘中的数据**：  
   如果待更新的数据不在Memtable中，LSM-tree会将新的更新记录写入到Memtable中，而不是直接修改磁盘上的旧记录。
 
-#### 合并操作
+### 合并操作
 
 LSM-tree的合并操作发生在写操作过程中：  
 - **Minor Compaction**：当Memtable达到一定大小后，会被冻结成Immutable Memtable，并触发Minor Compaction。Minor Compaction将Immutable Memtable的数据写入磁盘，形成Level 0的SSTable。
@@ -76,7 +76,7 @@ LSM-tree的合并操作发生在写操作过程中：
   - **优化存储空间**：通过合并操作，可以删除重复的键和标记为删除的数据，从而减少存储空间的浪费。
   - **提高查询性能**：减少SSTable的数量和层级，可以降低读取数据时需要访问的文件数量，从而减少读放大，提高查询性能。
 
-### 三、LSM-tree 的数据读取
+## 三、LSM-tree 的数据读取
 
 * **读取顺序**：先从Memtable查找，然后是Immemtable和SSTable，从Level 0到Level N逐层查找，以确保找到最新的数据。
 * **优化**：使用布隆过滤器减少不必要的磁盘I/O操作。
@@ -110,7 +110,7 @@ graph TD
 4. **使用Bloom Filter优化**：  
    在查询SSTable之前，可以使用Bloom Filter来判断该SSTable是否可能包含目标键。如果Bloom Filter判断不存在，则跳过该SSTable的查询，从而减少不必要的磁盘I/O操作。
 
-### 四、为什么用 LSM-tree&#x20;
+## 四、为什么用 LSM-tree
 
 以下是LSM-tree与B-tree在多个方面的区别对比：
 

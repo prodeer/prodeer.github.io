@@ -11,7 +11,7 @@ tags = ['分布式文件系统', 'JuiceFS']
 
 <!--more-->
 
-### 一、JuiceFS 的技术架构
+## 一、JuiceFS 的技术架构
 JuiceFS 文件系统由三个部分组成：JuiceFS 客户端（Client）、数据存储（Data Storage）、元数据引擎（Metadata Engine）。  
 - **JuiceFS 客户端（Client）**：所有文件读写，以及碎片合并、回收站文件过期删除等后台任务，均在客户端中发生。客户端需要同时与对象存储和元数据引擎打交道。客户端支持多种接入方式。
 - **数据存储（Data Storage）**：文件将会被切分上传至对象存储服务。JuiceFS 支持几乎所有的公有云对象存储，同时也支持 OpenStack Swift、Ceph、MinIO 等私有化的对象存储。
@@ -59,7 +59,7 @@ graph TD
     F1 --> G1
 {{< /mermaid >}}
 
-### 二、JuiceFS 数据存储的基本单元
+## 二、JuiceFS 数据存储的基本单元
 在 JuiceFS 中，Chunk、Slice 和 Block 是文件存储和处理的三个核心概念，它们共同构成了 JuiceFS 的数据管理机制。
 
 {{< mermaid bc="#white" >}}
@@ -105,8 +105,8 @@ graph TD
 - 元数据引擎记录了文件的元数据以及 Chunk、Slice 和 Block 之间的映射关系，这对于文件的读取和数据恢复至关重要。
 这种设计使得 JuiceFS 能够高效地处理大规模数据，同时保持高性能的读写操作。
 
-### 三、JuiceFS 中 Chunk、Slice 和 Block 的应用场景
-#### 场景一：大文件的顺序写入
+## 三、JuiceFS 中 Chunk、Slice 和 Block 的应用场景
+### 场景一：大文件的顺序写入
 假设有一个大文件需要被写入 JuiceFS：
 1. **Chunk**：文件被分割成多个 64MB 的 Chunk。如果文件大小为 160MB，那么它将被分割成 3 个 Chunk。
 2. **Slice**：文件的写入操作是顺序的，每个 Chunk 将包含一个 Slice。第一个 Chunk 的 Slice 将包含前 64MB 的数据，第二个包含接下来的 64MB，第三个包含剩余的 32MB。
@@ -158,7 +158,7 @@ graph TB
     slice3_1 --> block3_8
 {{< /mermaid >}}
 
-#### 场景二：小文件的随机写入
+### 场景二：小文件的随机写入
 假设多个小文件被随机写入 JuiceFS：
 1. **Chunk**：每个文件根据其大小被分配到一个或多个 Chunk 中。小文件可能共享同一个 Chunk。
 2. **Slice**：每个文件的写入操作创建一个新的 Slice。如果文件很小，可能不足以填满一个 Block，但仍然会创建一个新的 Slice。
@@ -199,7 +199,7 @@ graph TB
 
 {{< /mermaid >}}
 
-#### 场景三：文件的追加写入
+### 场景三：文件的追加写入
 当文件被追加写入时：
 1. **Chunk**：如果追加的数据量不足以填满当前 Chunk，它将被添加到现有的 Chunk 中。
 2. **Slice**：追加写入将创建新的 Slice。如果追加的数据量很小，可能会创建多个 Slice，每个 Slice 包含少量数据。
@@ -232,7 +232,7 @@ graph TB
 
 {{< /mermaid >}}
 
-#### 场景四：文件的覆盖写入
+### 场景四：文件的覆盖写入
 当文件的特定部分被覆盖写入时：
 1. **Chunk**：覆盖写入可能发生在文件的任何 Chunk 中。
 2. **Slice**：新的数据将创建一个新的 Slice，这个 Slice 可能与现有的 Slice 重叠。
@@ -262,5 +262,5 @@ graph TB
 
 {{< /mermaid >}}
 
-### 小结
+## 小结
 JuiceFS 的元数据引擎会更新文件的元数据，包括 Chunk、Slice 和 Block 的映射关系，以及文件的最新状态。这样，无论文件如何被写入，JuiceFS 都能确保数据的一致性和可访问性。

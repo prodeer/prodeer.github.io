@@ -1,7 +1,7 @@
 +++
 date = '2026-05-24T10:00:00+08:00'
 draft = false
-title = '从零到 Agent（四）：让 LLM 读懂投资观点 —— 本地化 RAG 语义搜索的完整实现'
+title = '构建炒股 Agent（四）：让 LLM 读懂投资观点 —— 本地化 RAG 语义搜索的完整实现'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++
@@ -25,7 +25,7 @@ series = ['viewpoint_miner']
 | 排序 | 按时间排序，相关性未知 | 按语义相似度排序，最相关的排前面 |
 | 误匹配 | 否定表达也被匹配 | 语义方向一致，天然过滤无关内容 |
 
-![关键词 vs 语义搜索](/images/trade_copier/keyword-vs-semantic.svg)
+![关键词 vs 语义搜索](/images/viewpoint_miner/keyword-vs-semantic.svg)
 
 语义搜索不是替代关键词搜索，而是解决关键词搜索解决不了的问题——**当用户用自然语言提问时，系统需要"理解"而不是"匹配"。**
 
@@ -69,7 +69,7 @@ RAG 的核心思路用一句话概括：**先检索，再生成。**
 
 ## 架构全景：从数据到智能的三层设计
 
-![RAG 架构图：三层阶段递进 + 内部数据流](/images/trade_copier/rag-architecture.svg)
+![RAG 架构图：三层阶段递进 + 内部数据流](/images/viewpoint_miner/rag-architecture.svg)
 
 
 整个 RAG 能力分为三个阶段：
@@ -249,7 +249,7 @@ function addToIndex(viewpointId, vec) {
 
 Phase 1 的核心是打通一条从"用户输入"到"语义结果"的完整管线：
 
-![RAG 搜索流程图](/images/trade_copier/rag-search-flow.svg)
+![RAG 搜索流程图](/images/viewpoint_miner/rag-search-flow.svg)
 
 
 ### 后端：三条 API 暴露语义搜索能力
@@ -301,7 +301,7 @@ app.listen(PORT, () => {
 
 **搜索模式切换**：在搜索框上方加了一排按钮，用户可以在"关键词"和"语义"两种模式间切换。
 
-![RAG 架构图](/images/trade_copier/rag-web-demo.png)
+![RAG 架构图](/images/viewpoint_miner/rag-web-demo.png)
 
 
 切换模式后，如果搜索框里有内容，会立刻以新模式重新搜索。两种搜索的体验差异非常大：
@@ -479,7 +479,7 @@ SSE 事件类型：
 
 ### 前端：SSE 流式对话 + 引用溯源
 
-![RAG Chat demo](/images/trade_copier/rag-ai-demo.png)
+![RAG Chat demo](/images/viewpoint_miner/rag-ai-demo.png)
 
 **Chat 面板**：新增"AI 对话"Tab，包含消息区域、输入框、发送按钮和快捷建议。
 

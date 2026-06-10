@@ -1,7 +1,7 @@
 +++
 date = '2026-05-18T10:00:00+08:00'
 draft = false
-title = '从零到 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
+title = '构建炒股 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++
@@ -10,7 +10,7 @@ series = ['viewpoint_miner']
 
 但我运气不错，在爱股票 App 里扒到了一个宝藏博主，他每天发操作帖，虽然盈亏自负，但很适合我。
 
-![爱股票操作记录](/images/trade_copier/aigupiao.png)
+![爱股票操作记录](/images/viewpoint_miner/aigupiao.png)
 
 一段时间后，我感觉这位博主发的帖子太多了，毕竟我不可能每个票都买；虽然我只关注了他，但针对某个票查看对应的操作记录还是不太方便，便萌生了做一个小工具的念头：自动把他的帖子抓下来，按股票整理好。想看哪只票，点一下就行。
 
@@ -26,29 +26,29 @@ series = ['viewpoint_miner']
 
 左侧是股票列表侧边栏，点了哪只股票就显示对应的内容：
 
-![股票列表侧边栏](/images/trade_copier/screenshot-stocks-list.png)
+![股票列表侧边栏](/images/viewpoint_miner/screenshot-stocks-list.png)
 
 点击进入某只股票后，提供两种视图：
 
 **卡片视图** — 把每条观点像微博一样列出来，有交易动作的卡片右上角会标红：
 
-![卡片视图](/images/trade_copier/screenshot-card-view.png)
+![卡片视图](/images/viewpoint_miner/screenshot-card-view.png)
 
 **时间线视图** — 是从观点里提取出来的，以建仓日为基准横着排操作序列，包括做了什么动作、多少钱，一目了然：
 
-![时间线视图](/images/trade_copier/screenshot-timeline-view.png)
+![时间线视图](/images/viewpoint_miner/screenshot-timeline-view.png)
 
 ### 作者详情页
 
 作者列表边上有个同步按钮，点一下就从爱股票拉最新数据，这是最原始的数据。
 
-![作者列表侧边栏](/images/trade_copier/screenshot-authors-list.png)
+![作者列表侧边栏](/images/viewpoint_miner/screenshot-authors-list.png)
 
 ---
 
 ## 怎么从爱股票抓数据
 
-![数据管道架构图](/images/trade_copier/data-pipeline.svg)
+![数据管道架构图](/images/viewpoint_miner/data-pipeline.svg)
 
 ### 两个 API 端点
 

@@ -8,7 +8,9 @@ tags = ['Golang']
 
 学 Go 的时候知道 Go 语言支持并发，最简单的方法是通过 go 关键字开启 goroutine 即可。可在工作中，用的是 sync 包的 WaitGroup，然而这样还不够，当多个 goroutine 同时访问一个变量时，还要考虑如何保证这些 goroutine 之间不会相互影响，这就又使用到了 sync 的 Mutex。
 
-#### 一、Goroutinue
+<!--more-->
+
+## 一、Goroutinue
 先说 goroutine，我们都知道它是 Go 中的轻量级线程。Go 程序从 main 包的 main() 函数开始，在程序启动时，Go 程序就会为 main() 函数创建一个默认的 goroutine。使用 goroutine，使用关键字 go 即可。
 ```go
 package main
@@ -41,7 +43,7 @@ func running() {
 ```
 再次执行代码，终端输出了我们想要的“Goroutine”字符串。
 
-#### 二、WaitGroup
+## 二、WaitGroup
 上面我们是假设了 running 函数执行需要 2 秒，可如果执行需要 10 秒甚至更长时间，不知道 goroutin 什么时候结束，难道还要 main 函数 sleep 更多的秒数吗？就不能让 running 函数执行完去通知 main 函数，main 函数收到信号自动退出吗？还真可以！可以使用 sync 包的 Waitgroup 判断一组任务是否完成。
 
 WatiGroup 能够一直等到所有的 goroutine 执行完成，并且阻塞主线程的执行，直到所有的 goroutine 执行完成。它有 3 个方法：
@@ -127,7 +129,7 @@ All goroutines finished executing
 fatal error: all goroutines are asleep - deadlock!
 ```
 
-#### 三、锁
+## 三、锁
 当多个 goroutine 同时操作一个变量时，会存在数据竞争，导致最后的结果与期待的不符，解决办法就是加锁。Go 中的 sync 包 实现了两种锁：Mutex 和 RWMutex，前者为互斥锁，后者为读写锁，基于 Mutex 实现。当我们的场景是写操作为主时，可以使用 Mutex 来加锁、解锁。
 ```go
 var lock sync.Mutex //声明一个互斥锁

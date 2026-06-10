@@ -10,12 +10,12 @@ Go 中的 map 是一种内置的数据结构，它实现了哈希表的特性，
 map 的相关部分可以在源码下的 `runtime/map.go` 文件中查看，以下源代码基于 go1.23.3 版本，有删减。
 
 <!--more-->
-### 一、map 的底层结构
+## 一、map 的底层结构
 
 Go 中的 `map` 在内存中主要涉及的结构有`hmap`和`bmap`。  
 每个 map 的底层结构是`hmap`，是有若干个结构为`bmap`的bucket组成的数组。每个bucket底层都采用链表结构。
 
-#### 1.1 hmap 结构体
+### 1.1 hmap 结构体
 
 它是 `map` 的核心结构体，包含了 map 的元数据和指向底层数据的指针。`hmap` 结构体中包含的字段有：
 
@@ -43,7 +43,7 @@ type mapextra struct {
 }
 ```
 
-#### 1.2 bmap结构体
+### 1.2 bmap结构体
 
 `bmap` 是 map 的底层数据结构之一，通常被称为桶（bucket）。每个 `bmap` 结构体可以存储最多 8 个键值对。以下是 `bmap` 结构体的主要组成部分：
 
@@ -71,11 +71,11 @@ const (
 见下图，hmap和bmap的结构是这样的 ：
 ![map底层结构](/map-substructure.png "map底层结构")
 
-### 二、map 的扩容机制
+## 二、map 的扩容机制
 
 map 扩容的函数是 `hashGrow` ，当 `map` 中的元素数量增加到一定程度，超过了负载因子（load factor），或者存在太多的溢出桶（overflow buckets）时，就会触发扩容操作。下面是对这段代码的逐行分析：
 
-#### 2.1 函数签名
+### 2.1 函数签名
 
 ```go
 func hashGrow(t *maptype, h *hmap)
@@ -85,7 +85,7 @@ func hashGrow(t *maptype, h *hmap)
 * `t` 是指向 `maptype` 的指针，它包含了 `map` 的类型信息；
 * `h` 是指向 `hmap` 的指针，它包含了 `map` 的实际数据和元数据。
 
-#### 2.2 扩容判断
+### 2.2 扩容判断
 
 ```go
 bigger := uint8(1)
@@ -99,7 +99,7 @@ if !overLoadFactor(h.count+1, h.B) {
 
 通过调用 `overLoadFactor` 函数检查是否需要扩容。如果不需要（即元素数量没有超过负载因子），则将 `bigger` 设置为 0，表示桶的数量不变，同时设置 `sameSizeGrow` 标志，表示进行的是横向扩展（即桶的数量不变，但需要重新分配空间以减少溢出桶的数量）。
 
-#### 2.3 旧桶数组
+### 2.3 旧桶数组
 
 ```go
 oldbuckets := h.buckets
@@ -107,7 +107,7 @@ oldbuckets := h.buckets
 
 保存当前的桶数组，以便在扩容过程中使用。
 
-#### 2.4 新桶数组
+### 2.4 新桶数组
 
 ```go
 newbuckets, nextOverflow := makeBucketArray(t, h.B+bigger, nil)
@@ -115,7 +115,7 @@ newbuckets, nextOverflow := makeBucketArray(t, h.B+bigger, nil)
 
 调用 `makeBucketArray` 函数创建一个新的桶数组。新桶数组的大小为 `2^(h.B+bigger)`，即根据 `bigger` 的值决定是翻倍还是保持不变。
 
-#### 2.5 更新标志和元数据
+### 2.5 更新标志和元数据
 
 ```go
 flags := h.flags &^ (iterator | oldIterator)
@@ -135,7 +135,7 @@ h.noverflow = 0
 
 更新 `hmap` 的元数据，包括桶的数量 `B`，桶数组 `buckets`，旧桶数组 `oldbuckets`，以及重置疏散计数器 `nevacuate` 和溢出桶计数器 `noverflow`。
 
-#### 2.6 处理溢出桶
+### 2.6 处理溢出桶
 
 ```go
 if h.extra != nil && h.extra.overflow != nil {
@@ -158,7 +158,7 @@ if nextOverflow != nil {
 
 如果在创建新桶数组时产生了新的溢出桶，将其保存在`h.extra.nextOverflow` 中。
 
-#### 2.7 增量疏散
+### 2.7 增量疏散
 
 ```go
 // the actual copying of the hash table data is done incrementally
@@ -167,7 +167,7 @@ if nextOverflow != nil {
 
 最后两行是注释，说明了实际的数据复制（即从旧桶数组到新桶数组的键值对迁移）是通过 `growWork` 和 `evacuate` 函数增量完成的。这是为了避免在扩容过程中对 `map` 的性能产生太大影响。
 
-#### 2.8 扩容小结
+### 2.8 扩容小结
 
 当 map 中的键值对数量达到一定阈值时，Go 会进行扩容操作，以避免哈希表过于拥挤，导致性能下降。扩容的具体机制如下：
 

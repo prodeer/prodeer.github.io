@@ -29,8 +29,8 @@ go version go1.17.5 darwin/amd64
 `uintptr` 是 `golang` 的内置类型，能存储指针的整型，其底层类型是 `int`，可以和 `unsafe.Pointer` 相互转换。
 
 
-### 一、结构体
-#### 1.1 state1 数组的组成
+## 一、结构体
+### 1.1 state1 数组的组成
 ```go
 type WaitGroup struct {
     // 表示 `WaitGroup` 是不可复制的，只能用指针传递，保证全局唯一。
@@ -45,7 +45,7 @@ type WaitGroup struct {
 * **waiter**：通过 `Wait()` 陷入阻塞的 `waiter` 数。
 * **sema**：信号量。
 
-#### 1.2 state 和 sema 的位置
+### 1.2 state 和 sema 的位置
 实际上，`counter` 和 `waiter` 合在一起，当成一个 64 位的整数来使用，所以 `state1` 数组又可以看成由 `*unit64` 的 `state` 和 `*unit32` 的 `sema` 组成，即：
 ```
 state1 = state + sema，
@@ -76,7 +76,7 @@ func (wg *WaitGroup) state() (statep *uint64, semap *uint32) {
 
 当我们初始化一个 `waitGroup` 对象时，其 `counter` 值、`waiter` 值、`sema` 值均为 0。
 
-#### 1.3 为什么这么设计 state1 数组
+### 1.3 为什么这么设计 state1 数组
 
 为什么要把 `counter` 和 `waiter` 当成一个整体来设计？这是因为对 `state` 使用了 `atomic.64` 的操作，如：
 
@@ -94,7 +94,7 @@ if atomic.CompareAndSwapUint64(statep, state, state+1) {}
 
 要保证 `state` 的 64 位的原子性，就要保证数据是**一次读入内存**的，而要保证这种一次性，就要保证 `state` 是 64 位对齐的。
 
-### 二、Add()函数
+## 二、Add()函数
 利用64位的原子加，给 `counter` 加 `delta`（`delta`可能为负），当 `counter` 变零，通过信号量唤醒等待的 `goroutine`。这里将 `Add()` 分成几步来分析：
 
 * **step 1**：获取 `counter`、`waiter`、和 `sema` 对应的指针，并将 `delta` 加到 `counter` 上。
@@ -162,7 +162,7 @@ if *statep != state {
 如果执行到这里，一定是负 `delta` 的操作，`counter=0，waiter>0` 说明已经完成任务，没有活跃的 `goroutine` 了，需要释放信号量。将状态全部归 0，并释放所有阻塞的 `waiter`。
 
 
-### 三、Wait()函数
+## 三、Wait()函数
 执行 `Wait()` 函数的主 `goroutine` 会将 `waiter` 值加 1，并阻塞等待该值为 0，才能继续执行后续代码。
 
 ``` go
@@ -195,7 +195,7 @@ func (wg *WaitGroup) Wait() {
 }
 ```
 
-### 四、竞争分析
+## 四、竞争分析
 
 在 `Add()` 和 `Wait()` 中，对 `state` 数据的操作都存在数据竞争：
 
@@ -231,7 +231,7 @@ if *statep != state {
 }
 ``` 
 
-### 五、实例分析
+## 五、实例分析
 ```go
 func main() {
     var wg sync.WaitGroup...............①

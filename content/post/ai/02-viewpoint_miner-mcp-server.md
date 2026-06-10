@@ -1,7 +1,7 @@
 +++
 date = '2026-05-19T10:00:00+08:00'
 draft = false
-title = '从零到 Agent（二）：MCP Server —— 让 LLM 直接调用你的数据系统'
+title = '构建炒股 Agent（二）：MCP Server —— 让 LLM 直接调用你的数据系统'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++
@@ -20,7 +20,7 @@ series = ['viewpoint_miner']
 
 这是我想搭成的最终架构：
 
-![agent 架构图](/images/trade_copier/agent-architecture.png)
+![agent 架构图](/images/viewpoint_miner/agent-architecture.png)
 
 上面是整体架构图，下面逐层拆解怎么落地。
 
@@ -64,7 +64,7 @@ REST API 和 MCP 工具看起来很像——都是"请求-响应"，都有参数
 
 下面这张图展示了完整的架构：
 
-![MCP 工具分层架构](/images/trade_copier/mcp-tool-hierarchy.svg)
+![MCP 工具分层架构](/images/viewpoint_miner/mcp-tool-hierarchy.svg)
 
 整体分为 6 层，从底向上依次是：
 
@@ -163,7 +163,7 @@ REST API 和 MCP 工具看起来很像——都是"请求-响应"，都有参数
 
 下面这张图展示了 LLM 的决策路径：
 
-![LLM 决策路径](/images/trade_copier/llm-select-tool.png)
+![LLM 决策路径](/images/viewpoint_miner/llm-select-tool.png)
 
 具体来说，LLM 的决策逻辑是这样的：
 
@@ -186,7 +186,7 @@ REST API 和 MCP 工具看起来很像——都是"请求-响应"，都有参数
 
 MCP Server 本身只是一个 JSON-RPC 进程，由于我 vibecoding 用的是 Workbuddy，所以这里介绍怎么集成到 WorkBuddy里。
 
-![MCP 协议交互流程](/images/trade_copier/mcp-protocol-flow.svg)
+![MCP 协议交互流程](/images/viewpoint_miner/mcp-protocol-flow.svg)
 
 WorkBuddy 通过 `~/.workbuddy/mcp.json` 发现它，配置本身很简单：
 
