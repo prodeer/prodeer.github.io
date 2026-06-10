@@ -12,8 +12,14 @@ Hey，我是一只野鹿呀。
 
 与世界交手的第N年，愿你我依旧保持热爱与勇气，仍兴味盎然，不畏岁月漫长。
 
-### 技术栈
-- 语言：熟悉 Golang、PHP，了解 Java、Python
-- 中间件：MySQL、Redis、RabbitMQ、RocketMQ、Kafka、ES
-- 云原生：K8s、Docker
-- 系统：高并发、问题排查、性能优化
+---
+
+## 技术栈
+**语言**：精通 Golang，熟练使用Java、Python、PHP，具备大型分布式系统开发经验  
+**框架**：熟练使用 Gin、Go-zero、Go-Kit、Phalcon 等框架，精通常用设计模式  
+**分布式**：具备高并发、高可用系统设计经验，熟练使用MQ、Kafka、ES等中间件  
+**数据库**：精通 MySQL 索引优化 / 事务 / 锁机制；Redis 底层数据结构与缓存设计  
+**云原生**：掌握 Docker 容器化、Kubernetes 部署与运维  
+**大模型**：精通 LLM 原理与工程化落地；具备 Agent 系统设计与开发经验；掌握 RAG、Prompt Engineering、Embedding；熟悉工具调用、Memory 机制、流程规划与执行；可使用 Go/Python 独立完成 Agent 模块开发与落地  
+**数据工程**：熟悉仓库设计、ETL 开发、实时 / 离线数据处理  
+**基础能力**：熟练掌握常用数据结构和算法，熟悉Linux开发环境和常用命令  
