@@ -1,7 +1,7 @@
 +++
 date = '2026-05-21T10:00:00+08:00'
 draft = false
-title = '构建炒股 Agent（三）：Skills —— 把工具链变成 AI 的专业技能'
+title = '从股票观点系统到 Agent 应用（三）：Skills 与工作流编排'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++

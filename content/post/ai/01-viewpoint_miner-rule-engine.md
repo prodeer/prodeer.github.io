@@ -1,7 +1,7 @@
 +++
 date = '2026-05-18T10:00:00+08:00'
 draft = false
-title = '构建炒股 Agent（一）：从投资观点到交易信号 —— 构建一个 NLU 规则引擎'
+title = '从股票观点系统到 Agent 应用（一）：规则引擎与任务边界'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++

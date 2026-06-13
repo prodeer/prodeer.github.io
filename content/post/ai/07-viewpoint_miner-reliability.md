@@ -1,7 +1,7 @@
 +++
 date = '2026-06-13T20:30:00+08:00'
 draft = false
-title = '构建炒股 Agent（七）：可靠性 —— Grounding、权限、循环检测与降级'
+title = '从股票观点系统到 Agent 应用（七）：Grounding、权限、循环与降级'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++

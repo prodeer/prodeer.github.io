@@ -1,7 +1,7 @@
 +++
 date = '2026-05-24T10:00:00+08:00'
 draft = false
-title = '构建炒股 Agent（四）：本地 RAG —— 从语义检索到带来源回答'
+title = '从股票观点系统到 Agent 应用（四）：本地 RAG 与语义检索'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++

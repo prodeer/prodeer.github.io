@@ -1,7 +1,7 @@
 +++
 date = '2026-05-19T10:00:00+08:00'
 draft = false
-title = '构建炒股 Agent（二）：MCP Server —— 把数据系统变成 Agent 工具'
+title = '从股票观点系统到 Agent 应用（二）：MCP Server 与工具设计'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++

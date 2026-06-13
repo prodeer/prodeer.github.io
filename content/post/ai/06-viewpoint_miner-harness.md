@@ -1,7 +1,7 @@
 +++
 date = '2026-06-01T10:20:00+08:00'
 draft = false
-title = '构建炒股 Agent（六）：Harness —— 定时任务、护栏与可靠自动化'
+title = '从股票观点系统到 Agent 应用（六）：Harness 与可靠自动化'
 categories = ['AI 大模型']
 series = ['viewpoint_miner']
 +++
