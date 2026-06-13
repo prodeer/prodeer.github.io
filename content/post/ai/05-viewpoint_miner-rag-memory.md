@@ -3,6 +3,7 @@ date = '2026-05-28T10:00:00+08:00'
 draft = false
 title = '从股票观点系统到 Agent 应用（五）：Context Engineering 与记忆'
 categories = ['AI 大模型']
+tags = ['Agent', 'RAG', 'Memory', 'Context Engineering']
 series = ['viewpoint_miner']
 +++
 

@@ -3,6 +3,7 @@ date = '2026-06-13T20:30:00+08:00'
 draft = false
 title = '从股票观点系统到 Agent 应用（七）：Grounding、权限、循环与降级'
 categories = ['AI 大模型']
+tags = ['Agent', 'Grounding', '安全']
 series = ['viewpoint_miner']
 +++
 

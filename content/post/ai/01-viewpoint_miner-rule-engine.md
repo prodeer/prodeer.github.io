@@ -3,6 +3,7 @@ date = '2026-05-18T10:00:00+08:00'
 draft = false
 title = '从股票观点系统到 Agent 应用（一）：规则引擎与任务边界'
 categories = ['AI 大模型']
+tags = ['Agent', '规则引擎']
 series = ['viewpoint_miner']
 +++
 

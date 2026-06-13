@@ -3,6 +3,7 @@ date = '2026-06-01T10:20:00+08:00'
 draft = false
 title = '从股票观点系统到 Agent 应用（六）：Harness 与可靠自动化'
 categories = ['AI 大模型']
+tags = ['Agent', 'Harness']
 series = ['viewpoint_miner']
 +++
 

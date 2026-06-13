@@ -3,6 +3,7 @@ date = '2026-05-21T10:00:00+08:00'
 draft = false
 title = '从股票观点系统到 Agent 应用（三）：Skills 与工作流编排'
 categories = ['AI 大模型']
+tags = ['Agent', 'Skills']
 series = ['viewpoint_miner']
 +++
 
