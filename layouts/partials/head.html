@@ -4,9 +4,21 @@
 
     {{- /* Meta */}}
     <meta charset="utf-8">
-    <meta name="description" content="Ladder@{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
-    {{- .Summary | default (printf "%s - %s" .Title  site.Title) }}{{- else }}
-    {{- with site.Params.description }}{{ . }}{{- end }}{{- end }}{{- end -}}">
+    {{- $description := "" -}}
+    {{- with .Description -}}
+        {{- $description = . -}}
+    {{- else -}}
+        {{- if or $.IsPage $.IsSection -}}
+            {{- $description = $.Summary | plainify | htmlUnescape -}}
+        {{- else -}}
+            {{- $description = site.Params.description -}}
+        {{- end -}}
+    {{- end -}}
+    {{- $description = $description | strings.TrimSpace | replaceRE `\s+` " " -}}
+    {{- if not $description -}}
+        {{- $description = printf "%s - %s" .Title site.Title -}}
+    {{- end -}}
+    <meta name="description" content="Ladder@{{ $description }}">
     <meta name="author" content="{{ site.Params.author }}">
     <link rel="canonical" href="{{ if .Params.canonicalURL -}} {{ trim .Params.canonicalURL " " }} {{- else -}} {{ .Permalink }} {{- end }}">
     {{- if site.Params.analytics.google.SiteVerificationTag }}
