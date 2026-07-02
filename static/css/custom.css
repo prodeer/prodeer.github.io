@@ -7,3 +7,183 @@
         width: 28rem;
     }
 }
+
+/* ============================================================
+   统一页面宽度 / 视觉对齐
+   顶部导航、首页、文章列表等其他页面，max-width 都与文章一致（80rem），
+   但导航的 padding 是 2rem、博客容器是 1.5rem，
+   导致同一 max-width 下，导航的"内容"看起来比文章更窄、整体更宽。
+   解决：把导航 padding 改为 1.5rem，让 HOME / 菜单 / 文章标题三者左右对齐。
+   ============================================================ */
+.navigation {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+/* ============================================================
+   文章左右布局：正文（左） + 侧边 TOC（右，sticky）
+   关键：正文宽度保持不变（原 .blog-single 内容区宽），
+        TOC 在右侧"额外"开辟空间，不挤占正文。
+   做法：有目录时把外层容器拓宽（原宽 + TOC宽 + 间距），
+        正文锁定原宽度，TOC 占新增区域。
+   ============================================================ */
+
+/* 有左右布局时，TOC 占右侧外溢区，正文左边界保持与导航 80rem 居中位置一致。
+   关键：不能 .blog-single 整体拓宽然后 margin:auto 居中（那会整体右移），
+   正确做法是 .blog-single 仍 80rem 居中（与导航对齐），
+   blog-layout 用 margin-left:负值 让 TOC 溢出到 80rem 之外的右侧空间。 */
+.blog-single:has(.blog-layout) {
+    max-width: 80rem;     /* 与导航、其他页面保持一致 */
+    overflow: visible;    /* 允许 TOC 溢出到容器外 */
+}
+
+.blog-layout {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 2.5rem;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+    /* 关键：左侧负 margin 让 .blog-layout 起点与容器左边缘对齐（拉回到 80rem 起点），
+       右侧正 margin 预留 15rem+2.5rem 让 TOC 有地方落脚。
+       等价于：布局水平占位 = 77rem(正文) + 2.5rem(gap) + 15rem(TOC) = 94.5rem */
+    margin-left: -1.5rem;     /* 抵消 .blog-single 的 padding-left 1.5rem */
+    margin-right: calc(-1.5rem - 15rem - 2.5rem);  /* 溢出右侧 */
+    width: calc(100% + 1.5rem + 1.5rem + 15rem + 2.5rem);
+}
+
+/* 正文区：锁定原 .blog-single 内容区宽度（80rem - 3rem padding = 77rem），
+   不被 TOC 挤占。flex:0 0 auto 让它按自身宽度占位，不伸缩。 */
+.blog-layout .blog-content--main {
+    flex: 0 0 auto;
+    width: calc(80rem - 3rem);
+    max-width: 100%;    /* 窄屏安全兜底 */
+    min-width: 0;       /* 防止图片/代码块撑爆 flex 容器 */
+    order: 1;
+}
+
+/* 侧边 TOC：固定宽度 + 跟随滚动，占据拓宽出来的右侧区域 */
+.blog-layout .blog-toc--side {
+    flex: 0 0 15rem;
+    width: 15rem;
+    position: sticky;
+    top: 4rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    order: 2;
+    padding-left: 1.25rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.875rem;
+}
+
+/* “目录”标题 */
+.blog-layout .blog-toc--side::before {
+    content: "目录";
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(0, 0, 0, 0.4);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+/* 覆盖主题原 .blog-single .blog-toc 的顶部布局样式 */
+.blog-layout .blog-toc--side nav#TableOfContents > ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+}
+.blog-layout .blog-toc--side li {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none !important;
+}
+.blog-layout .blog-toc--side li ul {
+    padding-left: 0.85rem;
+    list-style: none;
+}
+.blog-layout .blog-toc--side li ul li {
+    padding-left: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+.blog-layout .blog-toc--side a {
+    display: block;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    padding: 0.22rem 0;
+    color: rgba(0, 0, 0, 0.5);
+    box-shadow: none;          /* 去掉正文链接的下划线样式 */
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.blog-layout .blog-toc--side a:hover {
+    color: rgba(0, 0, 0, 0.92);
+    text-decoration: none;
+    box-shadow: none;
+}
+
+/* 滚动条美化（可选） */
+.blog-layout .blog-toc--side::-webkit-scrollbar {
+    width: 4px;
+}
+.blog-layout .blog-toc--side::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+}
+
+/* ---------- 响应式：窄屏回退为上下布局（TOC 折叠到顶部） ---------- */
+@media (max-width: 1024px) {
+    /* 窄屏恢复原布局（无溢出） */
+    .blog-single:has(.blog-layout) {
+        max-width: 80rem;
+        overflow: visible;
+    }
+    .blog-layout {
+        flex-direction: column;
+        gap: 1.25rem;
+        margin-left: 0;
+        margin-right: 0;
+        width: auto;
+    }
+    /* 正文回退为自动宽度，跟随容器 */
+    .blog-layout .blog-content--main {
+        order: 2;
+        width: auto;
+        max-width: 100%;
+    }
+    .blog-layout .blog-toc--side {
+        position: static;
+        width: 100%;
+        flex: none;
+        max-height: none;
+        order: 1;
+        padding-left: 0;
+        border-left: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding-bottom: 1rem;
+        overflow: visible;
+    }
+}
+
+/* ---------- 暗色模式适配 ---------- */
+[data-dark-mode] body .blog-layout .blog-toc--side {
+    border-left-color: rgba(255, 255, 255, 0.12);
+}
+[data-dark-mode] body .blog-layout .blog-toc--side::before {
+    color: rgba(255, 255, 255, 0.45);
+}
+[data-dark-mode] body .blog-layout .blog-toc--side a {
+    color: rgba(255, 255, 255, 0.5);
+}
+[data-dark-mode] body .blog-layout .blog-toc--side a:hover {
+    color: rgba(255, 255, 255, 0.92);
+}
+[data-dark-mode] body .blog-layout .blog-toc--side::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+}
+@media (max-width: 1024px) {
+    [data-dark-mode] body .blog-layout .blog-toc--side {
+        border-bottom-color: rgba(255, 255, 255, 0.12);
+    }
+}
