@@ -1,0 +1,18 @@
+{{ define "content" }}
+<article class="about-page">
+  <header class="about-header">
+    <div class="about-header__intro">
+      <h1>{{ .Title }}</h1>
+      <p>{{ site.Params.authorDescription }}</p>
+    </div>
+
+    {{ with site.Params.avatarURL }}
+    <img class="about-header__avatar" src="{{ . | relURL }}" alt="{{ site.Params.author }}" width="112" height="112">
+    {{ end }}
+  </header>
+
+  <div class="about-content">
+    {{ .Content }}
+  </div>
+</article>
+{{ end }}

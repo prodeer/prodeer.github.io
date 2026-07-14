@@ -38,7 +38,7 @@ flowchart TD
 
 这也是为什么关键限制不能只写在 Prompt 里。Prompt 可以解释原因和期望，Middleware 才能在运行时执行一致的判断。
 
-## 我的结论
+## 我的想法
 
 我现在更愿意把 Agent 约束分成两层：
 
@@ -54,6 +54,3 @@ Middleware：保证系统“实际允许怎样做”
 - `backend/packages/harness/deerflow/agents/lead_agent/prompt.py`
 - `backend/packages/harness/deerflow/agents/middlewares/dynamic_context_middleware.py`
 - `backend/packages/harness/deerflow/agents/lead_agent/agent.py`
-
-上一篇：[追一遍请求，我看懂了 DeerFlow 的运行主线]({{< relref "01-deer-flow-runtime-mainline.md" >}})  
-下一篇：[DeerFlow 怎样控制工具带来的上下文膨胀]({{< relref "03-deer-flow-tools-extension.md" >}})

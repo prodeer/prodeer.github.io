@@ -43,7 +43,7 @@ flowchart LR
 
 如果把所有特殊情况都堆进一个工厂，支持的模型越多，公共路径反而越难理解。
 
-## 我的结论
+## 我的想法
 
 配置层不应该假装所有模型完全相同。它应该统一用户真正需要配置的部分，同时允许协议差异停留在边界适配器中。
 
@@ -55,6 +55,3 @@ flowchart LR
 - `backend/packages/harness/deerflow/config/extensions_config.py`
 - `backend/packages/harness/deerflow/models/factory.py`
 - `backend/packages/harness/deerflow/models/assistant_payload_replay.py`
-
-上一篇：[DeerFlow 把哪些信息留到了下一次运行]({{< relref "06-deer-flow-memory-persistence.md" >}})  
-下一篇：[聊天窗口背后，前端如何翻译 Agent 运行状态]({{< relref "08-deer-flow-frontend-runtime.md" >}})

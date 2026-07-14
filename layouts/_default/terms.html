@@ -1,0 +1,27 @@
+{{ define "content" }}
+{{ $heading := "标签" }}
+{{ if eq .Type "series" }}
+  {{ $heading = "系列" }}
+{{ end }}
+<section class="directory-page" aria-labelledby="directory-title">
+  <header class="directory-page__header">
+    <h1 id="directory-title">{{ $heading }}</h1>
+  </header>
+
+  <ul class="tag-directory">
+    {{ $type := .Type }}
+    {{ range .Data.Terms.Alphabetical }}
+    {{ $name := .Name }}
+    {{ $count := .Count }}
+    {{ with site.GetPage (printf "/%s/%s" $type $name) }}
+    <li>
+      <a href="{{ .RelPermalink }}">
+        <span>{{ if eq $type "tags" }}#{{ end }}{{ .LinkTitle }}</span>
+        <small>{{ $count }}</small>
+      </a>
+    </li>
+    {{ end }}
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

@@ -1,0 +1,50 @@
+{{- $paginator := .paginator -}}
+<section class="post-index" aria-labelledby="post-index-title">
+  <header class="post-index__header">
+    <h1 id="post-index-title">{{ .title }}</h1>
+  </header>
+
+  <div class="post-list">
+    {{ range $paginator.Pages }}
+    {{ $page := . }}
+    {{ $summary := .Summary | plainify | htmlUnescape | strings.TrimSpace | replaceRE `\s+` " " }}
+    <article class="post-entry">
+      <div class="post-entry__date">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+        <span>{{ .ReadingTime }} 分钟</span>
+      </div>
+
+      <div class="post-entry__body">
+        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        {{ with $summary }}
+        <p class="post-entry__summary">{{ . | truncate 170 }}</p>
+        {{ end }}
+
+        {{ with .GetTerms "tags" }}
+        <nav class="post-entry__tags" aria-label="{{ $page.Title }} 标签">
+          {{ range first 3 . }}
+          <a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+          {{ end }}
+        </nav>
+        {{ end }}
+      </div>
+    </article>
+    {{ end }}
+  </div>
+
+  {{ if gt $paginator.TotalPages 1 }}
+  <nav class="list-pagination" aria-label="文章分页">
+    <div>
+      {{ with $paginator.Prev }}
+      <a rel="prev" href="{{ .URL }}">&larr;&nbsp;上一页</a>
+      {{ end }}
+    </div>
+    <span>{{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>
+    <div>
+      {{ with $paginator.Next }}
+      <a rel="next" href="{{ .URL }}">下一页&nbsp;&rarr;</a>
+      {{ end }}
+    </div>
+  </nav>
+  {{ end }}
+</section>

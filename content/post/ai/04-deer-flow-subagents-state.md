@@ -45,7 +45,7 @@ sequenceDiagram
 
 这让我重新理解了 Agent State：它不是内存里的字典，而是一份并发写入协议。
 
-## 我的结论
+## 我的想法
 
 引入子 Agent 前，应该先设计结果如何回流、失败如何表示、状态如何幂等合并。并发数反而是后面的参数。
 
@@ -56,6 +56,3 @@ DeerFlow 把这些问题放进执行器、状态契约和 reducer，而不是让
 - `backend/packages/harness/deerflow/subagents/executor.py`
 - `backend/packages/harness/deerflow/tools/builtins/task_tool.py`
 - `backend/packages/harness/deerflow/agents/thread_state.py`
-
-上一篇：[DeerFlow 怎样控制工具带来的上下文膨胀]({{< relref "03-deer-flow-tools-extension.md" >}})  
-下一篇：[本地 Sandbox 到底保护了什么]({{< relref "05-deer-flow-sandbox-boundaries.md" >}})

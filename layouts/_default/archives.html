@@ -1,0 +1,30 @@
+{{ define "content" }}
+{{ $pages := where site.RegularPages "Section" "post" }}
+<section class="directory-page archive-page" aria-labelledby="directory-title">
+  <header class="directory-page__header">
+    <h1 id="directory-title">归档</h1>
+  </header>
+
+  <div class="archive-groups">
+    {{ range $pages.GroupByPublishDate "2006" }}
+    {{ if ne .Key "0001" }}
+    <section class="archive-group">
+      <header class="archive-group__header">
+        <h2>{{ .Key }}</h2>
+        <span>{{ len .Pages }} 篇</span>
+      </header>
+
+      <div class="archive-list">
+        {{ range .Pages }}
+        <a class="archive-row" href="{{ .RelPermalink }}">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "01.02" }}</time>
+          <span>{{ .Title }}</span>
+        </a>
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+    {{ end }}
+  </div>
+</section>
+{{ end }}

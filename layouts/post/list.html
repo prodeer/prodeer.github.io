@@ -1,0 +1,4 @@
+{{ define "content" }}
+{{ $paginator := .Paginate .RegularPagesRecursive }}
+{{ partial "post-list.html" (dict "paginator" $paginator "title" "全部文章") }}
+{{ end }}

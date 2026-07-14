@@ -10,6 +10,21 @@ mermaid = true
 
 刚开始读 DeerFlow 时，我一直在找“Agent 的主循环”到底写在哪。后来发现，这个问题本身就有偏差：DeerFlow 的核心不是某个巨大的循环，而是把一次请求变成一套配置明确、状态可恢复的运行实例。
 
+## 什么情况下值得考虑 DeerFlow
+
+  如果需求只是一次模型调用、简单问答，或者绑定两三个工具完成短流程，直接使用模型 SDK 或轻量 Agent 框架通常更合适。DeerFlow 的价值不在于让模型“能调用工具”，而在于管理一套需要长期运行的 Agent 系统。
+
+  当你的场景同时出现下面几类问题时，可以考虑 DeerFlow：
+
+  - Web、IM、定时任务等多个入口需要复用同一套运行逻辑；
+  - 任务需要工具、Skill、MCP、子 Agent 或文件执行能力；
+  - 对话需要中断恢复、长期记忆和跨线程状态；
+  - 工具执行需要权限控制、Sandbox 和危险操作治理；
+  - 运行过程需要流式展示、追踪、取消和产物交付；
+  - 不同用户、模型和运行模式需要动态装配不同能力。
+
+  换句话说，只有“让模型做点事”时，DeerFlow 可能太重；当问题变成“怎样可靠地运行、约束和运营 Agent”时，它才开始体现价值。
+
 ## 我追的不是函数，而是一次 Run
 
 Web、IM Channel 和定时任务的入口并不相同，但它们最终都要进入 Gateway 管理的 Run 生命周期。Run 建立身份和线程上下文，然后才轮到 Lead Agent 根据当次配置装配模型、工具、Prompt、中间件和 `ThreadState`。
@@ -48,7 +63,7 @@ flowchart LR
 
 它比统计项目里有多少 Agent、多少中间件更不容易过时。
 
-## 我的结论
+## 我的想法
 
 DeerFlow 给我的第一个启发，是把“调用模型”与“运营一次 Agent 运行”分开。模型循环只解决下一步做什么；Harness 还要解决能力从哪里来、动作是否允许、状态能否恢复，以及外部系统如何理解这次运行。
 
@@ -59,5 +74,3 @@ DeerFlow 给我的第一个启发，是把“调用模型”与“运营一次 A
 - `backend/app/gateway/`
 - `backend/packages/harness/deerflow/agents/lead_agent/agent.py`
 - `backend/packages/harness/deerflow/agents/factory.py`
-
-下一篇：[我从 Prompt 和中间件学到的两层约束]({{< relref "02-deer-flow-prompt-middleware.md" >}})
