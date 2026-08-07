@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#e9ecef"/>
+    </linearGradient>
+    <linearGradient id="passGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#00a381"/>
+    </linearGradient>
+    <linearGradient id="rejectGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e17055"/>
+      <stop offset="100%" stop-color="#d63031"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="720" fill="url(#bg)" rx="10"/>
+
+  <!-- Title -->
+  <text x="400" y="38" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="20" fill="#2c3e50">护栏决策树：checkGuardrails()</text>
+  <text x="400" y="58" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#636e72">四道关卡，短路求值 — 任一道不通过即拒绝，不继续后续检查</text>
+
+  <!-- Check 1: Quiet Time -->
+  <rect x="240" y="84" width="320" height="54" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="108" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">第 1 关：静默时段检查</text>
+  <text x="400" y="127" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">isQuietTime(22:00, 07:00) → 跨午夜时间算法</text>
+
+  <!-- Pass 1 -->
+  <line x1="400" y1="138" x2="400" y2="162" stroke="#00b894" stroke-width="2"/>
+  <text x="412" y="155" font-family="system-ui,sans-serif" font-size="10" fill="#00a381">✓ 非静默时段</text>
+
+  <!-- Reject 1 -->
+  <line x1="560" y1="111" x2="640" y2="111" stroke="#d63031" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <rect x="645" y="97" width="130" height="28" rx="5" fill="url(#rejectGrad)"/>
+  <text x="710" y="116" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#fff">✕ 静默中拒绝</text>
+
+  <!-- Check 2: Daily Limit -->
+  <rect x="240" y="166" width="320" height="54" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="190" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">第 2 关：每日频率限制</text>
+  <text x="400" y="209" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">withinDailyLimit(channel, maxPerDay) → COUNT today</text>
+
+  <line x1="400" y1="220" x2="400" y2="244" stroke="#00b894" stroke-width="2"/>
+  <text x="412" y="237" font-family="system-ui,sans-serif" font-size="10" fill="#00a381">✓ 未超限</text>
+
+  <rect x="645" y="179" width="130" height="28" rx="5" fill="url(#rejectGrad)"/>
+  <text x="710" y="198" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#fff">✕ 已达上限</text>
+  <line x1="560" y1="193" x2="640" y2="193" stroke="#d63031" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Check 3: Confidence -->
+  <rect x="240" y="248" width="320" height="54" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="272" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">第 3 关：置信度阈值</text>
+  <text x="400" y="291" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">confidence ≥ minConfidence (默认 0.6)</text>
+
+  <line x1="400" y1="302" x2="400" y2="326" stroke="#00b894" stroke-width="2"/>
+  <text x="412" y="319" font-family="system-ui,sans-serif" font-size="10" fill="#00a381">✓ 置信度达标</text>
+
+  <rect x="645" y="261" width="130" height="28" rx="5" fill="url(#rejectGrad)"/>
+  <text x="710" y="280" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#fff">✕ 置信度低</text>
+  <line x1="560" y1="275" x2="640" y2="275" stroke="#d63031" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Check 4: Cooldown -->
+  <rect x="240" y="330" width="320" height="54" rx="8" fill="#fff" stroke="#dfe6e9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="354" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="13" fill="#2c3e50">第 4 关：冷却期检查</text>
+  <text x="400" y="373" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#636e72">pastCooldown(stockId, action, 60min) → 同股同向查重</text>
+
+  <line x1="400" y1="384" x2="400" y2="410" stroke="#00b894" stroke-width="2"/>
+  <text x="412" y="402" font-family="system-ui,sans-serif" font-size="10" fill="#00a381">✓ 已过冷却期</text>
+
+  <rect x="645" y="343" width="130" height="28" rx="5" fill="url(#rejectGrad)"/>
+  <text x="710" y="362" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#fff">✕ 冷却期中</text>
+  <line x1="560" y1="357" x2="640" y2="357" stroke="#d63031" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Arrow to PASS -->
+  <line x1="400" y1="410" x2="400" y2="445" stroke="#00b894" stroke-width="2.5"/>
+  <polygon points="394,441 400,451 406,441" fill="#00b894"/>
+
+  <!-- PASS Box -->
+  <rect x="260" y="453" width="280" height="50" rx="10" fill="url(#passGrad)" filter="url(#shadow)"/>
+  <text x="400" y="478" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="16" fill="#fff">✅ 通过 — 允许推送</text>
+  <text x="400" y="497" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="rgba(255,255,255,0.8)">checkGuardrails → { allowed: true }</text>
+
+  <!-- ----- DIVIDER ----- -->
+  <line x1="80" y1="530" x2="720" y2="530" stroke="#dfe6e9" stroke-width="1"/>
+  <text x="400" y="555" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="13" fill="#636e72">📝 设计决策</text>
+
+  <!-- Design decision cards -->
+  <rect x="40" y="570" width="345" height="68" rx="8" fill="#fff" stroke="#b2bec3" stroke-width="1"/>
+  <text x="212" y="592" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#2c3e50">⚡ 短路求值 (Short-circuit)</text>
+  <text x="212" y="610" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">静默时段检查在最前，凌晨全部拦截</text>
+  <text x="212" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">只查 DB 的位置靠后（频率限制→冷却期）</text>
+
+  <rect x="415" y="570" width="345" height="68" rx="8" fill="#fff" stroke="#b2bec3" stroke-width="1"/>
+  <text x="587" y="592" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#2c3e50">🎛️ 配置分层</text>
+  <text x="587" y="610" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">默认值内嵌代码（22:00~07:00, 3条/天, 0.6, 60min）</text>
+  <text x="587" y="626" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">可覆盖：notification_preferences 表·渠道级配置</text>
+
+  <rect x="40" y="650" width="345" height="52" rx="8" fill="#fff" stroke="#b2bec3" stroke-width="1"/>
+  <text x="212" y="672" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#2c3e50">📊 状态记录</text>
+  <text x="212" y="690" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">成功/失败/护栏拒绝 全部写入 notification_log</text>
+
+  <rect x="415" y="650" width="345" height="52" rx="8" fill="#fff" stroke="#b2bec3" stroke-width="1"/>
+  <text x="587" y="672" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="600" font-size="11" fill="#2c3e50">📨 内容中不暴露规则</text>
+  <text x="587" y="690" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#636e72">允许/拒绝由护栏裁决，通知只送"允许的"结果</text>
+</svg>

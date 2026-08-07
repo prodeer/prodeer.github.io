@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1240" role="img" aria-labelledby="title desc">
+  <title id="title">EvidenceGraph 可审计技术选型 Agent 分层架构</title>
+  <desc id="desc">展示专用 Agent 入口、多 Agent 研究图、确定性控制层、Evidence MCP、状态与产物层，以及从输入到五个审计产物的完整流程。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .band { stroke-width: 1.5; }
+      .layer-no { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .layer-title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .layer-sub { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .node-blue { fill: #eff6ff; stroke: #93b4e8; }
+      .node-green { fill: #ecfdf5; stroke: #8bc8b2; }
+      .node-amber { fill: #fff7ed; stroke: #e9bd85; }
+      .node-purple { fill: #faf5ff; stroke: #cdb2df; }
+      .node-title { font: 700 15px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .node-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .edge { fill: none; stroke: #667085; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-blue { fill: none; stroke: #2563eb; stroke-width: 2.2; marker-end: url(#arrow-blue); }
+      .edge-green { fill: none; stroke: #047857; stroke-width: 2.2; marker-end: url(#arrow-green); }
+      .edge-dashed { fill: none; stroke: #667085; stroke-width: 2; stroke-dasharray: 8 7; marker-end: url(#arrow); }
+      .edge-label { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
+      .chip-text { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+      .legend { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1240"/>
+  <text class="title" x="48" y="52">EvidenceGraph：可审计技术选型 Agent</text>
+  <text class="subtitle" x="48" y="82">来源 → 原文摘录 → Claim → 核验结论 → 技术建议</text>
+
+  <rect class="band" x="40" y="112" width="1520" height="154" rx="8" fill="#f2f7ff" stroke="#c8d8f0"/>
+  <rect x="40" y="112" width="184" height="154" rx="8" fill="#e5efff"/>
+  <rect x="216" y="112" width="8" height="154" fill="#e5efff"/>
+
+  <rect class="band" x="40" y="284" width="1520" height="288" rx="8" fill="#f3faf7" stroke="#bfd8ce"/>
+  <rect x="40" y="284" width="184" height="288" rx="8" fill="#e4f4ed"/>
+  <rect x="216" y="284" width="8" height="288" fill="#e4f4ed"/>
+
+  <rect class="band" x="40" y="590" width="1520" height="180" rx="8" fill="#fffaf3" stroke="#efd4b4"/>
+  <rect x="40" y="590" width="184" height="180" rx="8" fill="#fff0dc"/>
+  <rect x="216" y="590" width="8" height="180" fill="#fff0dc"/>
+
+  <rect class="band" x="40" y="788" width="1520" height="180" rx="8" fill="#fbf8fd" stroke="#dac9e6"/>
+  <rect x="40" y="788" width="184" height="180" rx="8" fill="#f2eafa"/>
+  <rect x="216" y="788" width="8" height="180" fill="#f2eafa"/>
+
+  <rect class="band" x="40" y="986" width="1520" height="190" rx="8" fill="#f5f7fa" stroke="#cdd5df"/>
+  <rect x="40" y="986" width="184" height="190" rx="8" fill="#e9edf3"/>
+  <rect x="216" y="986" width="8" height="190" fill="#e9edf3"/>
+
+  <g>
+    <rect x="64" y="138" width="38" height="28" rx="6" fill="#2563eb"/>
+    <text class="layer-no" x="83" y="158" text-anchor="middle" fill="#ffffff">01</text>
+    <text class="layer-title" x="64" y="198">专用 Agent 入口</text>
+    <text class="layer-sub" x="64" y="222">独立 Factory</text>
+    <text class="layer-sub" x="64" y="242">复用 DeerFlow Runtime</text>
+  </g>
+  <g>
+    <rect x="64" y="312" width="38" height="28" rx="6" fill="#047857"/>
+    <text class="layer-no" x="83" y="332" text-anchor="middle" fill="#ffffff">02</text>
+    <text class="layer-title" x="64" y="372">多 Agent 研究图</text>
+    <text class="layer-sub" x="64" y="396">LLM 负责语义工作</text>
+    <text class="layer-sub" x="64" y="416">Send 并行研究与核验</text>
+  </g>
+  <g>
+    <rect x="64" y="618" width="38" height="28" rx="6" fill="#c2410c"/>
+    <text class="layer-no" x="83" y="638" text-anchor="middle" fill="#ffffff">03</text>
+    <text class="layer-title" x="64" y="678">确定性控制层</text>
+    <text class="layer-sub" x="64" y="702">校验 · 分级 · 路由</text>
+    <text class="layer-sub" x="64" y="722">不让模型自证正确</text>
+  </g>
+  <g>
+    <rect x="64" y="816" width="38" height="28" rx="6" fill="#7e22ce"/>
+    <text class="layer-no" x="83" y="836" text-anchor="middle" fill="#ffffff">04</text>
+    <text class="layer-title" x="64" y="876">Evidence MCP</text>
+    <text class="layer-sub" x="64" y="900">发现 · 抓取 · 规范化</text>
+    <text class="layer-sub" x="64" y="920">缓存与网络安全</text>
+  </g>
+  <g>
+    <rect x="64" y="1014" width="38" height="28" rx="6" fill="#475467"/>
+    <text class="layer-no" x="83" y="1034" text-anchor="middle" fill="#ffffff">05</text>
+    <text class="layer-title" x="64" y="1074">状态与产物层</text>
+    <text class="layer-sub" x="64" y="1098">Checkpoint 可恢复</text>
+    <text class="layer-sub" x="64" y="1118">Manifest 最后提交</text>
+  </g>
+
+  <rect class="node" x="276" y="151" width="190" height="78" rx="8"/>
+  <text class="node-title" x="371" y="183" text-anchor="middle">用户 / Gateway</text>
+  <text class="node-text" x="371" y="207" text-anchor="middle">输入 · Run · SSE · Artifact</text>
+  <path class="edge-blue" d="M 466 190 L 536 190"/>
+  <rect class="node node-blue" x="538" y="143" width="270" height="94" rx="8"/>
+  <text class="node-title mono" x="673" y="177" text-anchor="middle">evidence-auditor</text>
+  <text class="node-text" x="673" y="201" text-anchor="middle">独立 LangGraph Factory</text>
+  <text class="node-text" x="673" y="221" text-anchor="middle">不进入默认 Lead Agent 链</text>
+  <path class="edge-blue" d="M 808 190 L 878 190"/>
+  <rect class="node" x="880" y="143" width="300" height="94" rx="8"/>
+  <text class="node-title" x="1030" y="177" text-anchor="middle">DeerFlow Runtime</text>
+  <text class="node-text" x="1030" y="201" text-anchor="middle">Thread · Checkpointer · Sandbox</text>
+  <text class="node-text" x="1030" y="221" text-anchor="middle">MCP Cache · Stream · Insights</text>
+  <path class="edge-blue" d="M 1180 190 L 1250 190"/>
+  <rect class="node node-blue" x="1252" y="151" width="248" height="78" rx="8"/>
+  <text class="node-title" x="1376" y="183" text-anchor="middle">Typed State</text>
+  <text class="node-text" x="1376" y="207" text-anchor="middle">稳定 ID Reducer · 有界上下文</text>
+
+  <path class="edge-green" d="M 673 237 L 673 318"/>
+  <rect class="node node-green" x="270" y="342" width="160" height="74" rx="8"/>
+  <text class="node-title" x="350" y="372" text-anchor="middle">Planner</text>
+  <text class="node-text" x="350" y="395" text-anchor="middle">研究计划</text>
+  <path class="edge-green" d="M 430 379 L 492 379"/>
+  <rect class="node node-green" x="494" y="326" width="205" height="106" rx="8"/>
+  <text class="node-title" x="596" y="357" text-anchor="middle">Researcher × 3-5</text>
+  <text class="node-text" x="596" y="381" text-anchor="middle">Send 并行分支</text>
+  <text class="node-text" x="596" y="402" text-anchor="middle">搜索 · 获取 · 读取</text>
+  <text class="node-text" x="596" y="420" text-anchor="middle">有界 Tool Trace</text>
+  <path class="edge-green" d="M 699 379 L 754 379"/>
+  <rect class="node node-green" x="756" y="342" width="190" height="74" rx="8"/>
+  <text class="node-title" x="851" y="372" text-anchor="middle">Claim Extractor</text>
+  <text class="node-text" x="851" y="395" text-anchor="middle">Claim · Link · Conflict</text>
+  <path class="edge-green" d="M 946 379 L 1001 379"/>
+  <rect class="node node-green" x="1003" y="326" width="205" height="106" rx="8"/>
+  <text class="node-title" x="1105" y="357" text-anchor="middle">Verifier × batches</text>
+  <text class="node-text" x="1105" y="381" text-anchor="middle">Send 并行核验</text>
+  <text class="node-text" x="1105" y="402" text-anchor="middle">支持 · 限定 · 冲突</text>
+  <text class="node-text" x="1105" y="420" text-anchor="middle">不增加新事实</text>
+  <path class="edge-green" d="M 1208 379 L 1263 379"/>
+  <rect class="node node-green" x="1265" y="342" width="190" height="74" rx="8"/>
+  <text class="node-title" x="1360" y="372" text-anchor="middle">Writer</text>
+  <text class="node-text" x="1360" y="395" text-anchor="middle">只使用已核验 Claim</text>
+
+  <path class="edge-dashed" d="M 596 432 L 596 470 L 851 470 L 851 416"/>
+  <text class="edge-label" x="635" y="462">来源规范化与去重</text>
+  <path class="edge-dashed" d="M 1102 521 L 1470 521 L 1470 458 L 1360 458 L 1360 416"/>
+  <text class="edge-label" x="1190" y="513">人工决策后继续</text>
+  <rect class="node node-amber" x="742" y="492" width="360" height="58" rx="8"/>
+  <text class="node-title" x="922" y="518" text-anchor="middle">可选 Human Review</text>
+  <text class="node-text" x="922" y="538" text-anchor="middle">发布不确定性 · 排除争议 · 定向研究 · 取消</text>
+
+  <path class="edge" d="M 1105 432 L 1105 600 L 909 600 L 909 634"/>
+  <text class="edge-label" x="1118" y="574">核验结果</text>
+  <rect class="node node-amber" x="270" y="634" width="230" height="92" rx="8"/>
+  <text class="node-title" x="385" y="666" text-anchor="middle">Pydantic 契约</text>
+  <text class="node-text" x="385" y="690" text-anchor="middle">外键完整性 · Schema 版本</text>
+  <text class="node-text" x="385" y="711" text-anchor="middle">非法结构直接拒绝</text>
+  <rect class="node node-amber" x="532" y="634" width="230" height="92" rx="8"/>
+  <text class="node-title" x="647" y="666" text-anchor="middle">引用控制器</text>
+  <text class="node-text" x="647" y="690" text-anchor="middle">ID 消歧 · 丢弃悬空引用</text>
+  <text class="node-text" x="647" y="711" text-anchor="middle">无 Link 则降级 unsupported</text>
+  <rect class="node node-amber" x="794" y="634" width="230" height="92" rx="8"/>
+  <text class="node-title" x="909" y="666" text-anchor="middle">A-D 质量门禁</text>
+  <text class="node-text" x="909" y="690" text-anchor="middle">覆盖率 · 权威来源 · 冲突</text>
+  <text class="node-text" x="909" y="711" text-anchor="middle">确定性分级与路由</text>
+  <path class="edge-dashed" d="M 909 634 L 909 550"/>
+  <text class="edge-label" x="921" y="590">未达阈值</text>
+  <path class="edge-dashed" d="M 1024 726 L 1024 748 L 1530 748 L 1530 448 L 1370 448 L 1370 416"/>
+  <text class="edge-label" x="1288" y="742">达标则直接写作</text>
+  <rect class="node node-amber" x="1056" y="634" width="230" height="92" rx="8"/>
+  <text class="node-title" x="1171" y="666" text-anchor="middle">预算与恢复策略</text>
+  <text class="node-text" x="1171" y="690" text-anchor="middle">调用 · Step · Review 上限</text>
+  <text class="node-text" x="1171" y="711" text-anchor="middle">Checkpoint-only 续跑</text>
+  <rect class="node node-amber" x="1318" y="634" width="190" height="92" rx="8"/>
+  <text class="node-title" x="1413" y="666" text-anchor="middle">原子发布</text>
+  <text class="node-text" x="1413" y="690" text-anchor="middle">Manifest 最后写入</text>
+  <text class="node-text" x="1413" y="711" text-anchor="middle">Artifact 一起暴露</text>
+
+  <path class="edge-dashed" d="M 596 432 L 596 824"/>
+  <rect class="node node-purple" x="294" y="832" width="245" height="92" rx="8"/>
+  <text class="node-title mono" x="416" y="864" text-anchor="middle">search_sources</text>
+  <text class="node-text" x="416" y="889" text-anchor="middle">候选来源发现</text>
+  <text class="node-text" x="416" y="910" text-anchor="middle">Fixture / DDGS / GitHub / OpenAlex</text>
+  <path class="edge" d="M 539 878 L 641 878"/>
+  <rect class="node node-purple" x="643" y="832" width="245" height="92" rx="8"/>
+  <text class="node-title mono" x="765" y="864" text-anchor="middle">fetch_source</text>
+  <text class="node-text" x="765" y="889" text-anchor="middle">公开 URL 安全抓取</text>
+  <text class="node-text" x="765" y="910" text-anchor="middle">重定向 · 超时 · 大小 · MIME</text>
+  <path class="edge" d="M 888 878 L 990 878"/>
+  <rect class="node node-purple" x="992" y="832" width="245" height="92" rx="8"/>
+  <text class="node-title mono" x="1114" y="864" text-anchor="middle">read_source</text>
+  <text class="node-text" x="1114" y="889" text-anchor="middle">按偏移读取规范化正文</text>
+  <text class="node-text" x="1114" y="910" text-anchor="middle">精确引文与 Locator</text>
+  <path class="edge" d="M 1237 878 L 1300 878"/>
+  <rect class="node node-purple" x="1302" y="832" width="206" height="92" rx="8"/>
+  <text class="node-title" x="1405" y="864" text-anchor="middle">Content Cache</text>
+  <text class="node-text" x="1405" y="889" text-anchor="middle">Canonical URL</text>
+  <text class="node-text" x="1405" y="910" text-anchor="middle">SHA-256 · Cache Ref</text>
+
+  <path class="edge" d="M 1413 726 L 1413 1018"/>
+  <rect class="node" x="270" y="1032" width="220" height="96" rx="8"/>
+  <text class="node-title" x="380" y="1065" text-anchor="middle">Checkpoint</text>
+  <text class="node-text" x="380" y="1090" text-anchor="middle">Typed State · 有界摘录</text>
+  <text class="node-text" x="380" y="1111" text-anchor="middle">新 Run 从断点恢复</text>
+  <rect class="node" x="522" y="1032" width="176" height="96" rx="8"/>
+  <text class="node-title mono" x="610" y="1065" text-anchor="middle">report.md</text>
+  <text class="node-text" x="610" y="1090" text-anchor="middle">推荐 · 比较</text>
+  <text class="node-text" x="610" y="1111" text-anchor="middle">风险 · 边界</text>
+  <rect class="node" x="716" y="1032" width="190" height="96" rx="8"/>
+  <text class="node-title mono" x="811" y="1065" text-anchor="middle">claim-ledger</text>
+  <text class="node-text" x="811" y="1090" text-anchor="middle">Claim · 重要程度</text>
+  <text class="node-text" x="811" y="1111" text-anchor="middle">核验状态</text>
+  <rect class="node" x="924" y="1032" width="190" height="96" rx="8"/>
+  <text class="node-title mono" x="1019" y="1065" text-anchor="middle">evidence-bundle</text>
+  <text class="node-text" x="1019" y="1090" text-anchor="middle">来源 · 引文</text>
+  <text class="node-text" x="1019" y="1111" text-anchor="middle">Locator · Hash</text>
+  <rect class="node" x="1132" y="1032" width="190" height="96" rx="8"/>
+  <text class="node-title mono" x="1227" y="1065" text-anchor="middle">conflict-matrix</text>
+  <text class="node-text" x="1227" y="1090" text-anchor="middle">冲突 · 严重度</text>
+  <text class="node-text" x="1227" y="1111" text-anchor="middle">处理结论</text>
+  <rect class="node node-blue" x="1340" y="1032" width="176" height="96" rx="8"/>
+  <text class="node-title mono" x="1428" y="1065" text-anchor="middle">run-manifest</text>
+  <text class="node-text" x="1428" y="1090" text-anchor="middle">运行与恢复元数据</text>
+  <text class="node-text" x="1428" y="1111" text-anchor="middle">Artifact Hash</text>
+
+  <line x1="280" y1="1207" x2="336" y2="1207" stroke="#047857" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+  <text class="legend" x="350" y="1211">LLM 专家处理语义任务</text>
+  <line x1="548" y1="1207" x2="604" y2="1207" stroke="#667085" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+  <text class="legend" x="618" y="1211">确定性校验、数据或恢复流</text>
+  <text class="legend" x="1510" y="1211" text-anchor="end">报告是视图，证据链才是可审计的产品</text>
+</svg>

@@ -1,0 +1,316 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1300" role="img" aria-labelledby="title desc">
+  <title id="title">marketing-strategy-planner 受治理营销策略规划分层架构</title>
+  <desc id="desc">展示专用 Agent 入口、受控上下文与专家、确定性控制层、人工审批闸门、状态与产物层，以及没有营销执行能力的 Marketing Hub MCP 外部权威。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e22ce"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .band { stroke-width: 1.5; }
+      .layer-no { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .layer-title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .layer-sub { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .node-blue { fill: #eff6ff; stroke: #93b4e8; }
+      .node-green { fill: #ecfdf5; stroke: #8bc8b2; }
+      .node-amber { fill: #fff7ed; stroke: #e9bd85; }
+      .node-purple { fill: #faf5ff; stroke: #cdb2df; }
+      .node-title { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .node-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .edge { fill: none; stroke: #667085; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-blue { fill: none; stroke: #2563eb; stroke-width: 2.2; marker-end: url(#arrow-blue); }
+      .edge-green { fill: none; stroke: #047857; stroke-width: 2.2; marker-end: url(#arrow-green); }
+      .edge-purple { fill: none; stroke: #7e22ce; stroke-width: 2.2; marker-end: url(#arrow-purple); }
+      .edge-dashed { fill: none; stroke: #667085; stroke-width: 2; stroke-dasharray: 8 7; marker-end: url(#arrow); }
+      .edge-dashed-purple { fill: none; stroke: #7e22ce; stroke-width: 2; stroke-dasharray: 8 7; marker-end: url(#arrow-purple); }
+      .edge-label { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
+      .chip-text { font: 500 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+      .legend { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .note { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #b42318; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1300"/>
+  <text class="title" x="48" y="52">marketing-strategy-planner：受治理营销策略规划</text>
+  <text class="subtitle" x="48" y="82">LLM 生成草案 → 确定性治理 → 人工审批 → 只登记，不执行</text>
+
+  <!-- ==================== 五层主带 ==================== -->
+  <rect class="band" x="40" y="112" width="1520" height="140" rx="8" fill="#f2f7ff" stroke="#c8d8f0"/>
+  <rect x="40" y="112" width="184" height="140" rx="8" fill="#e5efff"/>
+  <rect x="216" y="112" width="8" height="140" fill="#e5efff"/>
+
+  <rect class="band" x="40" y="270" width="1520" height="250" rx="8" fill="#f3faf7" stroke="#bfd8ce"/>
+  <rect x="40" y="270" width="184" height="250" rx="8" fill="#e4f4ed"/>
+  <rect x="216" y="270" width="8" height="250" fill="#e4f4ed"/>
+
+  <rect class="band" x="40" y="538" width="1520" height="250" rx="8" fill="#fffaf3" stroke="#efd4b4"/>
+  <rect x="40" y="538" width="184" height="250" rx="8" fill="#fff0dc"/>
+  <rect x="216" y="538" width="8" height="250" fill="#fff0dc"/>
+
+  <rect class="band" x="40" y="806" width="1520" height="230" rx="8" fill="#f5f7fa" stroke="#cdd5df"/>
+  <rect x="40" y="806" width="184" height="230" rx="8" fill="#e9edf3"/>
+  <rect x="216" y="806" width="8" height="230" fill="#e9edf3"/>
+
+  <rect class="band" x="40" y="1054" width="1520" height="170" rx="8" fill="#eef3fa" stroke="#c6d4e6"/>
+  <rect x="40" y="1054" width="184" height="170" rx="8" fill="#e0eaf6"/>
+  <rect x="216" y="1054" width="8" height="170" fill="#e0eaf6"/>
+
+  <!-- 右侧 Marketing Hub 面板背景 -->
+  <rect x="1240" y="270" width="320" height="766" rx="10" fill="#fbf8fd" stroke="#dac9e6" stroke-width="1.5"/>
+
+  <!-- 层名 -->
+  <g>
+    <rect x="64" y="138" width="38" height="28" rx="6" fill="#2563eb"/>
+    <text class="layer-no" x="83" y="158" text-anchor="middle" fill="#ffffff">01</text>
+    <text class="layer-title" x="64" y="196">专用 Agent 入口</text>
+    <text class="layer-sub" x="64" y="220">独立 Factory</text>
+    <text class="layer-sub" x="64" y="240">复用 DeerFlow Runtime</text>
+  </g>
+  <g>
+    <rect x="64" y="296" width="38" height="28" rx="6" fill="#047857"/>
+    <text class="layer-no" x="83" y="316" text-anchor="middle" fill="#ffffff">02</text>
+    <text class="layer-title" x="64" y="354">受控上下文与专家</text>
+    <text class="layer-sub" x="64" y="378">并行聚合受限数据</text>
+    <text class="layer-sub" x="64" y="398">planner / reviser 协作</text>
+  </g>
+  <g>
+    <rect x="64" y="564" width="38" height="28" rx="6" fill="#c2410c"/>
+    <text class="layer-no" x="83" y="584" text-anchor="middle" fill="#ffffff">03</text>
+    <text class="layer-title" x="64" y="622">确定性控制层</text>
+    <text class="layer-sub" x="64" y="646">校验 · 修订 · 仿真</text>
+    <text class="layer-sub" x="64" y="666">不让模型自证正确</text>
+  </g>
+  <g>
+    <rect x="64" y="832" width="38" height="28" rx="6" fill="#475467"/>
+    <text class="layer-no" x="83" y="852" text-anchor="middle" fill="#ffffff">04</text>
+    <text class="layer-title" x="64" y="890">人工审批闸门</text>
+    <text class="layer-sub" x="64" y="914">仿真通过仍是草案</text>
+    <text class="layer-sub" x="64" y="934">未确认不产生审批记录</text>
+  </g>
+  <g>
+    <rect x="64" y="1080" width="38" height="28" rx="6" fill="#1d4ed8"/>
+    <text class="layer-no" x="83" y="1100" text-anchor="middle" fill="#ffffff">05</text>
+    <text class="layer-title" x="64" y="1138">状态与产物层</text>
+    <text class="layer-sub" x="64" y="1162">五件产物可复查</text>
+    <text class="layer-sub" x="64" y="1182">Manifest 最后写入</text>
+  </g>
+
+  <!-- ==================== 跨层边（先于节点） ==================== -->
+  <path class="edge-dashed-purple" d="M 1240 310 L 500 310 L 500 316"/>
+  <text class="edge-label" x="740" y="300">Graph 确定性调用 MCP，向专家传递受控上下文</text>
+
+
+  <path class="edge-dashed" d="M 628 709 L 628 770 L 1146 770 L 1146 416"/>
+  <text class="edge-label" x="650" y="762">校验或仿真失败 → 修订（≤2 轮）</text>
+
+  <path class="edge-dashed" d="M 980 734 L 980 790 L 390 790 L 390 852"/>
+  <text class="edge-label" x="560" y="782">仿真通过 → 人工审批</text>
+
+  <path class="edge" d="M 530 679 L 590 679"/>
+  <path class="edge" d="M 658 679 L 822 679"/>
+  <text class="edge-label" x="700" y="670">通过 → simulate</text>
+
+  <path class="edge" d="M 890 420 L 890 470 L 380 470 L 380 618"/>
+  <text class="edge-label" x="560" y="462">StrategyDraft 进入校验</text>
+
+  <!-- ==================== 01 入口层 ==================== -->
+  <rect class="node" x="250" y="158" width="230" height="72" rx="8"/>
+  <text class="node-title" x="365" y="190" text-anchor="middle">用户 / Gateway</text>
+  <text class="node-text" x="365" y="212" text-anchor="middle">输入营销目标与预算</text>
+
+  <path class="edge-blue" d="M 480 194 L 520 194"/>
+
+  <rect class="node node-blue" x="520" y="150" width="250" height="86" rx="8"/>
+  <text class="node-title mono" x="645" y="184" text-anchor="middle">marketing-strategy-planner</text>
+  <text class="node-text" x="645" y="208" text-anchor="middle">独立 LangGraph Factory</text>
+  <text class="node-text" x="645" y="226" text-anchor="middle">不进入默认 Lead Agent 链</text>
+
+  <path class="edge-blue" d="M 770 194 L 810 194"/>
+
+  <rect class="node" x="810" y="158" width="300" height="72" rx="8"/>
+  <text class="node-title" x="960" y="190" text-anchor="middle">DeerFlow Runtime</text>
+  <text class="node-text" x="960" y="212" text-anchor="middle">Thread · Checkpointer · MCP Cache · Sandbox · SSE</text>
+
+  <!-- ==================== 02 上下文与专家层 ==================== -->
+  <rect class="node node-green" x="250" y="320" width="250" height="130" rx="8"/>
+  <text class="node-title" x="375" y="348" text-anchor="middle">context_bundle</text>
+  <text class="node-text" x="375" y="368" text-anchor="middle">asyncio.gather 并行聚合</text>
+  <rect class="chip" x="266" y="384" width="114" height="30" rx="6"/>
+  <text class="chip-text mono" x="323" y="404" text-anchor="middle">user_facts_schema</text>
+  <rect class="chip" x="390" y="384" width="96" height="30" rx="6"/>
+  <text class="chip-text mono" x="438" y="404" text-anchor="middle">metrics</text>
+  <rect class="chip" x="266" y="416" width="96" height="30" rx="6"/>
+  <text class="chip-text mono" x="314" y="436" text-anchor="middle">catalog</text>
+  <rect class="chip" x="390" y="416" width="96" height="30" rx="6"/>
+  <text class="chip-text mono" x="438" y="436" text-anchor="middle">limits</text>
+
+  <path class="edge-green" d="M 500 385 L 540 385"/>
+
+  <rect class="node node-green" x="540" y="312" width="240" height="108" rx="8"/>
+  <text class="node-title" x="660" y="340" text-anchor="middle">Planner 专家</text>
+  <text class="node-text" x="660" y="362" text-anchor="middle">仅一个提交工具</text>
+  <text class="node-text mono" x="660" y="382" text-anchor="middle" font-size="11">submit_marketing_planner_result</text>
+  <text class="node-text" x="660" y="402" text-anchor="middle">max_turns=12 · timeout 120s</text>
+
+  <path class="edge-green" d="M 780 385 L 800 385"/>
+
+  <rect class="node node-green" x="800" y="330" width="180" height="90" rx="8"/>
+  <text class="node-title mono" x="890" y="362" text-anchor="middle">StrategyDraft</text>
+  <text class="node-text" x="890" y="386" text-anchor="middle">强类型 Schema</text>
+  <text class="node-text" x="890" y="406" text-anchor="middle">extra=forbid</text>
+
+  <rect class="node node-green" x="1000" y="312" width="236" height="108" rx="8"/>
+  <text class="node-title" x="1118" y="340" text-anchor="middle">Reviser 专家</text>
+  <text class="node-text" x="1118" y="362" text-anchor="middle">修复校验 / 仿真错误</text>
+  <text class="node-text mono" x="1118" y="382" text-anchor="middle" font-size="11">submit_marketing_reviser_result</text>
+  <text class="node-text" x="1118" y="402" text-anchor="middle">不削弱任何安全控制</text>
+
+  <path class="edge-green" d="M 1000 366 L 982 366"/>
+
+  <!-- ==================== 03 确定性控制层 ==================== -->
+  <rect class="node node-amber" x="250" y="624" width="280" height="110" rx="8"/>
+  <text class="node-title" x="390" y="652" text-anchor="middle">确定性校验</text>
+  <text class="node-text mono" x="390" y="674" text-anchor="middle">validate_strategy_draft</text>
+  <text class="node-text" x="390" y="696" text-anchor="middle">模板 / 渠道 / 预算 / 频次 / 抑制路径</text>
+  <text class="node-text" x="390" y="716" text-anchor="middle">action_without_suppression</text>
+
+  <polygon points="598,679 628,649 658,679 628,709" fill="#ffffff" stroke="#e9bd85" stroke-width="1.5" filter="url(#shadow)"/>
+  <text class="node-text" x="628" y="683" text-anchor="middle">通过?</text>
+
+  <rect class="node node-amber" x="830" y="624" width="300" height="110" rx="8"/>
+  <text class="node-title" x="980" y="652" text-anchor="middle">确定性仿真</text>
+  <text class="node-text mono" x="980" y="674" text-anchor="middle">simulate_strategy</text>
+  <text class="node-text" x="980" y="696" text-anchor="middle">预算封顶动作数 · 成本 ≤ 预算</text>
+  <text class="node-text mono" x="980" y="716" text-anchor="middle">frequency_suppressed / budget_suppressed</text>
+
+  <!-- ==================== 04 人工审批层 ==================== -->
+  <rect class="node" x="250" y="852" width="280" height="96" rx="8"/>
+  <text class="node-title mono" x="390" y="880" text-anchor="middle">interrupt() 审批闸门</text>
+  <text class="node-text" x="390" y="902" text-anchor="middle">选项：submit_for_approval / cancel</text>
+  <text class="node-text" x="390" y="922" text-anchor="middle">risk=high · 默认拒绝 = cancel</text>
+
+  <path class="edge-blue" d="M 530 900 L 580 900"/>
+
+  <rect class="node node-blue" x="580" y="852" width="270" height="96" rx="8"/>
+  <text class="node-title mono" x="715" y="880" text-anchor="middle">submit_for_approval</text>
+  <text class="node-text" x="715" y="902" text-anchor="middle">再次确认合法后写入</text>
+  <text class="node-text" x="715" y="922" text-anchor="middle">哈希(requester + 规范化草案)，幂等</text>
+
+  <path class="edge" d="M 850 900 L 900 900"/>
+
+  <rect class="node" x="900" y="852" width="320" height="96" rx="8"/>
+  <text class="node-title" x="1060" y="880" text-anchor="middle">外部审批记录</text>
+  <text class="node-text mono" x="1060" y="902" text-anchor="middle">approval-submissions/ · pending_approval</text>
+  <text class="node-text mono" x="1060" y="922" text-anchor="middle">publication=null</text>
+
+  <path class="edge-dashed" d="M 390 948 L 390 984"/>
+  <text class="edge-label" x="404" y="974">cancel</text>
+  <rect class="node" x="250" y="990" width="240" height="38" rx="8"/>
+  <text class="node-text" x="370" y="1014" text-anchor="middle" fill="#b42318">cancel：取消，不产生审批记录</text>
+
+  <path class="edge" d="M 490 1009 L 620 1009"/>
+  <path class="edge" d="M 1060 948 L 1060 1009 L 850 1009"/>
+  <rect class="node node-blue" x="620" y="990" width="230" height="38" rx="8"/>
+  <text class="node-text mono" x="735" y="1014" text-anchor="middle">persist → final</text>
+  <path class="edge-blue" d="M 735 1028 L 735 1068"/>
+  <text class="edge-label" x="750" y="1050">两条分支都持久化</text>
+
+  <!-- ==================== 05 产物层 ==================== -->
+  <rect class="node" x="250" y="1086" width="176" height="100" rx="8"/>
+  <text class="node-title mono" x="338" y="1124" text-anchor="middle" font-size="12">strategy-report.md</text>
+  <text class="node-text" x="338" y="1148" text-anchor="middle">面向人的策略报告</text>
+  <text class="node-text" x="338" y="1170" text-anchor="middle">目标 · 人群 · 预算 · 理由</text>
+
+  <rect class="node" x="452" y="1086" width="176" height="100" rx="8"/>
+  <text class="node-title mono" x="540" y="1124" text-anchor="middle" font-size="12">strategy-draft.json</text>
+  <text class="node-text" x="540" y="1148" text-anchor="middle">结构化草案</text>
+  <text class="node-text" x="540" y="1170" text-anchor="middle">可被系统消费</text>
+
+  <rect class="node" x="654" y="1086" width="176" height="100" rx="8"/>
+  <text class="node-title mono" x="742" y="1124" text-anchor="middle" font-size="12">validation.json</text>
+  <text class="node-text" x="742" y="1148" text-anchor="middle">校验结果</text>
+  <text class="node-text" x="742" y="1170" text-anchor="middle">errors / warnings</text>
+
+  <rect class="node" x="856" y="1086" width="176" height="100" rx="8"/>
+  <text class="node-title mono" x="944" y="1124" text-anchor="middle" font-size="12">simulation.json</text>
+  <text class="node-text" x="944" y="1148" text-anchor="middle">仿真结果</text>
+  <text class="node-text" x="944" y="1170" text-anchor="middle">动作数 · 成本 · 抑制</text>
+
+  <rect class="node node-blue" x="1058" y="1086" width="176" height="100" rx="8"/>
+  <text class="node-title mono" x="1146" y="1124" text-anchor="middle" font-size="12">run-manifest.json</text>
+  <text class="node-text" x="1146" y="1148" text-anchor="middle">元数据 + 前四份产物 SHA-256</text>
+  <text class="node-text" x="1146" y="1170" text-anchor="middle">最后写入 = 完成标记</text>
+
+  <!-- ==================== Marketing Hub 面板 ==================== -->
+  <text class="node-title" x="1260" y="300">Marketing Hub MCP</text>
+  <text class="node-text mono" x="1260" y="324" font-size="12">deerflow-marketing-mcp</text>
+  <text class="node-text" x="1260" y="344" font-size="12">独立包 · 不 import DeerFlow</text>
+  <text class="node-text" x="1260" y="364" font-size="12">充当外部权威营销中台</text>
+
+  <line x1="1240" y1="378" x2="1560" y2="378" stroke="#dac9e6" stroke-width="1.5"/>
+  <text class="node-text" x="1260" y="398" font-size="12" fill="#344054">受控工具集（7 个）</text>
+
+  <rect class="chip" x="1248" y="410" width="152" height="32" rx="6"/>
+  <text class="chip-text mono" x="1324" y="431" text-anchor="middle" font-size="11">get_user_facts_schema</text>
+  <rect class="chip" x="1408" y="410" width="144" height="32" rx="6"/>
+  <text class="chip-text mono" x="1480" y="431" text-anchor="middle" font-size="11">query_segment_metrics</text>
+
+  <rect class="chip" x="1248" y="450" width="152" height="32" rx="6"/>
+  <text class="chip-text mono" x="1324" y="471" text-anchor="middle" font-size="11">get_action_catalog</text>
+  <rect class="chip" x="1408" y="450" width="144" height="32" rx="6"/>
+  <text class="chip-text mono" x="1480" y="471" text-anchor="middle" font-size="11">get_policy_limits</text>
+
+  <rect class="chip" x="1248" y="490" width="152" height="32" rx="6"/>
+  <text class="chip-text mono" x="1324" y="511" text-anchor="middle" font-size="11">validate_strategy_draft</text>
+  <rect class="chip" x="1408" y="490" width="144" height="32" rx="6"/>
+  <text class="chip-text mono" x="1480" y="511" text-anchor="middle" font-size="11">simulate_strategy</text>
+
+  <rect class="chip" x="1248" y="530" width="152" height="32" rx="6"/>
+  <text class="chip-text mono" x="1324" y="551" text-anchor="middle" font-size="11">submit_for_approval</text>
+
+  <line x1="1240" y1="580" x2="1560" y2="580" stroke="#dac9e6" stroke-width="1.5"/>
+
+  <text class="node-title" x="1260" y="608" fill="#b42318">没有营销执行能力</text>
+  <text class="note mono" x="1260" y="634" font-size="12">issue_coupon ? no</text>
+  <text class="note mono" x="1260" y="660" font-size="12">send_message ? no</text>
+  <text class="note mono" x="1260" y="686" font-size="12">publish_strategy ? no</text>
+  <path class="edge-dashed" d="M 1280 700 L 1280 730"/>
+
+  <text class="node-text" x="1260" y="756" font-size="12" fill="#344054">数据边界：</text>
+  <text class="node-text" x="1260" y="778" font-size="12">只返回人群级聚合指标</text>
+  <text class="node-text" x="1260" y="798" font-size="12">永不返回用户级数据行</text>
+  <text class="node-text" x="1260" y="818" font-size="12">字段与模板必须已备案</text>
+
+  <path class="edge-dashed" d="M 1280 832 L 1280 862"/>
+  <text class="node-text" x="1260" y="888" font-size="12" fill="#344054">调用与副作用边界：</text>
+  <text class="node-text" x="1260" y="910" font-size="12">Graph 调 MCP；LLM 不直接调用</text>
+  <text class="node-text" x="1260" y="930" font-size="12">Hub 提供受限事实与确定性裁决</text>
+  <text class="node-text" x="1260" y="950" font-size="12">唯一写操作：登记审批记录</text>
+
+  <!-- ==================== 图例 ==================== -->
+  <line x1="280" y1="1252" x2="336" y2="1252" stroke="#667085" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <text class="legend" x="350" y="1256">主流程</text>
+  <line x1="470" y1="1252" x2="526" y2="1252" stroke="#667085" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+  <text class="legend" x="540" y="1256">校验路由 / 修订回环 / 上下文流</text>
+  <line x1="720" y1="1252" x2="776" y2="1252" stroke="#7e22ce" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+  <text class="legend" x="790" y="1256">Marketing Hub 数据与裁决流</text>
+  <text class="legend" x="1512" y="1256" text-anchor="end">模型创作，系统校验，预算兜底，人最后放行</text>
+</svg>

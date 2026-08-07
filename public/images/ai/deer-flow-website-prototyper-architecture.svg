@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1180" role="img" aria-labelledby="title desc">
+  <title id="title">website-prototyper Gateway / Worker 四层架构</title>
+  <desc id="desc">展示 Agent 定义层、任务调度层、Worker 执行层、状态与恢复层，以及浏览器、Gateway、Worker、SQL、Redis、Checkpoint 和飞书之间的关系。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .band { stroke-width: 1.5; }
+      .layer-no { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .layer-title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .layer-sub { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .node-blue { fill: #eff6ff; stroke: #93b4e8; }
+      .node-green { fill: #ecfdf5; stroke: #8bc8b2; }
+      .node-amber { fill: #fff7ed; stroke: #e9bd85; }
+      .node-purple { fill: #faf5ff; stroke: #cdb2df; }
+      .node-title { font: 700 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .node-text { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .edge { fill: none; stroke: #667085; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-blue { fill: none; stroke: #2563eb; stroke-width: 2.2; marker-end: url(#arrow-blue); }
+      .edge-green { fill: none; stroke: #047857; stroke-width: 2.2; marker-end: url(#arrow-green); }
+      .edge-dashed { fill: none; stroke: #667085; stroke-width: 2; stroke-dasharray: 8 7; marker-end: url(#arrow); }
+      .edge-label { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .legend { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
+      .chip-text { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1180"/>
+
+  <text class="title" x="48" y="52">website-prototyper：Gateway / Worker 分层架构</text>
+  <text class="subtitle" x="48" y="82">模型负责创作，系统负责验收、调度和恢复</text>
+
+  <!-- Layer backgrounds -->
+  <rect class="band" x="40" y="112" width="1520" height="186" rx="8" fill="#f2f7ff" stroke="#c8d8f0"/>
+  <rect x="40" y="112" width="184" height="186" rx="8" fill="#e5efff"/>
+  <rect x="216" y="112" width="8" height="186" fill="#e5efff"/>
+
+  <rect class="band" x="40" y="316" width="1520" height="286" rx="8" fill="#fffaf3" stroke="#efd4b4"/>
+  <rect x="40" y="316" width="184" height="286" rx="8" fill="#fff0dc"/>
+  <rect x="216" y="316" width="8" height="286" fill="#fff0dc"/>
+
+  <rect class="band" x="40" y="620" width="1520" height="246" rx="8" fill="#f3faf7" stroke="#bfd8ce"/>
+  <rect x="40" y="620" width="184" height="246" rx="8" fill="#e4f4ed"/>
+  <rect x="216" y="620" width="8" height="246" fill="#e4f4ed"/>
+
+  <rect class="band" x="40" y="884" width="1520" height="236" rx="8" fill="#fbf8fd" stroke="#dac9e6"/>
+  <rect x="40" y="884" width="184" height="236" rx="8" fill="#f2eafa"/>
+  <rect x="216" y="884" width="8" height="236" fill="#f2eafa"/>
+
+  <!-- Layer labels -->
+  <g>
+    <rect x="64" y="144" width="38" height="28" rx="6" fill="#2563eb"/>
+    <text class="layer-no" x="83" y="164" text-anchor="middle" fill="#ffffff">01</text>
+    <text class="layer-title" x="64" y="204">Agent 定义层</text>
+    <text class="layer-sub" x="64" y="228">定义能力，不关心</text>
+    <text class="layer-sub" x="64" y="248">运行在哪个进程</text>
+  </g>
+  <g>
+    <rect x="64" y="348" width="38" height="28" rx="6" fill="#c2410c"/>
+    <text class="layer-no" x="83" y="368" text-anchor="middle" fill="#ffffff">02</text>
+    <text class="layer-title" x="64" y="408">任务调度层</text>
+    <text class="layer-sub" x="64" y="432">Gateway 控制面</text>
+    <text class="layer-sub" x="64" y="452">持久化后再唤醒</text>
+  </g>
+  <g>
+    <rect x="64" y="652" width="38" height="28" rx="6" fill="#047857"/>
+    <text class="layer-no" x="83" y="672" text-anchor="middle" fill="#ffffff">03</text>
+    <text class="layer-title" x="64" y="712">Worker 执行层</text>
+    <text class="layer-sub" x="64" y="736">独立领取长任务</text>
+    <text class="layer-sub" x="64" y="756">复用统一 Runtime</text>
+  </g>
+  <g>
+    <rect x="64" y="916" width="38" height="28" rx="6" fill="#7e22ce"/>
+    <text class="layer-no" x="83" y="936" text-anchor="middle" fill="#ffffff">04</text>
+    <text class="layer-title" x="64" y="976">状态与恢复层</text>
+    <text class="layer-sub" x="64" y="1000">状态可追踪</text>
+    <text class="layer-sub" x="64" y="1020">故障可恢复</text>
+  </g>
+
+  <!-- Cross-layer edges, drawn before nodes -->
+  <path class="edge-dashed" d="M 1450 256 L 1450 650 L 1355 650 L 1355 682"/>
+  <text class="edge-label" x="1462" y="326">加载同一份 Agent 定义</text>
+
+  <path class="edge-green" d="M 1290 554 L 1290 638 L 770 638 L 770 696"/>
+  <text class="edge-label" x="962" y="628">原子领取 + 租约</text>
+
+  <path class="edge-dashed" d="M 584 552 L 584 680 L 654 680 L 654 696"/>
+  <text class="edge-label" x="478" y="644">加速发现</text>
+
+  <path class="edge" d="M 1150 476 L 1150 674 L 1045 674 L 1045 696"/>
+  <text class="edge-label" x="1054" y="664">普通 Agent 内联执行</text>
+
+  <path class="edge-dashed" d="M 700 790 L 700 918 L 498 918 L 498 956"/>
+  <text class="edge-label" x="502" y="908">状态 · 所有权 · 租约 · 停止请求</text>
+
+  <path class="edge-dashed" d="M 408 956 L 408 824 L 730 824 L 730 790"/>
+  <text class="edge-label" x="430" y="814">SQL 兜底扫描 / 租约过期后重领同一 Run</text>
+
+  <path class="edge" d="M 990 790 L 990 930 L 770 930 L 770 956"/>
+  <text class="edge-label" x="794" y="920">写入执行状态与产物</text>
+  <path class="edge" d="M 1080 790 L 1080 956"/>
+  <text class="edge-label" x="1092" y="930">发布 SSE 事件</text>
+  <path class="edge" d="M 810 790 L 810 894 L 1373 894 L 1373 956"/>
+  <text class="edge-label" x="1182" y="884">里程碑 / 失败通知</text>
+  <path class="edge-dashed" d="M 730 956 L 730 844 L 840 844 L 840 790"/>
+  <text class="edge-label" x="744" y="834">Checkpoint 恢复</text>
+
+  <!-- Layer 1 nodes -->
+  <rect class="node node-blue" x="280" y="164" width="270" height="92" rx="8"/>
+  <text class="node-title mono" x="415" y="198" text-anchor="middle">website-prototyper</text>
+  <text class="node-text" x="415" y="224" text-anchor="middle">内置专用 Agent</text>
+
+  <path class="edge-blue" d="M 550 210 L 658 210"/>
+
+  <rect class="node" x="660" y="164" width="220" height="92" rx="8"/>
+  <text class="node-title" x="770" y="198" text-anchor="middle">Agent Factory</text>
+  <text class="node-text mono" x="770" y="224" text-anchor="middle">resolve_agent_factory()</text>
+
+  <path class="edge-blue" d="M 880 210 L 968 210"/>
+
+  <rect class="node" x="970" y="148" width="510" height="124" rx="8"/>
+  <text class="node-title" x="1225" y="178" text-anchor="middle">可组合的 Agent 能力</text>
+  <rect class="chip" x="996" y="198" width="98" height="38" rx="6"/>
+  <text class="chip-text" x="1045" y="222" text-anchor="middle">Prompt</text>
+  <rect class="chip" x="1106" y="198" width="118" height="38" rx="6"/>
+  <text class="chip-text" x="1165" y="222" text-anchor="middle">Website Skill</text>
+  <rect class="chip" x="1236" y="198" width="104" height="38" rx="6"/>
+  <text class="chip-text" x="1288" y="222" text-anchor="middle">Tools</text>
+  <rect class="chip" x="1352" y="198" width="102" height="38" rx="6"/>
+  <text class="chip-text" x="1403" y="222" text-anchor="middle">Middleware</text>
+
+  <!-- Layer 2 nodes and edges -->
+  <rect class="node" x="270" y="402" width="170" height="72" rx="8"/>
+  <text class="node-title" x="355" y="432" text-anchor="middle">浏览器 / API</text>
+  <text class="node-text" x="355" y="454" text-anchor="middle">提交 Agent Run</text>
+
+  <path class="edge-blue" d="M 440 438 L 498 438"/>
+
+  <rect class="node node-blue" x="500" y="394" width="230" height="88" rx="8"/>
+  <text class="node-title" x="615" y="428" text-anchor="middle">Gateway 控制面</text>
+  <text class="node-text" x="615" y="452" text-anchor="middle">鉴权 · 线程 · SSE · 停止接口</text>
+
+  <path class="edge-blue" d="M 730 438 L 770 438"/>
+
+  <polygon points="850,390 930,438 850,486 770,438" fill="#ffffff" stroke="#d0a16c" stroke-width="1.5" filter="url(#shadow)"/>
+  <text class="node-title" x="850" y="433" text-anchor="middle">Agent</text>
+  <text class="node-text" x="850" y="454" text-anchor="middle">名称路由</text>
+
+  <path class="edge" d="M 930 438 L 1040 438"/>
+  <text class="edge-label" x="952" y="424">其他 Agent</text>
+
+  <rect class="node" x="1040" y="400" width="220" height="76" rx="8"/>
+  <text class="node-title" x="1150" y="432" text-anchor="middle">Gateway 内执行</text>
+  <text class="node-text" x="1150" y="454" text-anchor="middle">保留原有内联模式</text>
+
+  <path class="edge-blue" d="M 850 486 L 850 516 L 1128 516"/>
+  <text class="edge-label mono" x="906" y="506">website-prototyper</text>
+
+  <rect class="node node-purple" x="1130" y="486" width="260" height="68" rx="8"/>
+  <text class="node-title" x="1260" y="516" text-anchor="middle">创建持久化 Run</text>
+  <text class="node-text" x="1260" y="538" text-anchor="middle">写入 SQL runs + 脱敏参数</text>
+
+  <path class="edge-dashed" d="M 615 482 L 615 516 L 584 516"/>
+  <text class="edge-label" x="458" y="506">最佳努力唤醒</text>
+
+  <rect class="node node-amber" x="464" y="516" width="240" height="72" rx="8"/>
+  <text class="node-title" x="584" y="546" text-anchor="middle">Redis 唤醒队列</text>
+  <text class="node-text" x="584" y="568" text-anchor="middle">只缩短发现时间，不是真源</text>
+
+  <!-- Layer 3 nodes and edges -->
+  <rect class="node node-green" x="650" y="696" width="240" height="94" rx="8"/>
+  <text class="node-title" x="770" y="730" text-anchor="middle">Agent Worker</text>
+  <text class="node-text" x="770" y="754" text-anchor="middle">领取 · 心跳 · 取消 · 重试</text>
+  <text class="node-text" x="770" y="774" text-anchor="middle">长任务与 Gateway 生命周期分离</text>
+
+  <path class="edge-green" d="M 890 743 L 928 743"/>
+
+  <rect class="node node-green" x="930" y="696" width="230" height="94" rx="8"/>
+  <text class="node-title mono" x="1045" y="732" text-anchor="middle">run_agent()</text>
+  <text class="node-text" x="1045" y="756" text-anchor="middle">统一执行协议</text>
+  <text class="node-text" x="1045" y="776" text-anchor="middle">Gateway / Worker 共用</text>
+
+  <path class="edge-green" d="M 1160 743 L 1208 743"/>
+
+  <rect class="node" x="1210" y="684" width="290" height="118" rx="8"/>
+  <text class="node-title" x="1355" y="716" text-anchor="middle">Agent Runtime</text>
+  <text class="node-text" x="1355" y="742" text-anchor="middle">LangGraph · LLM · Sandbox</text>
+  <text class="node-text" x="1355" y="764" text-anchor="middle">Playwright 验收 · ZIP 交付</text>
+  <text class="node-text" x="1355" y="786" text-anchor="middle">Manifest 驱动状态与截图检查</text>
+
+  <!-- Layer 4 nodes -->
+  <rect class="node node-purple" x="280" y="956" width="290" height="112" rx="8"/>
+  <text class="node-title" x="425" y="990" text-anchor="middle">SQL runs（状态真源）</text>
+  <text class="node-text" x="425" y="1016" text-anchor="middle">可靠任务源</text>
+  <text class="node-text" x="425" y="1038" text-anchor="middle">状态 · 所有权 · 租约 · 停止请求</text>
+  <text class="node-text" x="425" y="1060" text-anchor="middle">Worker 领取次数</text>
+
+  <rect class="node node-purple" x="620" y="956" width="300" height="112" rx="8"/>
+  <text class="node-title" x="770" y="990" text-anchor="middle">Checkpoint / Store</text>
+  <text class="node-text" x="770" y="1016" text-anchor="middle">LangGraph 恢复状态</text>
+  <text class="node-text" x="770" y="1038" text-anchor="middle">源码 · 截图 · 报告 · site.zip</text>
+  <text class="node-text mono" x="770" y="1060" text-anchor="middle">共享 DEER_FLOW_HOME</text>
+
+  <rect class="node node-amber" x="958" y="956" width="260" height="112" rx="8"/>
+  <text class="node-title" x="1088" y="990" text-anchor="middle">Redis StreamBridge</text>
+  <text class="node-text" x="1088" y="1016" text-anchor="middle">Worker → Gateway</text>
+  <text class="node-text" x="1088" y="1038" text-anchor="middle">跨进程 SSE 事件</text>
+
+  <rect class="node node-purple" x="1238" y="956" width="270" height="112" rx="8"/>
+  <text class="node-title" x="1373" y="990" text-anchor="middle">SQL Notification Outbox</text>
+  <text class="node-text" x="1373" y="1016" text-anchor="middle">Gateway 消费并投递飞书</text>
+  <text class="node-text" x="1373" y="1038" text-anchor="middle">发送失败可重试</text>
+
+  <!-- Legend -->
+  <line x1="280" y1="1150" x2="336" y2="1150" stroke="#667085" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <text class="legend" x="350" y="1154">可靠数据 / 执行流</text>
+  <line x1="515" y1="1150" x2="571" y2="1150" stroke="#667085" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+  <text class="legend" x="585" y="1154">唤醒 / 恢复 / 状态回写</text>
+  <text class="legend" x="1510" y="1154" text-anchor="end">SQL 是可靠任务源，Redis 只负责加速发现与跨进程事件</text>
+</svg>

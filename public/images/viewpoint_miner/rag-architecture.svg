@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 485" width="100%">
+  <title>RAG Architecture for viewpoint_miner</title>
+  <desc>Three-phase RAG evolution and internal data flow for the stock viewpoint analysis system</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- ========== Top: Three Phases ========== -->
+  <rect x="50" y="30" width="180" height="100" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="140" y="58" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">Phase 0: Embedding</text>
+  <text x="140" y="78" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">m3e-base embedding</text>
+  <text x="140" y="96" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">Brute-force search</text>
+  <text x="140" y="114" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#534AB7">MCP-only access</text>
+
+  <rect x="250" y="30" width="180" height="100" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="340" y="58" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">Phase 1: Web UI</text>
+  <text x="340" y="78" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Semantic search API</text>
+  <text x="340" y="96" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Frontend search bar</text>
+  <text x="340" y="114" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#0F6E56">Related viewpoints</text>
+
+  <rect x="450" y="30" width="180" height="100" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="540" y="58" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#0C447C">Phase 2: RAG Chat</text>
+  <text x="540" y="78" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#185FA5">SSE streaming chat</text>
+  <text x="540" y="96" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#185FA5">Citation tracing</text>
+  <text x="540" y="114" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#185FA5">Multi-turn dialogue</text>
+
+  <line x1="230" y1="80" x2="250" y2="80" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="430" y1="80" x2="450" y2="80" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ========== Bottom: RAG Architecture ========== -->
+  <rect x="30" y="155" width="620" height="310" rx="16" fill="#FAFAFA" stroke="#D3D1C7" stroke-width="0.5"/>
+
+  <text x="340" y="185" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="15" font-weight="500" fill="#2C2C2A">RAG Architecture for viewpoint_miner</text>
+
+  <!-- Top row -->
+  <rect x="55" y="215" width="100" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="105" y="240" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#444441">User Query</text>
+
+  <rect x="185" y="215" width="75" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="222" y="240" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#085041">Embed</text>
+
+  <rect x="290" y="215" width="100" height="50" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="340" y="240" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C">Vector Search</text>
+
+  <rect x="420" y="215" width="100" height="50" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="470" y="240" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#633806">Context Build</text>
+
+  <line x1="155" y1="240" x2="185" y2="240" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="260" y1="240" x2="290" y2="240" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="390" y1="240" x2="420" y2="240" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Middle row -->
+  <rect x="220" y="305" width="110" height="50" rx="8" fill="#FBEAF0" stroke="#993556" stroke-width="0.5"/>
+  <text x="275" y="330" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#72243E">LLM Generate</text>
+
+  <rect x="360" y="305" width="120" height="50" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+  <text x="420" y="330" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="500" fill="#27500A">Streaming Response</text>
+
+  <line x1="330" y1="330" x2="360" y2="330" stroke="#993556" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Context Build -> LLM Generate -->
+  <line x1="470" y1="265" x2="470" y2="290" stroke="#854F0B" stroke-width="1.5"/>
+  <line x1="470" y1="290" x2="330" y2="290" stroke="#854F0B" stroke-width="1.5"/>
+  <line x1="330" y1="290" x2="330" y2="305" stroke="#854F0B" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Data source connection -->
+  <text x="340" y="375" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="11" fill="#888780">SQLite data.db</text>
+  <line x1="340" y1="265" x2="340" y2="365" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4,3"/>
+
+  <!-- Data source boxes -->
+  <rect x="70" y="400" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="130" y="422" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#5F5E5A">viewpoints</text>
+
+  <rect x="210" y="400" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="270" y="422" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#5F5E5A">trade_actions</text>
+
+  <rect x="350" y="400" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="410" y="422" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#5F5E5A">stocks</text>
+
+  <rect x="490" y="400" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="550" y="422" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#5F5E5A">authors</text>
+</svg>

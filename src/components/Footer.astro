@@ -1,0 +1,39 @@
+---
+import { SITE_AUTHOR } from '../consts';
+const today = new Date();
+---
+
+<footer>
+	<p>&copy; {today.getFullYear()} {SITE_AUTHOR}. All rights reserved.</p>
+	<p class="powered-by">
+		Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+	</p>
+</footer>
+
+<style>
+	footer {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 3em 1em;
+		text-align: center;
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+
+	footer p {
+		margin: 0.5em 0;
+	}
+
+	.powered-by {
+		font-size: 0.85em;
+	}
+
+	.powered-by a {
+		color: rgb(var(--gray));
+		text-decoration: none;
+	}
+
+	.powered-by a:hover {
+		color: var(--accent);
+	}
+</style>

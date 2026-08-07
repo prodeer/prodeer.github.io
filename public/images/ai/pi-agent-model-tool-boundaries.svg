@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="680" viewBox="0 0 1280 680" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Loop 的模型边界与工具边界</title>
+  <desc id="desc">模型边界把 Provider 私有协议翻译成统一事件，Agent Loop 只处理稳定协议，工具边界再把 ToolCall 经五步管道转换成 ToolResultMessage 并送回循环。</desc>
+
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#d9eee8" stroke-width="1" opacity="0.55"/>
+    </pattern>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#14352d" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#536b64"/>
+    </marker>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0789b8"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a9b71"/>
+    </marker>
+    <style>
+      .title { font: 700 28px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .subtitle { font: 400 15px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #647a73; letter-spacing: 0; }
+      .eyebrow { font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 1.4px; }
+      .group-title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .node-title { font: 700 17px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .node-text { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #61766f; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .loop-title { font: 700 24px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 0; }
+      .loop-text { font: 400 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #cde8df; letter-spacing: 0; }
+      .step-no { font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #0a7c5d; letter-spacing: 0; }
+      .step-title { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .step-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667a74; letter-spacing: 0; }
+      .edge-label { font: 600 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #536b64; letter-spacing: 0; }
+      .edge { fill: none; stroke: #536b64; stroke-width: 2; marker-end: url(#arrow-neutral); }
+      .edge-cyan { fill: none; stroke: #0789b8; stroke-width: 2.2; marker-end: url(#arrow-cyan); }
+      .edge-green { fill: none; stroke: #0a9b71; stroke-width: 2.2; marker-end: url(#arrow-green); }
+      .edge-feedback { fill: none; stroke: #0a9b71; stroke-width: 2.2; stroke-dasharray: 7 6; marker-end: url(#arrow-green); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="680" fill="#fbfefd"/>
+  <rect width="1280" height="680" fill="url(#grid)"/>
+
+  <text class="title" x="44" y="46">Agent Loop 的两道边界</text>
+  <text class="subtitle" x="44" y="72">边界吸收变化，核心只处理稳定协议</text>
+
+  <!-- Model boundary -->
+  <rect x="40" y="104" width="378" height="500" rx="8" fill="#f2fbfe" stroke="#a9dce9" stroke-width="1.5"/>
+  <rect x="60" y="126" width="28" height="28" rx="6" fill="#0789b8"/>
+  <text x="74" y="145" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#ffffff">01</text>
+  <text class="eyebrow" x="100" y="145" fill="#0789b8">MODEL BOUNDARY</text>
+  <text class="group-title" x="60" y="181">模型边界</text>
+
+  <rect x="68" y="210" width="322" height="82" rx="8" fill="#ffffff" stroke="#b9dce5" filter="url(#shadow)"/>
+  <circle cx="94" cy="236" r="10" fill="#d9f3fa" stroke="#0789b8"/>
+  <path d="M 89 236 L 93 240 L 100 231" fill="none" stroke="#0789b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="node-title" x="116" y="240">Provider 私有协议</text>
+  <text class="node-text mono" x="94" y="269">Request · SSE · SDK Chunk</text>
+
+  <path class="edge-cyan" d="M 229 292 L 229 322"/>
+
+  <rect x="68" y="324" width="322" height="82" rx="8" fill="#eaf8fc" stroke="#7fc9dc"/>
+  <text class="node-title" x="94" y="354">API 翻译器</text>
+  <text class="node-text mono" x="94" y="382">ProviderStreams</text>
+  <rect x="305" y="345" width="58" height="24" rx="6" fill="#ffffff" stroke="#a9dce9"/>
+  <text x="334" y="362" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#0789b8">适配</text>
+
+  <path class="edge-cyan" d="M 229 406 L 229 436"/>
+
+  <rect x="68" y="438" width="322" height="102" rx="8" fill="#ffffff" stroke="#7fc9dc" filter="url(#shadow)"/>
+  <text class="node-title" x="94" y="470">统一事件流</text>
+  <text class="node-text mono" x="94" y="496">AssistantMessageEvent</text>
+  <text class="node-text" x="94" y="520">start · delta · end · done · error</text>
+
+  <!-- Agent Loop core -->
+  <path class="edge-cyan" d="M 390 489 L 472 489"/>
+  <text class="edge-label" x="431" y="472" text-anchor="middle">统一输入</text>
+
+  <rect x="474" y="220" width="300" height="284" rx="8" fill="#173f35" filter="url(#shadow)"/>
+  <rect x="496" y="242" width="74" height="26" rx="6" fill="#2bd5a1"/>
+  <text x="533" y="260" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#11372e">CORE</text>
+  <text class="loop-title" x="496" y="307">Agent Loop</text>
+  <text class="loop-text" x="496" y="337">只处理稳定协议</text>
+  <line x1="496" y1="365" x2="752" y2="365" stroke="#477168"/>
+  <circle cx="510" cy="399" r="5" fill="#2bd5a1"/>
+  <text class="loop-text" x="526" y="404">消费统一事件</text>
+  <circle cx="510" cy="433" r="5" fill="#2bd5a1"/>
+  <text class="loop-text" x="526" y="438">识别 ToolCall</text>
+  <circle cx="510" cy="467" r="5" fill="#2bd5a1"/>
+  <text class="loop-text" x="526" y="472">追加 ToolResultMessage</text>
+
+  <!-- Tool boundary -->
+  <path class="edge-green" d="M 774 286 L 850 286"/>
+  <text class="edge-label" x="812" y="269" text-anchor="middle">行动意图</text>
+
+  <rect x="850" y="104" width="390" height="500" rx="8" fill="#f2fbf7" stroke="#a8ddca" stroke-width="1.5"/>
+  <rect x="872" y="126" width="28" height="28" rx="6" fill="#0a9b71"/>
+  <text x="886" y="145" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#ffffff">02</text>
+  <text class="eyebrow" x="912" y="145" fill="#0a8a66">TOOL BOUNDARY</text>
+  <text class="group-title" x="872" y="181">工具边界</text>
+
+  <rect x="878" y="208" width="334" height="68" rx="8" fill="#ffffff" stroke="#91d2ba" filter="url(#shadow)"/>
+  <text class="node-title mono" x="902" y="238">ToolCall</text>
+  <text class="node-text" x="902" y="260">模型生成的非确定性数据</text>
+
+  <line x1="904" y1="307" x2="904" y2="482" stroke="#9dcfbd" stroke-width="2"/>
+
+  <g transform="translate(888 298)">
+    <circle cx="16" cy="16" r="16" fill="#dbf5eb" stroke="#5fbf9e"/>
+    <text class="step-no" x="16" y="20" text-anchor="middle">01</text>
+    <text class="step-title mono" x="48" y="14">prepareArguments</text>
+    <text class="step-text" x="48" y="33">修正已知的模型参数怪癖</text>
+  </g>
+  <g transform="translate(888 346)">
+    <circle cx="16" cy="16" r="16" fill="#dbf5eb" stroke="#5fbf9e"/>
+    <text class="step-no" x="16" y="20" text-anchor="middle">02</text>
+    <text class="step-title" x="48" y="14">Schema 验证</text>
+    <text class="step-text" x="48" y="33">拒绝不符合工具契约的输入</text>
+  </g>
+  <g transform="translate(888 394)">
+    <circle cx="16" cy="16" r="16" fill="#dbf5eb" stroke="#5fbf9e"/>
+    <text class="step-no" x="16" y="20" text-anchor="middle">03</text>
+    <text class="step-title mono" x="48" y="14">beforeToolCall</text>
+    <text class="step-text" x="48" y="33">执行前应用产品策略</text>
+  </g>
+  <g transform="translate(888 442)">
+    <circle cx="16" cy="16" r="16" fill="#dbf5eb" stroke="#5fbf9e"/>
+    <text class="step-no" x="16" y="20" text-anchor="middle">04</text>
+    <text class="step-title mono" x="48" y="14">execute</text>
+    <text class="step-text" x="48" y="33">调用工具并报告进度</text>
+  </g>
+  <g transform="translate(888 490)">
+    <circle cx="16" cy="16" r="16" fill="#dbf5eb" stroke="#5fbf9e"/>
+    <text class="step-no" x="16" y="20" text-anchor="middle">05</text>
+    <text class="step-title mono" x="48" y="14">afterToolCall</text>
+    <text class="step-text" x="48" y="33">审计、脱敏或修正结果</text>
+  </g>
+
+  <rect x="878" y="548" width="334" height="42" rx="8" fill="#e4f8f0" stroke="#68c6a6"/>
+  <text x="898" y="574" font-family="ui-monospace, monospace" font-size="14" font-weight="700" fill="#155946">ToolResultMessage</text>
+  <rect x="1084" y="557" width="104" height="24" rx="6" fill="#fff3e8" stroke="#efb37f"/>
+  <text x="1136" y="574" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#a64b12">成功 / 错误</text>
+
+  <!-- Feedback -->
+  <path class="edge-feedback" d="M 1045 604 L 1045 638 L 624 638 L 624 506"/>
+  <rect x="722" y="622" width="190" height="26" rx="6" fill="#fbfefd"/>
+  <text class="edge-label" x="817" y="640" text-anchor="middle">结果成为下一轮上下文</text>
+</svg>

@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1880" viewBox="0 0 2200 1880" role="img" aria-labelledby="title desc">
+  <title id="title">营销自动化平台新架构图</title>
+  <desc id="desc">重构后基于 Flink Journey Runtime 的营销自动化平台。控制面编译并发布不可变 JourneyVersion，Flink 使用 Broadcast State、Keyed State 和 Timer 推进旅程，Action Worker 通过稳定 action_id 调用外部动作中心。</desc>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#2468e8"/></marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#f05a18"/></marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8147f5"/></marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#18a852"/></marker>
+    <filter id="shadow" x="-12%" y="-15%" width="124%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#64748b" flood-opacity="0.18"/></filter>
+    <style>
+      text { font-family: 'PingFang SC','Microsoft YaHei',Arial,sans-serif; letter-spacing: 0; }
+      .title { font-size: 40px; font-weight: 700; fill: #2468e8; }
+      .subtitle { font-size: 20px; font-weight: 500; fill: #687386; }
+      .section { font-size: 20px; font-weight: 700; }
+      .box-title { font-size: 20px; font-weight: 700; }
+      .box-body { font-size: 16px; font-weight: 400; fill: #667085; }
+      .small { font-size: 14px; font-weight: 500; fill: #667085; }
+      .tiny { font-size: 13px; font-weight: 500; fill: #667085; }
+      .engine-label { font-size: 17px; font-weight: 600; }
+      .legend-title { font-size: 20px; font-weight: 700; }
+      .legend-text { font-size: 18px; font-weight: 600; }
+      .zone { fill: #fbfdff; stroke-width: 2; stroke-dasharray: 10 8; }
+      .card { fill: #fff; stroke-width: 2; filter: url(#shadow); }
+      .flow-blue { fill: none; stroke: #2468e8; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-blue); }
+      .flow-orange { fill: none; stroke: #f05a18; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orange); }
+      .flow-purple { fill: none; stroke: #8147f5; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-purple); }
+      .flow-green { fill: none; stroke: #18a852; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-green); }
+    </style>
+  </defs>
+
+  <rect width="2200" height="1880" fill="#ffffff"/>
+  <text x="1100" y="55" text-anchor="middle" class="title">营销自动化平台新架构图</text>
+  <text x="1100" y="88" text-anchor="middle" class="subtitle">Flink化 Journey Runtime Marketing Automation Platform Architecture</text>
+
+  <!-- Operations console -->
+  <rect x="65" y="112" width="2070" height="145" rx="14" class="zone" fill="#f4f8ff" stroke="#9cc8ff"/>
+  <text x="92" y="141" class="section" fill="#2468e8">运营工作台 / OPERATIONS CONSOLE（Journey 低代码编排）</text>
+  <g fill="#fff" stroke="#9cc8ff" class="card">
+    <rect x="170" y="163" width="300" height="66" rx="10"/>
+    <rect x="625" y="163" width="300" height="66" rx="10"/>
+    <rect x="1080" y="163" width="300" height="66" rx="10"/>
+    <rect x="1535" y="163" width="300" height="66" rx="10"/>
+  </g>
+  <g class="box-title" fill="#2468e8" text-anchor="middle">
+    <text x="320" y="205">Journey 管理</text>
+    <text x="775" y="205">可视化画布</text>
+    <text x="1230" y="205">触发 / 入组配置</text>
+    <text x="1685" y="205">灰度发布 · 止损</text>
+  </g>
+  <path d="M320 257 V285" class="flow-blue"/><path d="M775 257 V285" class="flow-blue"/><path d="M1230 257 V285" class="flow-blue"/><path d="M1685 257 V285" class="flow-blue"/>
+
+  <!-- Gateway -->
+  <rect x="65" y="285" width="2070" height="120" rx="14" fill="#eef5ff" stroke="#2468e8" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="1100" y="340" text-anchor="middle" class="box-title" fill="#2468e8">控制面 API 网关</text>
+  <text x="1100" y="369" text-anchor="middle" class="box-body" fill="#78a9f6">鉴权 · 限流 · 灰度路由 · 审计</text>
+  <path d="M1100 405 V451" class="flow-blue"/>
+
+  <!-- Core engine -->
+  <rect x="65" y="452" width="2070" height="250" rx="14" class="zone" fill="#fbfdff" stroke="#9cc8ff"/>
+  <text x="92" y="486" class="section" fill="#2468e8">核心引擎层 / CORE ENGINE LAYER</text>
+  <g stroke="#63a5ff">
+    <g><rect x="105" y="520" width="440" height="145" rx="14" class="card"/><path d="M105 534 Q105 520 119 520 H531 Q545 520 545 534 V574 H105 Z" fill="#1f5fd6" stroke="none"/><text x="325" y="556" text-anchor="middle" class="box-title" fill="#fff">Journey 编译与 DSL 校验</text><text x="325" y="610" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">节点 / 边 / 条件表达式</text><text x="325" y="638" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">拓扑校验 · 预算 · 频控 · 合规</text></g>
+    <g><rect x="620" y="520" width="440" height="145" rx="14" class="card"/><path d="M620 534 Q620 520 634 520 H1046 Q1060 520 1060 534 V574 H620 Z" fill="#1f5fd6" stroke="none"/><text x="840" y="556" text-anchor="middle" class="box-title" fill="#fff">Definition Registry</text><text x="840" y="610" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">不可变 JourneyVersion</text><text x="840" y="638" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">版本对比 · 灰度 · 一键回滚</text></g>
+    <g><rect x="1135" y="520" width="440" height="145" rx="14" class="card"/><path d="M1135 534 Q1135 520 1149 520 H1561 Q1575 520 1575 534 V574 H1135 Z" fill="#1f5fd6" stroke="none"/><text x="1355" y="556" text-anchor="middle" class="box-title" fill="#fff">Kafka 发布与契约</text><text x="1355" y="610" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">journey-version · control</text><text x="1355" y="638" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">Schema Registry · sequence</text></g>
+    <g><rect x="1650" y="520" width="440" height="145" rx="14" class="card"/><path d="M1650 534 Q1650 520 1664 520 H2076 Q2090 520 2090 534 V574 H1650 Z" fill="#1f5fd6" stroke="none"/><text x="1870" y="556" text-anchor="middle" class="box-title" fill="#fff">版本与运行控制</text><text x="1870" y="610" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">发布 · 暂停 · 恢复 · 止损</text><text x="1870" y="638" text-anchor="middle" class="box-body" fill="#475467" font-weight="500">老实例固定引用 versionId</text></g>
+  </g>
+
+  <!-- Flink runtime -->
+  <rect x="65" y="724" width="2070" height="390" rx="14" class="zone" fill="#f8fffb" stroke="#76e7a4"/>
+  <text x="92" y="758" class="section" fill="#18a852">Journey 执行引擎 / FLINK JOURNEY RUNTIME（有状态流处理）</text>
+  <g class="small" text-anchor="middle">
+    <rect x="130" y="787" width="330" height="54" rx="9" fill="#fff" stroke="#7cb1ff" stroke-width="2"/><text x="295" y="820" class="engine-label" fill="#2468e8">Domain Event · Batch Enrollment</text>
+    <rect x="535" y="787" width="330" height="54" rx="9" fill="#fff" stroke="#7cb1ff" stroke-width="2"/><text x="700" y="820" class="engine-label" fill="#2468e8">标准化 · 去重 · keyBy</text>
+    <rect x="940" y="787" width="330" height="54" rx="9" fill="#fff" stroke="#72d79a" stroke-width="2"/><text x="1105" y="812" class="engine-label" fill="#18a852">Broadcast State</text><text x="1105" y="831" class="tiny">JourneyVersion · 入口索引</text>
+    <rect x="1345" y="787" width="330" height="54" rx="9" fill="#fff" stroke="#a77bff" stroke-width="2"/><text x="1510" y="812" class="engine-label" fill="#8147f5">Keyed State</text><text x="1510" y="831" class="tiny">JourneyInstance · waitIndex</text>
+    <rect x="1750" y="787" width="330" height="54" rx="9" fill="#fff" stroke="#a77bff" stroke-width="2"/><text x="1915" y="812" class="engine-label" fill="#8147f5">Event / Processing Time Timer</text><text x="1915" y="831" class="tiny">Checkpoint / Savepoint 恢复</text>
+  </g>
+  <path d="M460 814 H535" class="flow-blue"/><path d="M865 814 H940" class="flow-blue"/><path d="M1270 814 H1345" class="flow-green"/><path d="M1675 814 H1750" class="flow-purple"/>
+
+  <!-- Journey flow -->
+  <g class="box-title" text-anchor="middle">
+    <rect x="100" y="905" width="185" height="70" rx="11" fill="#fff" stroke="#2468e8" stroke-width="3"/><text x="192" y="947" fill="#2468e8">START</text>
+    <rect x="385" y="905" width="210" height="70" rx="11" fill="#fff" stroke="#8147f5" stroke-width="3"/><text x="490" y="939" fill="#8147f5">匹配 Journey</text><text x="490" y="961" class="tiny" fill="#8147f5">versionId</text>
+    <path d="M745 890 L815 940 L745 990 L675 940 Z" fill="#fff" stroke="#f05a18" stroke-width="3"/><text x="745" y="935" fill="#f05a18" font-size="16">CONDITION</text><text x="745" y="956" class="tiny" fill="#f05a18">规则求值</text>
+    <rect x="915" y="875" width="200" height="70" rx="11" fill="#fff" stroke="#8147f5" stroke-width="3"/><text x="1015" y="917" fill="#8147f5">ACTION</text><text x="1015" y="938" class="tiny" fill="#8147f5">发券 / 消息</text>
+    <rect x="915" y="1005" width="200" height="70" rx="11" fill="#fff" stroke="#0f9f8d" stroke-width="3"/><text x="1015" y="1047" fill="#0f9f8d">WAIT_EVENT</text>
+    <rect x="1215" y="1005" width="200" height="70" rx="11" fill="#fff" stroke="#0f9f8d" stroke-width="3"/><text x="1315" y="1047" fill="#0f9f8d">WAIT_TIME</text>
+    <path d="M1545 890 L1615 940 L1545 990 L1475 940 Z" fill="#fff" stroke="#18a852" stroke-width="3"/><text x="1545" y="935" fill="#18a852" font-size="16">PARALLEL</text><text x="1545" y="956" class="tiny" fill="#18a852">并行分支</text>
+    <rect x="1710" y="905" width="190" height="70" rx="11" fill="#fff" stroke="#f59e0b" stroke-width="3"/><text x="1805" y="935" fill="#e99300" font-size="17">AB_SPLIT</text><text x="1805" y="956" class="tiny" fill="#e99300">实验分流</text>
+    <rect x="1980" y="905" width="105" height="70" rx="11" fill="#fff" stroke="#2468e8" stroke-width="3"/><text x="2032" y="947" fill="#2468e8">END</text>
+  </g>
+  <path d="M285 940 H385" class="flow-blue"/><path d="M595 940 H675" class="flow-blue"/><path d="M815 940 H855 V910 H915" class="flow-purple"/><text x="882" y="900" class="tiny" fill="#8147f5">true</text>
+  <path d="M745 990 V1040 H915" class="flow-orange"/><text x="785" y="1028" class="tiny" fill="#f05a18">false</text>
+  <path d="M1115 910 H1517" class="flow-purple"/><path d="M1115 1040 H1215" class="flow-green"/><path d="M1415 1040 H1445 V940 H1475" class="flow-green"/><path d="M1615 940 H1710" class="flow-green"/><path d="M1900 940 H1980" class="flow-blue"/>
+
+  <!-- action plane -->
+  <rect x="65" y="1135" width="2070" height="145" rx="14" class="zone" fill="#fffaf6" stroke="#ffbd93"/>
+  <text x="92" y="1167" class="section" fill="#f05a18">动作执行与回流 / ACTION WORKER &amp; CALLBACK</text>
+  <g class="box-title" text-anchor="middle">
+    <rect x="160" y="1184" width="430" height="52" rx="10" fill="#fff" stroke="#f05a18" stroke-width="2"/><text x="375" y="1217" fill="#f05a18">ActionCommand（稳定 action_id）</text>
+    <rect x="735" y="1184" width="430" height="52" rx="10" fill="#fff" stroke="#f05a18" stroke-width="2"/><text x="950" y="1217" fill="#f05a18">Action Worker：限流 · 重试 · DLQ</text>
+    <rect x="1310" y="1184" width="700" height="52" rx="10" fill="#fff" stroke="#9cc8ff" stroke-width="2"/><text x="1660" y="1217" fill="#2468e8">消息中心 · 卡券 / 福利中心 · 任务中心 · 外部 API</text>
+  </g>
+  <path d="M590 1210 H735" class="flow-orange"/><path d="M1165 1210 H1310" class="flow-orange"/>
+  <path d="M1660 1236 V1265 H1190 V1228 H1165" class="flow-green"/><text x="1425" y="1257" class="tiny" fill="#18a852">ActionResult -&gt; Action Worker</text>
+
+  <!-- Monitor and attribution -->
+  <rect x="65" y="1303" width="2070" height="135" rx="14" class="zone" fill="#fffafa" stroke="#ffaaa7"/>
+  <text x="92" y="1335" class="section" fill="#ef3434">监控与归因 / MONITOR &amp; ATTRIBUTION</text>
+  <g class="box-title" text-anchor="middle">
+    <rect x="160" y="1352" width="360" height="58" rx="10" fill="#fff" stroke="#ef4444" stroke-width="2"/><text x="340" y="1388" fill="#ef4444">InstanceMirror</text>
+    <rect x="650" y="1352" width="360" height="58" rx="10" fill="#fff" stroke="#8147f5" stroke-width="2"/><text x="830" y="1388" fill="#8147f5">JourneyAudit</text>
+    <rect x="1140" y="1352" width="360" height="58" rx="10" fill="#fff" stroke="#ef4444" stroke-width="2"/><text x="1320" y="1388" fill="#ef4444">SLO / 异常告警</text>
+    <rect x="1630" y="1352" width="360" height="58" rx="10" fill="#fff" stroke="#2468e8" stroke-width="2"/><text x="1810" y="1388" fill="#2468e8">查询 / 数据导出</text>
+  </g>
+  <path d="M375 1280 V1303" class="flow-blue"/><path d="M950 1280 V1303" class="flow-purple"/><path d="M1500 1280 V1303" class="flow-orange"/><path d="M1900 1280 V1303" class="flow-blue"/>
+
+  <!-- Data and infra -->
+  <rect x="65" y="1462" width="2070" height="145" rx="14" class="zone" fill="#fbfcfe" stroke="#c7d0dc"/>
+  <text x="92" y="1495" class="section" fill="#667085">数据与基础设施 / DATA &amp; INFRA</text>
+  <g text-anchor="middle" class="box-title">
+    <g><rect x="110" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="255" y="1545" fill="#202124">Kafka Topics</text><text x="255" y="1569" class="small">definition · event · command</text></g>
+    <g><rect x="445" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="590" y="1545" fill="#8147f5">RocksDB / ForSt</text><text x="590" y="1569" class="small">Keyed State</text></g>
+    <g><rect x="780" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="925" y="1545" fill="#18a852">Checkpoint / Savepoint</text><text x="925" y="1569" class="small">对象存储 · 恢复</text></g>
+    <g><rect x="1115" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="1260" y="1545" fill="#2468e8">MySQL / Redis / Pinot</text><text x="1260" y="1569" class="small">查询投影</text></g>
+    <g><rect x="1450" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="1595" y="1545" fill="#8147f5">ClickHouse</text><text x="1595" y="1569" class="small">审计与归因</text></g>
+    <g><rect x="1785" y="1517" width="290" height="66" rx="10" fill="#fff" stroke="#c7d0dc" stroke-width="2" filter="url(#shadow)"/><text x="1930" y="1545" fill="#0f9f8d">Schema Registry</text><text x="1930" y="1569" class="small">事件契约</text></g>
+  </g>
+
+  <!-- External systems -->
+  <rect x="65" y="1630" width="2070" height="130" rx="14" class="zone" fill="#f8fbff" stroke="#9cc8ff"/>
+  <text x="92" y="1662" class="section" fill="#2468e8">对外协作 / EXTERNAL SYSTEMS</text>
+  <g class="box-title" text-anchor="middle">
+    <rect x="600" y="1685" width="360" height="58" rx="10" fill="#fff" stroke="#9cc8ff" stroke-width="2"/><text x="780" y="1720" fill="#2468e8">Event Gateway</text>
+    <rect x="1080" y="1685" width="360" height="58" rx="10" fill="#fff" stroke="#9cc8ff" stroke-width="2"/><text x="1260" y="1720" fill="#8147f5">Audience Import</text>
+    <rect x="1560" y="1685" width="360" height="58" rx="10" fill="#fff" stroke="#9cc8ff" stroke-width="2"/><text x="1740" y="1720" fill="#f05a18">动作中心 / 回调</text>
+  </g>
+
+  <!-- Legend -->
+  <rect x="65" y="1780" width="2070" height="80" rx="14" fill="#fff" stroke="#d5dae2" stroke-width="2"/>
+  <text x="92" y="1812" class="legend-title" fill="#374151">节点类型 / LEGEND</text>
+  <g class="legend-text" text-anchor="middle">
+    <text x="350" y="1808" fill="#2468e8">START / END</text><text x="510" y="1808" fill="#f05a18">CONDITION</text><text x="660" y="1808" fill="#18a852">PARALLEL</text><text x="790" y="1808" fill="#8147f5">ACTION</text><text x="900" y="1808" fill="#0f9f8d">WAIT</text><text x="1035" y="1808" fill="#e99300">AB_SPLIT</text><text x="1175" y="1808" fill="#667085">外部 API</text>
+  </g>
+  <text x="92" y="1843" class="legend-text" fill="#667085">连线图例：</text><line x1="220" y1="1838" x2="280" y2="1838" stroke="#2468e8" stroke-width="3"/><text x="300" y="1844" class="legend-text" fill="#667085">请求流</text><line x1="410" y1="1838" x2="470" y2="1838" stroke="#f05a18" stroke-width="3"/><text x="490" y="1844" class="legend-text" fill="#667085">条件分支</text><line x1="630" y1="1838" x2="690" y2="1838" stroke="#8147f5" stroke-width="3"/><text x="710" y="1844" class="legend-text" fill="#667085">动作调用</text><line x1="850" y1="1838" x2="910" y2="1838" stroke="#18a852" stroke-width="3"/><text x="930" y="1844" class="legend-text" fill="#667085">并行 / 回流</text>
+</svg>

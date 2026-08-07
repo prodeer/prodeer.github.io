@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">受治理的营销策略旅程与危险路径对比</title>
+  <desc id="desc">上半部分展示一条十二节点营销旅程的简化主路径，每次 Push、站内信和 Coupon 动作之前都经过包含预算、频次和用户同意检查的 suppression 节点；下半部分展示 Start 直接连接 Action、绕过 suppression 后触发 action_without_suppression 错误的危险路径。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b42318"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .panel-safe { fill: #f3faf7; stroke: #bfd8ce; stroke-width: 1.5; }
+      .panel-danger { fill: #fff7f6; stroke: #ecc5c1; stroke-width: 1.5; }
+      .panel-title { font: 700 18px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .panel-note { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .badge-text { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 0; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .node-gate { fill: #fff7ed; stroke: #e9bd85; stroke-width: 1.5; filter: url(#shadow); }
+      .node-action { fill: #eff6ff; stroke: #93b4e8; stroke-width: 1.5; filter: url(#shadow); }
+      .node-condition { fill: #faf5ff; stroke: #cdb2df; stroke-width: 1.5; filter: url(#shadow); }
+      .node-danger { fill: #fff1f0; stroke: #d92d20; stroke-width: 1.8; filter: url(#shadow); }
+      .node-ghost { fill: #ffffff; fill-opacity: 0.55; stroke: #98a2b3; stroke-width: 1.5; stroke-dasharray: 7 6; }
+      .node-title { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .node-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .edge { fill: none; stroke: #667085; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-green { fill: none; stroke: #047857; stroke-width: 2; marker-end: url(#arrow-green); }
+      .edge-red { fill: none; stroke: #b42318; stroke-width: 2.8; marker-end: url(#arrow-red); }
+      .edge-label { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .exit-pill { fill: #ecfdf5; stroke: #8bc8b2; stroke-width: 1.2; }
+      .exit-text { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #05603a; letter-spacing: 0; }
+      .error-text { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #b42318; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="900"/>
+  <text class="title" x="48" y="52">营销旅程中的抑制闸门</text>
+  <text class="subtitle" x="48" y="82">校验器检查的不是“有没有闸门”，而是每一条到达 Action 的路径是否都先经过完整闸门</text>
+
+  <rect class="panel-safe" x="40" y="112" width="1520" height="500" rx="8"/>
+  <rect x="64" y="136" width="78" height="28" rx="6" fill="#047857"/>
+  <text class="badge-text" x="103" y="156" text-anchor="middle">受治理</text>
+  <text class="panel-title" x="160" y="157">运行 B 的 12 节点主转化路径（简化）</text>
+  <text class="panel-note" x="64" y="187">Condition 命中“已入金”时提前退出；只有“未入金”分支继续下一轮触达</text>
+
+  <!-- 第一轮触达 -->
+  <circle class="node" cx="108" cy="260" r="36"/>
+  <text class="node-title mono" x="108" y="265" text-anchor="middle">Start</text>
+
+  <path class="edge" d="M 144 260 L 202 260"/>
+
+  <rect class="node-gate" x="210" y="217" width="250" height="86" rx="8"/>
+  <text class="node-title mono" x="335" y="244" text-anchor="middle">Suppression</text>
+  <text class="node-text" x="335" y="267" text-anchor="middle">budget · frequency · consent</text>
+  <text class="node-text" x="335" y="287" text-anchor="middle">全部通过才允许继续</text>
+
+  <path class="edge" d="M 460 260 L 500 260"/>
+
+  <rect class="node-action" x="508" y="225" width="140" height="70" rx="8"/>
+  <text class="node-title" x="578" y="253" text-anchor="middle">Push</text>
+  <text class="node-text" x="578" y="276" text-anchor="middle">首存提醒</text>
+
+  <path class="edge" d="M 648 260 L 690 260"/>
+
+  <rect class="node" x="698" y="225" width="140" height="70" rx="8"/>
+  <text class="node-title" x="768" y="253" text-anchor="middle">Wait</text>
+  <text class="node-text" x="768" y="276" text-anchor="middle">等待 2 天</text>
+
+  <path class="edge" d="M 838 260 L 874 260"/>
+
+  <polygon class="node-condition" points="930,205 986,260 930,315 874,260"/>
+  <text class="node-title" x="930" y="255" text-anchor="middle">已入金？</text>
+  <text class="node-text" x="930" y="276" text-anchor="middle">Condition</text>
+
+  <path class="edge-green" d="M 986 260 L 1082 260"/>
+  <text class="edge-label" x="1028" y="250" text-anchor="middle">是</text>
+  <rect class="exit-pill" x="1090" y="238" width="146" height="44" rx="8"/>
+  <text class="exit-text" x="1163" y="265" text-anchor="middle">提前退出旅程</text>
+
+  <path class="edge" d="M 930 315 L 930 342"/>
+  <text class="edge-label" x="944" y="334">否</text>
+
+  <!-- 第二轮触达，方向从右向左 -->
+  <rect class="node-gate" x="805" y="350" width="250" height="86" rx="8"/>
+  <text class="node-title mono" x="930" y="377" text-anchor="middle">Suppression</text>
+  <text class="node-text" x="930" y="400" text-anchor="middle">budget · frequency · consent</text>
+  <text class="node-text" x="930" y="420" text-anchor="middle">重新检查实时约束</text>
+
+  <path class="edge" d="M 805 393 L 766 393"/>
+
+  <rect class="node-action" x="618" y="358" width="140" height="70" rx="8"/>
+  <text class="node-title" x="688" y="386" text-anchor="middle">In-app</text>
+  <text class="node-text" x="688" y="409" text-anchor="middle">站内引导</text>
+
+  <path class="edge" d="M 618 393 L 578 393"/>
+
+  <rect class="node" x="430" y="358" width="140" height="70" rx="8"/>
+  <text class="node-title" x="500" y="386" text-anchor="middle">Wait</text>
+  <text class="node-text" x="500" y="409" text-anchor="middle">等待 3 天</text>
+
+  <path class="edge" d="M 430 393 L 394 393"/>
+
+  <polygon class="node-condition" points="338,338 394,393 338,448 282,393"/>
+  <text class="node-title" x="338" y="388" text-anchor="middle">已入金？</text>
+  <text class="node-text" x="338" y="409" text-anchor="middle">Condition</text>
+
+  <path class="edge-green" d="M 282 393 L 186 393"/>
+  <text class="edge-label" x="236" y="383" text-anchor="middle">是</text>
+  <rect class="exit-pill" x="64" y="371" width="114" height="44" rx="8"/>
+  <text class="exit-text" x="121" y="398" text-anchor="middle">提前退出</text>
+
+  <path class="edge" d="M 338 448 L 338 533 L 410 533"/>
+  <text class="edge-label" x="352" y="477">否</text>
+
+  <!-- 优惠触达 -->
+  <rect class="node-gate" x="418" y="490" width="250" height="86" rx="8"/>
+  <text class="node-title mono" x="543" y="517" text-anchor="middle">Suppression</text>
+  <text class="node-text" x="543" y="540" text-anchor="middle">budget · frequency · consent</text>
+  <text class="node-text" x="543" y="560" text-anchor="middle">Coupon 前再次校验</text>
+
+  <path class="edge" d="M 668 533 L 710 533"/>
+
+  <rect class="node-action" x="718" y="498" width="150" height="70" rx="8"/>
+  <text class="node-title" x="793" y="526" text-anchor="middle">Coupon</text>
+  <text class="node-text" x="793" y="549" text-anchor="middle">20 元优惠券</text>
+
+  <path class="edge" d="M 868 533 L 932 533"/>
+
+  <circle class="node" cx="976" cy="533" r="36"/>
+  <text class="node-title mono" x="976" y="538" text-anchor="middle">End</text>
+
+  <!-- 危险路径 -->
+  <rect class="panel-danger" x="40" y="636" width="1520" height="220" rx="8"/>
+  <rect x="64" y="660" width="78" height="28" rx="6" fill="#b42318"/>
+  <text class="badge-text" x="103" y="680" text-anchor="middle">危险</text>
+  <text class="panel-title" x="160" y="681">Action 从 Start 直接出现</text>
+
+  <circle class="node" cx="238" cy="770" r="36"/>
+  <text class="node-title mono" x="238" y="775" text-anchor="middle">Start</text>
+
+  <rect class="node-ghost" x="610" y="731" width="260" height="78" rx="8"/>
+  <text class="node-title mono" x="740" y="760" text-anchor="middle">Suppression</text>
+  <text class="node-text" x="740" y="785" text-anchor="middle">本应经过的强制闸门</text>
+
+  <path class="edge-red" d="M 274 770 C 430 676, 922 676, 1060 770"/>
+  <text class="edge-label" x="674" y="694" text-anchor="middle">绕过预算、频次与 Consent 检查</text>
+
+  <rect class="node-danger" x="1068" y="731" width="210" height="78" rx="8"/>
+  <text class="node-title" x="1173" y="760" text-anchor="middle">Push Action</text>
+  <text class="node-text" x="1173" y="785" text-anchor="middle">不允许进入仿真</text>
+
+  <path class="edge-red" d="M 1278 770 L 1328 770"/>
+  <text class="error-text" x="1344" y="762">action_without_</text>
+  <text class="error-text" x="1344" y="784">suppression</text>
+</svg>

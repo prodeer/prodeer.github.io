@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+// 获取所有已发布的文章，按日期倒序，首页只显示最新5篇
+const allPosts = (await getCollection('posts', ({ data }) => data.draft !== true))
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = allPosts.slice(0, 5);
+const hasMore = allPosts.length > 5;
+---
+
+<BaseLayout title='Home'>
+	<section class="posts">
+		<h2 class="section-title">Recent Posts</h2>
+		{posts.length > 0 ? (
+			<div class="post-list">
+				{posts.map(async (post) => {
+					const category = await getEntry(post.data.category);
+					return (
+						<PostCard
+							title={post.data.title}
+							description={post.data.description}
+							date={post.data.date}
+							categorySlug={category.id}
+							categoryName={category.data.name}
+							tags={post.data.tags}
+							slug={post.id}
+						/>
+					);
+				})}
+			</div>
+		) : (
+			<p class="no-posts">暂无文章</p>
+		)}
+		{hasMore && (
+			<a href="/posts/page/1" class="view-more">查看全部文章 &rarr;</a>
+		)}
+	</section>
+</BaseLayout>
+
+<style>
+	.hero {
+		padding: 1em 0 2em;
+		text-align: center;
+	}
+
+	.intro {
+		font-size: 1.1em;
+		color: rgb(var(--gray));
+		margin: 0;
+		letter-spacing: 0.02em;
+	}
+
+	.posts {
+		padding: 1em 0;
+	}
+
+	.section-title {
+		font-size: 0.875em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: rgb(var(--gray));
+		margin: 0 0 1.25em 0;
+	}
+
+	.post-list {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.no-posts {
+		color: rgb(var(--gray));
+		text-align: center;
+		padding: 3em 0;
+	}
+
+	.view-more {
+		display: inline-block;
+		margin-top: 1.5em;
+		color: var(--accent);
+		text-decoration: none;
+		font-size: 0.9em;
+	}
+
+	.view-more:hover {
+		text-decoration: underline;
+	}
+
+	@media (max-width: 480px) {
+		.hero {
+			padding: 2em 0 1.5em;
+		}
+	}
+</style>

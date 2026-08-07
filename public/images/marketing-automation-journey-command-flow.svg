@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="830" viewBox="0 0 1700 830" role="img" aria-labelledby="title desc">
+  <title id="title">JourneyCommand 单次推进流程</title>
+  <desc id="desc">实时事件、批量入组、Timer 和动作结果统一进入 JourneyCommand，经过校验、去重、匹配、状态推进和 Timer 更新，输出动作、镜像、审计或死信。</desc>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#2563eb"/></marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#15803d"/></marker>
+    <marker id="arrow-red" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#dc2626"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 38px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 18px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #64748b; }
+      .section { font: 700 20px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; }
+      .node-title { font: 600 19px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #0f172a; }
+      .node-body { font: 400 15px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #475569; }
+      .node-small { font: 400 14px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #64748b; }
+      .tag { font: 600 13px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #fff; }
+      .node { fill: #fff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .flow-blue { fill: none; stroke: #2563eb; stroke-width: 2.8; stroke-linecap: round; marker-end: url(#arrow-blue); }
+      .flow-green { fill: none; stroke: #15803d; stroke-width: 2.8; stroke-linecap: round; marker-end: url(#arrow-green); }
+      .flow-red { fill: none; stroke: #dc2626; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 8 6; marker-end: url(#arrow-red); }
+      .label { font: 500 14px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect class="bg" width="1700" height="830"/>
+  <text x="850" y="48" text-anchor="middle" class="title">JourneyCommand：一次输入如何推进一个用户旅程</text>
+  <text x="850" y="78" text-anchor="middle" class="subtitle">所有输入使用同一套前置条件、状态迁移和输出协议</text>
+
+  <rect x="50" y="115" width="310" height="600" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="75" y="150" class="section" fill="#1d4ed8">输入来源</text>
+  <g>
+    <rect x="85" y="190" width="240" height="80" rx="8" class="node"/>
+    <rect x="85" y="190" width="240" height="25" rx="8" fill="#dc2626"/><text x="102" y="208" class="tag">DOMAIN_EVENT</text>
+    <text x="205" y="244" text-anchor="middle" class="node-title">实时业务事件</text><text x="205" y="263" text-anchor="middle" class="node-small">注册 · 浏览 · 下单</text>
+  </g>
+  <g>
+    <rect x="85" y="310" width="240" height="80" rx="8" class="node"/>
+    <rect x="85" y="310" width="240" height="25" rx="8" fill="#64748b"/><text x="102" y="328" class="tag">ENROLL</text>
+    <text x="205" y="364" text-anchor="middle" class="node-title">批量入组</text><text x="205" y="383" text-anchor="middle" class="node-small">人群快照 · 分片游标</text>
+  </g>
+  <g>
+    <rect x="85" y="430" width="240" height="80" rx="8" class="node"/>
+    <rect x="85" y="430" width="240" height="25" rx="8" fill="#7c3aed"/><text x="102" y="448" class="tag">TIMER</text>
+    <text x="205" y="484" text-anchor="middle" class="node-title">Timer 到期</text><text x="205" y="503" text-anchor="middle" class="node-small">事件时间 · 处理时间</text>
+  </g>
+  <g>
+    <rect x="85" y="550" width="240" height="80" rx="8" class="node"/>
+    <rect x="85" y="550" width="240" height="25" rx="8" fill="#ea580c"/><text x="102" y="568" class="tag">ACTION_RESULT</text>
+    <text x="205" y="604" text-anchor="middle" class="node-title">动作结果 / 运维命令</text><text x="205" y="623" text-anchor="middle" class="node-small">成功 · 失败 · UNKNOWN</text>
+  </g>
+
+  <rect x="405" y="115" width="900" height="600" rx="10" fill="#ecfdf5" stroke="#86efac"/>
+  <text x="430" y="150" class="section" fill="#15803d">Journey Runtime：Keyed 状态迁移</text>
+  <g>
+    <rect x="455" y="190" width="800" height="72" rx="8" class="node"/>
+    <rect x="455" y="190" width="800" height="25" rx="8" fill="#2563eb"/><text x="474" y="208" class="tag">1 · VALIDATE</text>
+    <text x="855" y="244" text-anchor="middle" class="node-title">Schema、租户、事件类型、必要字段</text>
+  </g>
+  <g>
+    <rect x="455" y="290" width="800" height="72" rx="8" class="node"/>
+    <rect x="455" y="290" width="800" height="25" rx="8" fill="#475569"/><text x="474" y="308" class="tag">2 · DEDUP</text>
+    <text x="855" y="344" text-anchor="middle" class="node-title">检查 event_id / command_id / timer_id / action_id 与 TTL</text>
+  </g>
+  <g>
+    <rect x="455" y="390" width="800" height="72" rx="8" class="node"/>
+    <rect x="455" y="390" width="800" height="25" rx="8" fill="#7c3aed"/><text x="474" y="408" class="tag">3 · MATCH</text>
+    <text x="855" y="444" text-anchor="middle" class="node-title">读取 Broadcast State 入口索引，定位新建实例或 waitIndex</text>
+  </g>
+  <g>
+    <rect x="455" y="490" width="800" height="72" rx="8" class="node"/>
+    <rect x="455" y="490" width="800" height="25" rx="8" fill="#15803d"/><text x="474" y="508" class="tag">4 · ADVANCE</text>
+    <text x="855" y="544" text-anchor="middle" class="node-title">校验 version / expected_node / revision，链式推进即时节点</text>
+  </g>
+  <g>
+    <rect x="455" y="590" width="800" height="72" rx="8" class="node"/>
+    <rect x="455" y="590" width="800" height="25" rx="8" fill="#ea580c"/><text x="474" y="608" class="tag">5 · COMMIT</text>
+    <text x="855" y="644" text-anchor="middle" class="node-title">更新 State、注册 / 删除 Timer，输出 Side Output</text>
+  </g>
+  <path d="M855 262 V290" class="flow-green"/><path d="M855 362 V390" class="flow-green"/><path d="M855 462 V490" class="flow-green"/><path d="M855 562 V590" class="flow-green"/>
+
+  <rect x="1350" y="115" width="300" height="600" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1375" y="150" class="section" fill="#c2410c">输出</text>
+  <rect x="1380" y="210" width="240" height="90" rx="8" class="node"/>
+  <rect x="1380" y="210" width="240" height="25" rx="8" fill="#ea580c"/><text x="1398" y="228" class="tag">ACTION</text>
+  <text x="1500" y="265" text-anchor="middle" class="node-title">ActionCommand</text><text x="1500" y="286" text-anchor="middle" class="node-small">事务型 Kafka Sink</text>
+  <rect x="1380" y="350" width="240" height="90" rx="8" class="node"/>
+  <rect x="1380" y="350" width="240" height="25" rx="8" fill="#64748b"/><text x="1398" y="368" class="tag">OBSERVE</text>
+  <text x="1500" y="405" text-anchor="middle" class="node-title">InstanceMirror</text><text x="1500" y="426" text-anchor="middle" class="node-small">JourneyAudit</text>
+  <rect x="1380" y="490" width="240" height="90" rx="8" class="node"/>
+  <rect x="1380" y="490" width="240" height="25" rx="8" fill="#dc2626"/><text x="1398" y="508" class="tag">REJECT</text>
+  <text x="1500" y="545" text-anchor="middle" class="node-title">RejectedCommand</text><text x="1500" y="566" text-anchor="middle" class="node-small">DeadLetter</text>
+  <path d="M1305 390 H1350" class="flow-blue"/><path d="M1305 525 H1350" class="flow-red"/><path d="M1305 625 H1350" class="flow-gray"/>
+  <path d="M360 230 H405" class="flow-blue"/><path d="M360 350 H405" class="flow-blue"/><path d="M360 470 H405" class="flow-blue"/><path d="M360 590 H405" class="flow-blue"/>
+  <text x="850" y="790" text-anchor="middle" class="label">单次命令最多推进 32 个即时节点；遇到 WAIT / ACTION / END 即停</text>
+</svg>

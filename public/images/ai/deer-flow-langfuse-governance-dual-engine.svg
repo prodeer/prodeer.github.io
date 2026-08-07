@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">DeerFlow 治理中心与 Langfuse 双引擎总体架构</title>
+  <desc id="desc">展示用户请求经过 Gateway 可信身份、工具可见性过滤、模型、运行期 RBAC、Guardrail 和审批后执行工具；高风险调用进入治理中心，经过持久化审批、人工决策、CAS、TTL 和服务端 Grant 恢复；模型工具调用及持久化后的治理审计以脱敏方式投影到 Langfuse Trace、Span 和 Score。治理运行时决定行动，治理数据库保存事实，Langfuse 解释运行。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e22ce"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .band { stroke-width: 1.5; }
+      .layer-no { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #ffffff; letter-spacing: 0; }
+      .layer-title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .layer-sub { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .node-blue { fill: #eff6ff; stroke: #93b4e8; }
+      .node-green { fill: #ecfdf5; stroke: #8bc8b2; }
+      .node-amber { fill: #fff7ed; stroke: #e9bd85; }
+      .node-purple { fill: #faf5ff; stroke: #cdb2df; }
+      .node-gray { fill: #f5f7fa; stroke: #cdd5df; }
+      .node-title { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .node-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .node-text-strong { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .edge { fill: none; stroke: #667085; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-blue { fill: none; stroke: #2563eb; stroke-width: 2.2; marker-end: url(#arrow-blue); }
+      .edge-green { fill: none; stroke: #047857; stroke-width: 2.4; marker-end: url(#arrow-green); }
+      .edge-purple { fill: none; stroke: #7e22ce; stroke-width: 2; stroke-dasharray: 8 7; marker-end: url(#arrow-purple); }
+      .edge-label { font: 500 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .boundary-title { font: 700 15px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .boundary-text { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #5b6472; letter-spacing: 0; }
+      .legend { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="1000"/>
+  <text class="title" x="48" y="52">DeerFlow 双引擎治理架构</text>
+  <text class="subtitle" x="48" y="82">治理中心决定“能不能执行”，Langfuse 解释“整条链路发生了什么”</text>
+
+  <!-- 主分层背景 -->
+  <rect class="band" x="40" y="112" width="1520" height="228" rx="8" fill="#f2f7ff" stroke="#c8d8f0"/>
+  <rect x="40" y="112" width="184" height="228" rx="8" fill="#e5efff"/>
+  <rect x="216" y="112" width="8" height="228" fill="#e5efff"/>
+
+  <rect class="band" x="40" y="370" width="1040" height="390" rx="8" fill="#fffaf3" stroke="#efd4b4"/>
+  <rect x="40" y="370" width="184" height="390" rx="8" fill="#fff0dc"/>
+  <rect x="216" y="370" width="8" height="390" fill="#fff0dc"/>
+
+  <rect class="band" x="1110" y="370" width="450" height="390" rx="8" fill="#f7f3fa" stroke="#dac9e6"/>
+
+  <rect class="band" x="40" y="800" width="1520" height="145" rx="8" fill="#f5f7fa" stroke="#cdd5df"/>
+  <rect x="40" y="800" width="184" height="145" rx="8" fill="#e9edf3"/>
+  <rect x="216" y="800" width="8" height="145" fill="#e9edf3"/>
+
+  <!-- 层标题 -->
+  <g>
+    <rect x="64" y="138" width="38" height="28" rx="6" fill="#2563eb"/>
+    <text class="layer-no" x="83" y="158" text-anchor="middle">01</text>
+    <text class="layer-title" x="64" y="196">请求与执行链</text>
+    <text class="layer-sub" x="64" y="220">先限制能力空间</text>
+    <text class="layer-sub" x="64" y="240">再校验具体调用</text>
+  </g>
+
+  <g>
+    <rect x="64" y="396" width="38" height="28" rx="6" fill="#c2410c"/>
+    <text class="layer-no" x="83" y="416" text-anchor="middle">02</text>
+    <text class="layer-title" x="64" y="454">治理中心</text>
+    <text class="layer-sub" x="64" y="478">权威决策与证据引擎</text>
+    <text class="layer-sub" x="64" y="498">审批 · 恢复 · 审计</text>
+  </g>
+
+  <g>
+    <rect x="1134" y="396" width="38" height="28" rx="6" fill="#7e22ce"/>
+    <text class="layer-no" x="1153" y="416" text-anchor="middle">03</text>
+    <text class="layer-title" x="1190" y="417">Langfuse</text>
+    <text class="layer-sub" x="1134" y="448">脱敏的运行分析引擎</text>
+  </g>
+
+  <g>
+    <rect x="64" y="826" width="92" height="28" rx="6" fill="#475467"/>
+    <text class="layer-no" x="110" y="846" text-anchor="middle">BOUNDARY</text>
+    <text class="layer-title" x="64" y="884">权威边界</text>
+    <text class="layer-sub" x="64" y="908">控制、事实与分析分离</text>
+  </g>
+
+  <!-- 跨层连接，先于节点绘制 -->
+  <path class="edge-blue" d="M 400 180 L 440 180"/>
+  <path class="edge-blue" d="M 620 180 L 660 180"/>
+  <path class="edge-blue" d="M 870 180 L 910 180"/>
+  <path class="edge-blue" d="M 1080 180 L 1120 180"/>
+  <path class="edge-blue" d="M 1365 180 L 1402 180"/>
+
+  <path class="edge" d="M 1242 224 L 1242 264"/>
+  <text class="edge-label" x="1256" y="250">deny</text>
+
+  <path class="edge" d="M 1242 224 L 1242 352 L 340 352 L 340 440"/>
+  <text class="edge-label" x="760" y="364">高风险调用 → interrupt</text>
+
+  <path class="edge" d="M 430 478 L 470 478"/>
+  <path class="edge" d="M 670 478 L 710 478"/>
+  <path class="edge" d="M 850 526 L 850 602"/>
+  <path class="edge" d="M 710 653 L 670 653"/>
+  <path class="edge" d="M 470 653 L 430 653"/>
+
+  <path class="edge-green" d="M 340 696 L 340 780 L 1090 780 L 1090 206 L 1120 206"/>
+  <text class="edge-label" x="660" y="772">恢复 Run：携带服务端 Grant，重新执行 RBAC → Guardrail → Approval</text>
+
+  <path class="edge-purple" d="M 995 216 L 995 350 L 1092 350 L 1092 572 L 1132 572"/>
+  <text class="edge-label" x="1008" y="337">Graph / LLM / Tool Callback</text>
+
+  <path class="edge-purple" d="M 990 478 L 1060 478 L 1060 625 L 1535 625 L 1535 572 L 1528 572"/>
+  <text class="edge-label" x="1072" y="615">审计成功后 best-effort 脱敏投影</text>
+
+  <!-- 01 请求与执行链节点 -->
+  <rect class="node" x="250" y="144" width="150" height="72" rx="8"/>
+  <text class="node-title" x="325" y="174" text-anchor="middle">用户请求</text>
+  <text class="node-text" x="325" y="196" text-anchor="middle">自然语言任务</text>
+
+  <rect class="node node-blue" x="440" y="136" width="180" height="88" rx="8"/>
+  <text class="node-title" x="530" y="164" text-anchor="middle">Gateway</text>
+  <text class="node-text" x="530" y="187" text-anchor="middle">认证身份</text>
+  <text class="node-text" x="530" y="207" text-anchor="middle">注入可信 Principal</text>
+
+  <rect class="node node-blue" x="660" y="136" width="210" height="88" rx="8"/>
+  <text class="node-title" x="765" y="164" text-anchor="middle">RBAC Layer 1</text>
+  <text class="node-text" x="765" y="187" text-anchor="middle">过滤工具 Schema</text>
+  <text class="node-text" x="765" y="207" text-anchor="middle">早于 deferred catalog</text>
+
+  <rect class="node" x="910" y="144" width="170" height="72" rx="8"/>
+  <text class="node-title" x="995" y="174" text-anchor="middle">模型</text>
+  <text class="node-text" x="995" y="196" text-anchor="middle">生成 Tool Call</text>
+
+  <rect class="node node-amber" x="1120" y="136" width="245" height="88" rx="8"/>
+  <text class="node-title" x="1242" y="164" text-anchor="middle">运行期控制链</text>
+  <text class="node-text-strong" x="1242" y="187" text-anchor="middle">RBAC Layer 2 → Guardrail</text>
+  <text class="node-text-strong" x="1242" y="207" text-anchor="middle">→ Approval Policy</text>
+
+  <rect class="node node-green" x="1402" y="144" width="132" height="72" rx="8"/>
+  <text class="node-title" x="1468" y="174" text-anchor="middle">Tool</text>
+  <text class="node-text" x="1468" y="196" text-anchor="middle">实际执行</text>
+
+  <rect class="node node-gray" x="1120" y="270" width="245" height="48" rx="8"/>
+  <text class="node-title" x="1242" y="290" text-anchor="middle">受控 ToolMessage</text>
+  <text class="node-text" x="1242" y="308" text-anchor="middle">deny 不能被审批覆盖</text>
+
+  <!-- 02 治理中心节点 -->
+  <rect class="node node-amber" x="250" y="440" width="180" height="76" rx="8"/>
+  <text class="node-title mono" x="340" y="470" text-anchor="middle">interrupt()</text>
+  <text class="node-text" x="340" y="493" text-anchor="middle">暂停原 Checkpoint</text>
+
+  <rect class="node node-amber" x="470" y="440" width="200" height="76" rx="8"/>
+  <text class="node-title" x="570" y="470" text-anchor="middle">Approval Projector</text>
+  <text class="node-text" x="570" y="493" text-anchor="middle">幂等创建 pending 审批</text>
+
+  <rect class="node node-green" x="710" y="430" width="280" height="96" rx="8"/>
+  <text class="node-title" x="850" y="458" text-anchor="middle">Governance Database</text>
+  <text class="node-text" x="850" y="481" text-anchor="middle">审批状态 + Resume 状态</text>
+  <text class="node-text" x="850" y="503" text-anchor="middle">append-only 审计事件</text>
+
+  <rect class="node node-amber" x="710" y="610" width="280" height="86" rx="8"/>
+  <text class="node-title" x="850" y="638" text-anchor="middle">Web 治理中心</text>
+  <text class="node-text" x="850" y="661" text-anchor="middle">Owner / Admin 决策</text>
+  <text class="node-text" x="850" y="681" text-anchor="middle">TTL 到期采用默认拒绝</text>
+
+  <rect class="node node-amber" x="470" y="610" width="200" height="86" rx="8"/>
+  <text class="node-title" x="570" y="638" text-anchor="middle">决策与抢占</text>
+  <text class="node-text" x="570" y="661" text-anchor="middle">数据库 CAS</text>
+  <text class="node-text" x="570" y="681" text-anchor="middle">dispatching 防重复</text>
+
+  <rect class="node node-green" x="250" y="610" width="180" height="86" rx="8"/>
+  <text class="node-title" x="340" y="638" text-anchor="middle">Resume Dispatcher</text>
+  <text class="node-text" x="340" y="661" text-anchor="middle">Resume Map</text>
+  <text class="node-text" x="340" y="681" text-anchor="middle">服务端 Grant</text>
+
+  <!-- 03 Langfuse 节点 -->
+  <rect class="node node-purple" x="1160" y="452" width="350" height="62" rx="8"/>
+  <text class="node-title" x="1335" y="478" text-anchor="middle">确定性 Trace ID</text>
+  <text class="node-text mono" x="1335" y="499" text-anchor="middle">seed = deerflow-run:&lt;run_id&gt;</text>
+
+  <rect class="node node-purple" x="1140" y="540" width="180" height="65" rx="8"/>
+  <text class="node-title" x="1230" y="566" text-anchor="middle">标准 Observation</text>
+  <text class="node-text" x="1230" y="589" text-anchor="middle">Graph · LLM · Tool</text>
+
+  <rect class="node node-purple" x="1330" y="540" width="190" height="65" rx="8"/>
+  <text class="node-title" x="1425" y="566" text-anchor="middle">治理 Observation</text>
+  <text class="node-text" x="1425" y="589" text-anchor="middle">governance.* Span / Score</text>
+
+  <path class="edge-purple" d="M 1285 514 L 1230 514 L 1230 540"/>
+  <path class="edge-purple" d="M 1385 514 L 1425 514 L 1425 540"/>
+
+  <rect class="node node-purple" x="1160" y="654" width="350" height="76" rx="8"/>
+  <text class="node-title" x="1335" y="682" text-anchor="middle">Agent Insights</text>
+  <text class="node-text" x="1335" y="705" text-anchor="middle">owner-scoped 根节点 → traceId 展开</text>
+  <text class="node-text" x="1335" y="723" text-anchor="middle">deerflow_run_id 精确过滤</text>
+
+  <path class="edge-purple" d="M 1230 605 L 1230 630 L 1285 630 L 1285 654"/>
+  <path class="edge-purple" d="M 1425 605 L 1425 630 L 1385 630 L 1385 654"/>
+
+  <!-- 权威边界 -->
+  <rect class="node node-amber" x="250" y="828" width="350" height="88" rx="8"/>
+  <text class="boundary-title" x="425" y="858" text-anchor="middle">治理 Runtime 决定行动</text>
+  <text class="boundary-text" x="425" y="883" text-anchor="middle">RBAC、Guardrail、审批和 Grant 校验</text>
+  <text class="boundary-text" x="425" y="903" text-anchor="middle">Langfuse 故障不能改变执行结果</text>
+
+  <rect class="node node-green" x="625" y="828" width="350" height="88" rx="8"/>
+  <text class="boundary-title" x="800" y="858" text-anchor="middle">治理数据库保存事实</text>
+  <text class="boundary-text" x="800" y="883" text-anchor="middle">审批状态、决策责任与审计事件</text>
+  <text class="boundary-text" x="800" y="903" text-anchor="middle">合规调查以这里为准</text>
+
+  <rect class="node node-purple" x="1000" y="828" width="350" height="88" rx="8"/>
+  <text class="boundary-title" x="1175" y="858" text-anchor="middle">Langfuse 解释运行</text>
+  <text class="boundary-text" x="1175" y="883" text-anchor="middle">Trace 时序、Span 证据与 Score 趋势</text>
+  <text class="boundary-text" x="1175" y="903" text-anchor="middle">不参与授权，不承担合规台账</text>
+
+  <!-- 图例 -->
+  <line x1="250" y1="970" x2="300" y2="970" stroke="#2563eb" stroke-width="2.2"/>
+  <text class="legend" x="312" y="974">同步控制流</text>
+  <line x1="445" y1="970" x2="495" y2="970" stroke="#047857" stroke-width="2.4"/>
+  <text class="legend" x="507" y="974">可信恢复流</text>
+  <line x1="640" y1="970" x2="690" y2="970" stroke="#7e22ce" stroke-width="2" stroke-dasharray="8 7"/>
+  <text class="legend" x="702" y="974">best-effort 观测投影</text>
+</svg>

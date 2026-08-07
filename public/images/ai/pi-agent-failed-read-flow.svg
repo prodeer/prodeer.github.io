@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="870" viewBox="0 0 1280 870" role="img" aria-labelledby="title desc">
+  <title id="title">一次失败的 read 工具调用如何走完整条链路</title>
+  <desc id="desc">Provider 返回 read 工具调用，翻译器生成统一事件，Agent Loop 验证并执行。文件不存在的错误被编码为 ToolResultMessage，进入下一轮模型上下文，随后模型改用 ls 查找文件。</desc>
+
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#d9eee8" stroke-width="1" opacity="0.5"/>
+    </pattern>
+    <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#14352d" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0789b8"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a9b71"/>
+    </marker>
+    <marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#536b64"/>
+    </marker>
+    <style>
+      .title { font: 700 28px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .subtitle { font: 400 15px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #647a73; letter-spacing: 0; }
+      .lane-title { font: 700 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .lane-sub { font: 400 11px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #6a7f78; letter-spacing: 0; }
+      .step-no { font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #ffffff; letter-spacing: 0; }
+      .message { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #27473f; letter-spacing: 0; }
+      .message-muted { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #647a73; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .note-title { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18342d; letter-spacing: 0; }
+      .note-text { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #647a73; letter-spacing: 0; }
+      .success { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0a785a; letter-spacing: 0; }
+      .error { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #b43d34; letter-spacing: 0; }
+      .lifeline { stroke: #abc2ba; stroke-width: 1.5; stroke-dasharray: 6 7; }
+      .edge-cyan { fill: none; stroke: #0789b8; stroke-width: 2.2; marker-end: url(#arrow-cyan); }
+      .edge-green { fill: none; stroke: #0a9b71; stroke-width: 2.2; marker-end: url(#arrow-green); }
+      .edge-neutral { fill: none; stroke: #536b64; stroke-width: 2; marker-end: url(#arrow-neutral); }
+      .edge-error { fill: none; stroke: #cf554b; stroke-width: 2.2; stroke-dasharray: 7 5; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="870" fill="#fbfefd"/>
+  <rect width="1280" height="870" fill="url(#grid)"/>
+
+  <text class="title" x="44" y="46">一次失败的 read，如何变成下一步行动</text>
+  <text class="subtitle" x="44" y="72">错误没有穿透循环，而是被编码成模型可观察的上下文</text>
+
+  <!-- Lane headers -->
+  <g filter="url(#shadow)">
+    <rect x="62" y="104" width="210" height="70" rx="8" fill="#ffffff" stroke="#b7dce5"/>
+    <rect x="351" y="104" width="210" height="70" rx="8" fill="#eaf8fc" stroke="#7fc9dc"/>
+    <rect x="640" y="104" width="210" height="70" rx="8" fill="#173f35" stroke="#173f35"/>
+    <rect x="929" y="104" width="210" height="70" rx="8" fill="#effaf6" stroke="#91d2ba"/>
+  </g>
+  <circle cx="91" cy="139" r="13" fill="#d9f3fa" stroke="#0789b8"/>
+  <circle cx="380" cy="139" r="13" fill="#d9f3fa" stroke="#0789b8"/>
+  <circle cx="669" cy="139" r="13" fill="#2bd5a1"/>
+  <circle cx="958" cy="139" r="13" fill="#dbf5eb" stroke="#0a9b71"/>
+  <text class="lane-title" x="114" y="136">Provider API</text>
+  <text class="lane-sub" x="114" y="155">私有协议</text>
+  <text class="lane-title" x="403" y="136">API 翻译器</text>
+  <text class="lane-sub" x="403" y="155">统一事件</text>
+  <text x="692" y="136" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff">Agent Loop</text>
+  <text x="692" y="155" font-family="ui-monospace, monospace" font-size="11" fill="#cde8df">稳定核心</text>
+  <text class="lane-title" x="981" y="136">read 工具</text>
+  <text class="lane-sub" x="981" y="155">ReadOperations</text>
+
+  <line class="lifeline" x1="167" y1="174" x2="167" y2="816"/>
+  <line class="lifeline" x1="456" y1="174" x2="456" y2="816"/>
+  <line class="lifeline" x1="745" y1="174" x2="745" y2="816"/>
+  <line class="lifeline" x1="1034" y1="174" x2="1034" y2="816"/>
+
+  <!-- 01 Provider event -->
+  <circle cx="44" cy="218" r="16" fill="#0789b8"/>
+  <text class="step-no" x="44" y="222" text-anchor="middle">01</text>
+  <path class="edge-cyan" d="M 167 218 L 445 218"/>
+  <text class="message" x="306" y="202" text-anchor="middle">Provider 私有流式事件</text>
+  <text class="message-muted mono" x="306" y="239" text-anchor="middle">function call / content block</text>
+
+  <!-- 02 Unified tool call -->
+  <circle cx="44" cy="300" r="16" fill="#0789b8"/>
+  <text class="step-no" x="44" y="304" text-anchor="middle">02</text>
+  <path class="edge-cyan" d="M 456 300 L 734 300"/>
+  <text class="message mono" x="595" y="284" text-anchor="middle">toolcall_end(read, src/config.ts)</text>
+  <rect x="652" y="315" width="186" height="30" rx="6" fill="#eaf8fc" stroke="#9fd5e2"/>
+  <text class="message-muted" x="745" y="335" text-anchor="middle">得到统一 ToolCall</text>
+
+  <!-- 03 Prepare and validate -->
+  <circle cx="44" cy="386" r="16" fill="#173f35"/>
+  <text class="step-no" x="44" y="390" text-anchor="middle">03</text>
+  <path class="edge-neutral" d="M 745 366 C 842 366 842 414 756 414"/>
+  <text class="message mono" x="892" y="382">prepareArguments</text>
+  <text class="message-muted" x="892" y="403">兼容修正 → Schema 验证</text>
+
+  <!-- 04 Execute -->
+  <circle cx="44" cy="474" r="16" fill="#0a9b71"/>
+  <text class="step-no" x="44" y="478" text-anchor="middle">04</text>
+  <path class="edge-green" d="M 745 474 L 1023 474"/>
+  <text class="message mono" x="884" y="458" text-anchor="middle">execute(path = src/config.ts)</text>
+  <text class="message-muted" x="884" y="495" text-anchor="middle">通过 Operations 访问文件系统</text>
+
+  <!-- 05 Error response -->
+  <circle cx="44" cy="558" r="16" fill="#cf554b"/>
+  <text class="step-no" x="44" y="562" text-anchor="middle">05</text>
+  <path class="edge-error" d="M 1034 558 L 758 558"/>
+  <path d="M 747 550 L 763 566 M 763 550 L 747 566" stroke="#cf554b" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="error mono" x="895" y="541" text-anchor="middle">ENOENT</text>
+  <text class="message-muted" x="895" y="580" text-anchor="middle">src/config.ts 不存在</text>
+
+  <!-- 06 Encode result -->
+  <circle cx="44" cy="648" r="16" fill="#173f35"/>
+  <text class="step-no" x="44" y="652" text-anchor="middle">06</text>
+  <rect x="626" y="612" width="238" height="74" rx="8" fill="#fff3ef" stroke="#e6a39b" filter="url(#shadow)"/>
+  <text class="note-title mono" x="745" y="639" text-anchor="middle">ToolResultMessage</text>
+  <rect x="688" y="650" width="114" height="24" rx="6" fill="#cf554b"/>
+  <text x="745" y="667" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#ffffff">isError: true</text>
+
+  <!-- 07 Error enters next context -->
+  <circle cx="44" cy="732" r="16" fill="#0a9b71"/>
+  <text class="step-no" x="44" y="736" text-anchor="middle">07</text>
+  <path class="edge-green" d="M 745 732 L 467 732"/>
+  <text class="message" x="606" y="716" text-anchor="middle">下一轮上下文包含错误结果</text>
+  <text class="message-muted" x="606" y="753" text-anchor="middle">错误成为 Observation，而不是循环终点</text>
+
+  <!-- 08 Recovery -->
+  <circle cx="44" cy="812" r="16" fill="#0a9b71"/>
+  <text class="step-no" x="44" y="816" text-anchor="middle">08</text>
+  <path class="edge-green" d="M 456 812 L 734 812"/>
+  <text class="success mono" x="595" y="796" text-anchor="middle">toolcall_end(ls, src)</text>
+  <text class="message-muted" x="595" y="833" text-anchor="middle">模型根据错误改用 ls 查找真实文件名</text>
+
+  <!-- Outcome marker -->
+  <rect x="929" y="630" width="256" height="64" rx="8" fill="#e7f8f1" stroke="#76c9ac"/>
+  <circle cx="957" cy="662" r="12" fill="#0a9b71"/>
+  <path d="M 951 662 L 956 667 L 964 657" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="success" x="978" y="658">失败已转化</text>
+  <text class="note-text" x="978" y="678">Agent 仍能继续推理</text>
+</svg>

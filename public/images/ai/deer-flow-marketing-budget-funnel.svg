@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 960" role="img" aria-labelledby="title desc">
+  <title id="title">从十八万目标用户到九千九百八十五次营销动作的预算漏斗</title>
+  <desc id="desc">十八万目标用户先经过百分之八十五的资格过滤，得到十五万三千人；扣除百分之十对照组后为十三万七千七百人；频次抑制一万一千零十六次后得到十二万六千六百八十四次潜在动作；二十万元预算再抑制十一万六千六百九十九次动作，最终允许九千九百八十五次动作，预计成本十九万九千九百九十九元五角五分。</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/>
+    </marker>
+    <style>
+      .canvas { fill: #f8fafc; }
+      .title { font: 700 30px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .subtitle { font: 400 16px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .funnel-1 { fill: #e8f1ff; stroke: #93b4e8; stroke-width: 1.5; }
+      .funnel-2 { fill: #e7f7f3; stroke: #8bc8b2; stroke-width: 1.5; }
+      .funnel-3 { fill: #eef8e8; stroke: #a8c98d; stroke-width: 1.5; }
+      .funnel-4 { fill: #fff7df; stroke: #dec373; stroke-width: 1.5; }
+      .funnel-5 { fill: #fff0dc; stroke: #e9ad70; stroke-width: 1.5; }
+      .value { font: 700 27px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .stage { font: 500 15px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+      .detail { font: 400 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+      .loss-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; filter: url(#shadow); }
+      .loss-box-strong { fill: #fff7f6; stroke: #ecc5c1; stroke-width: 1.2; filter: url(#shadow); }
+      .loss-title { font: 500 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475467; letter-spacing: 0; }
+      .loss-value { font: 700 18px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #172033; letter-spacing: 0; }
+      .loss-value-strong { font: 700 18px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #b42318; letter-spacing: 0; }
+      .connector { fill: none; stroke: #98a2b3; stroke-width: 1.5; }
+      .result { fill: #ffffff; stroke: #93b4e8; stroke-width: 1.5; filter: url(#shadow); }
+      .result-value { font: 700 25px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1d4ed8; letter-spacing: 0; }
+      .result-note { font: 500 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #344054; letter-spacing: 0; }
+      .budget-pill { fill: #ecfdf5; stroke: #8bc8b2; stroke-width: 1.2; }
+      .budget-text { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #05603a; letter-spacing: 0; }
+      .footnote { font: 400 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #667085; letter-spacing: 0; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="960"/>
+  <text class="title" x="48" y="52">从 18 万目标用户到 9,985 次动作</text>
+  <text class="subtitle" x="48" y="82">Eligibility、对照组、频控和 20 万元预算依次收窄可执行规模</text>
+
+  <!-- 五级漏斗 -->
+  <polygon class="funnel-1" points="120,132 1240,132 1140,252 220,252"/>
+  <text class="value" x="680" y="181" text-anchor="middle">180,000</text>
+  <text class="stage" x="680" y="209" text-anchor="middle">目标人群</text>
+  <text class="detail" x="680" y="232" text-anchor="middle">new_kyc_no_ftd</text>
+
+  <polygon class="funnel-2" points="220,258 1140,258 1060,378 300,378"/>
+  <text class="value" x="680" y="307" text-anchor="middle">153,000</text>
+  <text class="stage" x="680" y="335" text-anchor="middle">符合资格</text>
+  <text class="detail" x="680" y="358" text-anchor="middle">Eligibility rate = 85%</text>
+
+  <polygon class="funnel-3" points="300,384 1060,384 1000,504 360,504"/>
+  <text class="value" x="680" y="433" text-anchor="middle">137,700</text>
+  <text class="stage" x="680" y="461" text-anchor="middle">可触达人群</text>
+  <text class="detail" x="680" y="484" text-anchor="middle">保留 10% 对照组</text>
+
+  <polygon class="funnel-4" points="360,510 1000,510 870,630 490,630"/>
+  <text class="value" x="680" y="559" text-anchor="middle">126,684</text>
+  <text class="stage" x="680" y="587" text-anchor="middle">抑制前的潜在动作</text>
+  <text class="detail" x="680" y="610" text-anchor="middle">频次检查后进入预算计算</text>
+
+  <polygon class="funnel-5" points="490,636 870,636 800,756 560,756"/>
+  <text class="value" x="680" y="685" text-anchor="middle">9,985</text>
+  <text class="stage" x="680" y="713" text-anchor="middle">预算允许的动作</text>
+  <text class="detail" x="680" y="736" text-anchor="middle">综合单价 ¥20.03</text>
+
+  <!-- 每一步被拦下的规模 -->
+  <path class="connector" d="M 1140 252 L 1180 252"/>
+  <rect class="loss-box" x="1190" y="216" width="340" height="72" rx="8"/>
+  <text class="loss-title" x="1214" y="244">Eligibility 过滤</text>
+  <text class="loss-value" x="1214" y="270">−27,000</text>
+
+  <path class="connector" d="M 1060 378 L 1180 378"/>
+  <rect class="loss-box" x="1190" y="342" width="340" height="72" rx="8"/>
+  <text class="loss-title" x="1214" y="370">10% 对照组</text>
+  <text class="loss-value" x="1214" y="396">−15,300</text>
+
+  <path class="connector" d="M 1000 504 L 1180 504"/>
+  <rect class="loss-box" x="1190" y="468" width="340" height="72" rx="8"/>
+  <text class="loss-title" x="1214" y="496">频次抑制</text>
+  <text class="loss-value" x="1214" y="522">−11,016</text>
+
+  <path class="connector" d="M 870 630 L 1180 630"/>
+  <rect class="loss-box-strong" x="1190" y="594" width="340" height="72" rx="8"/>
+  <text class="loss-title" x="1214" y="622">预算抑制</text>
+  <text class="loss-value-strong" x="1214" y="648">−116,699</text>
+
+  <!-- 成本结果 -->
+  <path d="M 680 756 L 680 798" fill="none" stroke="#667085" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <rect class="result" x="380" y="806" width="600" height="100" rx="8"/>
+  <text class="result-value" x="680" y="848" text-anchor="middle">9,985 × ¥20.03 = ¥199,999.55</text>
+  <text class="result-note" x="680" y="879" text-anchor="middle">预计成本距预算上限仅 ¥0.45</text>
+
+  <rect class="budget-pill" x="1030" y="822" width="310" height="58" rx="8"/>
+  <text class="budget-text" x="1185" y="846" text-anchor="middle">确定性预算上限</text>
+  <text class="budget-text" x="1185" y="868" text-anchor="middle">¥200,000.00</text>
+
+  <text class="footnote" x="48" y="932">注：漏斗宽度用于表达逐层收窄，不按人数严格等比例绘制。</text>
+</svg>

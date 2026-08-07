@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fafbfc"/>
+      <stop offset="100%" stop-color="#edf2f7"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/></filter>
+  </defs>
+
+  <rect width="960" height="420" rx="10" fill="url(#bg)"/>
+  <text x="480" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#2c3e50">关键词搜索 vs 语义搜索：为什么 RAG 不可替代</text>
+
+  <!-- Query -->
+  <rect x="280" y="56" width="400" height="36" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="480" y="78" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#2c3e50">查询："北向资金最近在买什么"</text>
+
+  <!-- Left: Keyword -->
+  <line x1="360" y1="92" x2="360" y2="118" stroke="#e74c3c" stroke-width="1.5" marker-end="url(#arrLeft)"/>
+  <text x="250" y="112" font-family="system-ui,sans-serif" font-size="9" fill="#e74c3c" text-anchor="middle">关键词拆解</text>
+
+  <!-- Right: Semantic -->
+  <line x1="600" y1="92" x2="600" y2="118" stroke="#2980b9" stroke-width="1.5" marker-end="url(#arrRight)"/>
+  <text x="710" y="112" font-family="system-ui,sans-serif" font-size="9" fill="#2980b9" text-anchor="middle">语义编码</text>
+
+  <!-- LEFT: Keyword Search Panel -->
+  <rect x="40" y="122" width="430" height="260" rx="10" fill="#fff" stroke="#e74c3c" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="122" width="430" height="32" rx="10" fill="#e74c3c"/>
+  <rect x="40" y="144" width="430" height="10" fill="#e74c3c"/>
+  <text x="255" y="143" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">KEYWORD 关键词匹配</text>
+
+  <!-- Keyword steps -->
+  <text x="60" y="178" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#e74c3c">分词结果</text>
+  <rect x="60" y="184" width="390" height="24" rx="4" fill="#fdf0f0"/>
+  <text x="70" y="200" font-family="system-ui,sans-serif" font-size="9" fill="#e74c3c">["北向资金", "最近", "在", "买", "什么"]</text>
+
+  <text x="60" y="226" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#e74c3c">SQL LIKE 搜索</text>
+  <rect x="60" y="232" width="390" height="24" rx="4" fill="#2c3e50"/>
+  <text x="70" y="248" font-family="SF Mono,monospace" font-size="8" fill="#f1c40f">content LIKE "%北向资金%" OR content LIKE "%买%"</text>
+
+  <text x="60" y="274" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#e74c3c">结果</text>
+  <rect x="60" y="280" width="180" height="48" rx="4" fill="#fdf0f0" stroke="#f5c6cb" stroke-width="1"/>
+  <text x="150" y="298" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c0392b">仅匹配含"北向资金"的观点</text>
+  <text x="150" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#e74c3c">丢失："外资流入""北上"等</text>
+
+  <rect x="250" y="280" width="200" height="48" rx="4" fill="#fdf0f0" stroke="#f5c6cb" stroke-width="1"/>
+  <text x="350" y="298" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c0392b">"买什么"匹配到误杀结果</text>
+  <text x="350" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#e74c3c">"不买/没买" 等否定表达</text>
+
+  <text x="60" y="352" font-family="system-ui,sans-serif" font-size="9" font-weight="600" fill="#c0392b">问题</text>
+  <text x="60" y="368" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">字面匹配 · 无法理解同义表达 · 无法排序相关性</text>
+  <text x="60" y="380" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">"外资布局" ≠ "北向流入"  虽然语义几乎相同</text>
+
+  <!-- RIGHT: Semantic Search Panel -->
+  <rect x="490" y="122" width="430" height="260" rx="10" fill="#fff" stroke="#2980b9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="490" y="122" width="430" height="32" rx="10" fill="#2980b9"/>
+  <rect x="490" y="144" width="430" height="10" fill="#2980b9"/>
+  <text x="705" y="143" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">SEMANTIC 语义搜索 (RAG)</text>
+
+  <!-- Semantic steps -->
+  <text x="510" y="178" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#2980b9">向量编码</text>
+  <rect x="510" y="184" width="390" height="24" rx="4" fill="#eef4ff"/>
+  <text x="520" y="200" font-family="system-ui,sans-serif" font-size="9" fill="#2980b9">整句 → m3e-base → 768 维向量 [0.12, -0.34, 0.87, ...]</text>
+
+  <text x="510" y="226" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#2980b9">余弦相似度计算</text>
+  <rect x="510" y="232" width="390" height="24" rx="4" fill="#2c3e50"/>
+  <text x="520" y="248" font-family="system-ui,sans-serif" font-size="9" fill="#f1c40f">query_vec · all_indexed_vecs → sort by score desc</text>
+
+  <text x="510" y="274" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#2980b9">结果 (score 降序)</text>
+  <rect x="510" y="280" width="180" height="48" rx="4" fill="#eef4ff" stroke="#a8d0e6" stroke-width="1"/>
+  <text x="600" y="298" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#2980b9">0.87: "外资今日大幅流入..."</text>
+  <text x="600" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">(含"外资流入"语义相近)</text>
+
+  <rect x="700" y="280" width="200" height="48" rx="4" fill="#eef4ff" stroke="#a8d0e6" stroke-width="1"/>
+  <text x="800" y="298" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#2980b9">0.82: "北上资金抄底..."</text>
+  <text x="800" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">(含"北上"同义词)</text>
+
+  <text x="510" y="352" font-family="system-ui,sans-serif" font-size="9" font-weight="600" fill="#2980b9">优势</text>
+  <text x="510" y="368" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">语义理解 · 同义词覆盖 · 相关性排序 · 抗噪音</text>
+  <text x="510" y="380" font-family="system-ui,sans-serif" font-size="8" fill="#7f8c8d">"外资布局"≈"北向流入"→ 余弦相似度 ≥ 0.8</text>
+
+  <!-- Arrows -->
+  <defs>
+    <marker id="arrLeft" markerWidth="7" markerHeight="8" refX="3.5" refY="8" orient="auto">
+      <polygon points="0,0 7,0 3.5,8" fill="#e74c3c"/>
+    </marker>
+    <marker id="arrRight" markerWidth="7" markerHeight="8" refX="3.5" refY="8" orient="auto">
+      <polygon points="0,0 7,0 3.5,8" fill="#2980b9"/>
+    </marker>
+  </defs>
+
+  <!-- VS badge -->
+  <circle cx="480" cy="252" r="20" fill="#fff" stroke="#95a5a6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="480" y="257" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#7f8c8d">VS</text>
+
+  <!-- Bottom conclusion -->
+  <text x="480" y="408" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#2c3e50" font-weight="600">关键词搜索 = 字面匹配　　vs　　语义搜索 = 语义理解 → 为 LLM 提供"真正想看"的上下文</text>
+</svg>

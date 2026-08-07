@@ -1,0 +1,439 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import TOC from '../components/TOC.astro';
+import CodeCopy from '../components/CodeCopy.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getEntry } from 'astro:content';
+
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	post: CollectionEntry<'posts'>;
+	headings?: Heading[];
+	prevPost?: CollectionEntry<'posts'> | null;
+	nextPost?: CollectionEntry<'posts'> | null;
+	relatedPosts?: CollectionEntry<'posts'>[];
+}
+
+const { post, headings = [], prevPost, nextPost, relatedPosts = [] } = Astro.props;
+const { title, date, category, tags, description, cover } = post.data;
+const categoryEntry = await getEntry(category);
+const categorySlug = categoryEntry.id;
+const categoryName = categoryEntry.data.name;
+const hasTOC = headings.filter(h => h.depth === 2 || h.depth === 3).length > 0;
+
+const formattedDate = date.toLocaleDateString('zh-CN', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead
+			title={title}
+			description={description || title}
+			image={cover}
+			article={{
+				publishedTime: date,
+				modifiedTime: post.data.updatedDate,
+				tags: tags,
+			}}
+		/>
+	</head>
+	<body>
+		<Header />
+		<div class:list={['post-container', { 'has-toc': hasTOC }]}>
+			<main>
+				<nav class="breadcrumb">
+					<a href="/">首页</a>
+					<span class="sep">›</span>
+					<a href="/posts/page/1">文章</a>
+					<span class="sep">›</span>
+					<span class="current">{title}</span>
+				</nav>
+				<article>
+					<header class="post-header">
+						<h1 transition:name={`post-title-${post.id}`}>{title}</h1>
+						<div class="post-meta">
+							<time datetime={date.toISOString()}>{formattedDate}</time>
+							<span class="separator">·</span>
+							<a href={`/categories/${categorySlug}/page/1`} class="category">{categoryName}</a>
+						</div>
+						{tags && tags.length > 0 && (
+							<div class="post-tags">
+								{tags.map(tag => (
+									<a href={`/tags/${tag}/page/1`} class="tag">{tag}</a>
+								))}
+							</div>
+						)}
+					</header>
+					<div class="prose max-w-none">
+						<slot />
+					</div>
+				</article>
+				{/* 移动端：推荐阅读（桌面端隐藏，显示在侧边栏） */}
+				{relatedPosts.length > 0 && (
+					<section class="related-mobile">
+						<div class="related-title">推荐阅读</div>
+						<ul class="related-list">
+							{relatedPosts.map((p) => (
+								<li><a href={`/posts/${p.id}`}>{p.data.title}</a></li>
+							))}
+						</ul>
+					</section>
+				)}
+				<nav class="post-nav">
+					{prevPost && (
+						<a href={`/posts/${prevPost.id}`} class="nav-prev">
+							<span class="nav-label">上一篇</span>
+							<span class="nav-title">{prevPost.data.title}</span>
+						</a>
+					)}
+					{nextPost && (
+						<a href={`/posts/${nextPost.id}`} class="nav-next">
+							<span class="nav-label">下一篇</span>
+							<span class="nav-title">{nextPost.data.title}</span>
+						</a>
+					)}
+				</nav>
+			</main>
+			{(hasTOC || relatedPosts.length > 0) && (
+				<aside class="toc-sidebar">
+					<div class="toc-wrapper">
+						{hasTOC && <TOC headings={headings} />}
+						{relatedPosts.length > 0 && (
+							<nav class="related-sidebar">
+								<div class="related-title">推荐阅读</div>
+								<ul class="related-list">
+									{relatedPosts.map((p) => (
+										<li><a href={`/posts/${p.id}`}>{p.data.title}</a></li>
+									))}
+								</ul>
+							</nav>
+						)}
+					</div>
+				</aside>
+			)}
+		</div>
+		<Footer />
+		<CodeCopy />
+	</body>
+</html>
+
+<style>
+	/* 布局容器 - 文章始终居中 */
+	.post-container {
+		position: relative;
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 1.5em 1em 3em;
+	}
+
+	/* 有目录时，文章与目录并排（sticky 侧栏） */
+	.post-container.has-toc {
+		display: grid;
+		grid-template-columns: minmax(0, 960px) 260px;
+		gap: 2.5rem;
+		max-width: 1260px;
+		align-items: start;
+	}
+
+	/* 面包屑导航 */
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		font-size: 0.875em;
+		margin-bottom: 1.5em;
+	}
+
+	.breadcrumb a {
+		color: rgb(var(--gray));
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.breadcrumb a:hover {
+		color: var(--accent);
+	}
+
+	.breadcrumb .sep {
+		color: rgb(var(--gray));
+	}
+
+	.breadcrumb .current {
+		color: rgb(var(--gray-dark));
+		max-width: 200px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* TOC 侧边栏 - 固定在右侧空白区域 */
+	.toc-sidebar {
+		position: sticky;
+		top: 100px;
+		align-self: start;
+		width: 100%;
+	}
+
+	.toc-wrapper {
+		max-height: calc(100vh - 140px);
+		overflow-y: auto;
+	}
+
+	/* 文章头部 */
+	.post-header {
+		margin-bottom: 2em;
+		padding-bottom: 1.5em;
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+
+	.post-header h1 {
+		font-size: 2em;
+		margin: 0 0 0.5em 0;
+		line-height: 1.3;
+	}
+
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		color: rgb(var(--gray));
+		font-size: 0.95em;
+	}
+
+	.separator {
+		color: rgb(var(--gray-light));
+	}
+
+	.category {
+		color: var(--accent);
+		text-decoration: none;
+		transition: opacity 0.2s;
+	}
+
+	.category:hover {
+		opacity: 0.7;
+	}
+
+	.post-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin-top: 1em;
+	}
+
+	.tag {
+		font-size: 0.85em;
+		padding: 0.25em 0.75em;
+		background: rgb(var(--gray-light));
+		border-radius: 1em;
+		color: rgb(var(--gray-dark));
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.tag:hover {
+		background: var(--accent);
+		color: white;
+	}
+
+	/* 文章内容 - 紧凑排版 */
+	.prose {
+		line-height: 1.7;
+		font-size: 0.95em;
+	}
+
+	.prose :global(p) {
+		margin-top: 0.75em;
+		margin-bottom: 0.75em;
+	}
+
+	.prose :global(h2) {
+		margin-top: 1.5em;
+		margin-bottom: 0.5em;
+		padding-bottom: 0.25em;
+		border-bottom: 1px solid rgb(var(--gray-light));
+		scroll-margin-top: 80px;
+	}
+
+	.prose :global(h3) {
+		margin-top: 1.25em;
+		margin-bottom: 0.4em;
+		scroll-margin-top: 80px;
+	}
+
+	.prose :global(pre) {
+		background: rgb(var(--gray-dark));
+		color: #fff;
+		margin: 1em 0;
+	}
+
+	.prose :global(ul),
+	.prose :global(ol) {
+		padding-left: 1.5em;
+		margin: 0.75em 0;
+	}
+
+	.prose :global(li) {
+		margin: 0.35em 0;
+	}
+
+	.prose :global(blockquote) {
+		margin: 1em 0;
+	}
+
+	/* 侧边栏 & 移动端推荐阅读 - 和 TOC 完全一致的样式 */
+	.related-sidebar,
+	.related-mobile {
+		font-size: 0.875em;
+		line-height: 1.6;
+	}
+
+	.related-sidebar {
+		margin-top: 2em;
+		padding-top: 1.5em;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+
+	.related-mobile {
+		margin-top: 3em;
+		padding-top: 1.5em;
+		border-top: 1px solid rgb(var(--gray-light));
+		display: none;
+	}
+
+	.related-title {
+		font-weight: 600;
+		color: rgb(var(--black));
+		margin-bottom: 0.75em;
+		font-size: 0.8em;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.related-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.related-list li {
+		margin: 0.25em 0;
+	}
+
+	.related-list a {
+		display: block;
+		padding: 0.25em 0 0.25em 0.75em;
+		color: rgb(var(--gray));
+		text-decoration: none;
+		transition: color 0.2s;
+		position: relative;
+	}
+
+	.related-list a::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 2px;
+		height: 1em;
+		background: transparent;
+		transition: background 0.2s;
+	}
+
+	.related-list a:hover {
+		color: var(--accent);
+	}
+
+	.related-list a:hover::before {
+		background: var(--accent);
+	}
+
+	.post-nav {
+		display: flex;
+		justify-content: space-between;
+		gap: 1.5em;
+		margin-top: 3em;
+		padding-top: 1.5em;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+
+	.post-nav a {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25em;
+		text-decoration: none;
+		max-width: 45%;
+	}
+
+	.nav-prev {
+		align-items: flex-start;
+	}
+
+	.nav-next {
+		align-items: flex-end;
+		margin-left: auto;
+	}
+
+	.nav-label {
+		font-size: 0.8em;
+		color: rgb(var(--gray));
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.nav-title {
+		color: rgb(var(--black));
+		font-weight: 500;
+		line-height: 1.4;
+		transition: color 0.2s;
+	}
+
+	.post-nav a:hover .nav-title {
+		color: var(--accent);
+	}
+
+	/* 响应式：屏幕不够宽时隐藏侧边栏，显示移动端推荐 */
+	@media (max-width: 1024px) {
+		.post-container.has-toc {
+			display: block;
+			max-width: 960px;
+		}
+
+		.toc-sidebar {
+			display: none;
+		}
+
+		.related-mobile {
+			display: block;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.post-container {
+			padding: 1.5em 1em;
+		}
+
+		.post-header h1 {
+			font-size: 1.5em;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.post-container {
+			padding: 1em 0.75em;
+		}
+	}
+</style>

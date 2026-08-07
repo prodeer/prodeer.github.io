@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="780" viewBox="0 0 1800 780" role="img" aria-labelledby="title desc">
+  <title id="title">动作链路与一致性边界</title>
+  <desc id="desc">Kafka 输入偏移、Flink Keyed State 和事务型 ActionCommand 位于同一个 Checkpoint 一致性边界内。Action Worker 到外部动作中心位于边界之外，通过 action_id 处理至少一次调用、UNKNOWN 和结果回流。</desc>
+  <defs>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#15803d"/></marker>
+    <marker id="arrow-orange" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#ea580c"/></marker>
+    <marker id="arrow-gray" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#64748b"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 38px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 18px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #64748b; }
+      .section { font: 700 20px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; }
+      .node-title { font: 600 19px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #0f172a; }
+      .node-body { font: 400 15px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #475569; }
+      .node-small { font: 400 14px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #64748b; }
+      .tag { font: 600 13px 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; fill: #fff; }
+      .node { fill: #fff; stroke: #cbd5e1; stroke-width: 1.5; filter: url(#shadow); }
+      .flow-green { fill: none; stroke: #15803d; stroke-width: 3; stroke-linecap: round; marker-end: url(#arrow-green); }
+      .flow-orange { fill: none; stroke: #ea580c; stroke-width: 3; stroke-linecap: round; marker-end: url(#arrow-orange); }
+      .flow-gray { fill: none; stroke: #64748b; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 8 6; marker-end: url(#arrow-gray); }
+      .boundary { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2; stroke-dasharray: 10 7; }
+    </style>
+  </defs>
+  <rect class="bg" width="1800" height="780"/>
+  <text x="900" y="48" text-anchor="middle" class="title">ActionCommand：Exactly-once 边界在哪里</text>
+  <text x="900" y="78" text-anchor="middle" class="subtitle">Flink 内部统一提交，外部动作依赖 action_id 业务幂等</text>
+
+  <rect x="55" y="120" width="1030" height="610" rx="12" class="boundary"/>
+  <text x="85" y="158" class="section" fill="#15803d">Flink Checkpoint 一致性边界</text>
+  <text x="1055" y="158" text-anchor="end" class="node-small">共同提交：输入偏移 + Keyed State + Kafka ActionCommand</text>
+
+  <rect x="100" y="245" width="260" height="125" rx="8" class="node"/>
+  <rect x="100" y="245" width="260" height="27" rx="8" fill="#dc2626"/><text x="118" y="264" class="tag">INPUT</text>
+  <text x="230" y="310" text-anchor="middle" class="node-title">Kafka 输入偏移</text>
+  <text x="230" y="340" text-anchor="middle" class="node-body">事件 · 命令 · ActionResult</text>
+
+  <rect x="410" y="220" width="330" height="175" rx="8" class="node"/>
+  <rect x="410" y="220" width="330" height="27" rx="8" fill="#15803d"/><text x="428" y="239" class="tag">STATE</text>
+  <text x="575" y="280" text-anchor="middle" class="node-title">Journey Runtime</text>
+  <text x="575" y="312" text-anchor="middle" class="node-body">Keyed State · Timer</text>
+  <text x="575" y="340" text-anchor="middle" class="node-body">revision · dedup · pendingActions</text>
+  <text x="575" y="374" text-anchor="middle" class="node-small">Checkpoint / Savepoint 可恢复</text>
+
+  <rect x="790" y="245" width="250" height="125" rx="8" class="node"/>
+  <rect x="790" y="245" width="250" height="27" rx="8" fill="#ea580c"/><text x="808" y="264" class="tag">OUTPUT</text>
+  <text x="915" y="310" text-anchor="middle" class="node-title">Kafka ActionCommand</text>
+  <text x="915" y="340" text-anchor="middle" class="node-body">事务型 Sink</text>
+
+  <path d="M360 307 H410" class="flow-green"/><path d="M740 307 H790" class="flow-green"/>
+  <path d="M575 395 V500" class="flow-green"/>
+  <rect x="415" y="500" width="320" height="100" rx="8" fill="#dcfce7" stroke="#86efac"/>
+  <text x="575" y="536" text-anchor="middle" class="node-title">Checkpoint 完成</text>
+  <text x="575" y="565" text-anchor="middle" class="node-body">三者共同前进，失败时回滚</text>
+  <text x="575" y="587" text-anchor="middle" class="node-body">到最近成功点</text>
+
+  <rect x="1150" y="120" width="595" height="610" rx="12" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text x="1180" y="158" class="section" fill="#c2410c">Flink 边界之外：业务执行</text>
+
+  <rect x="1190" y="245" width="235" height="125" rx="8" class="node"/>
+  <rect x="1190" y="245" width="235" height="27" rx="8" fill="#ea580c"/><text x="1208" y="264" class="tag">WORKER</text>
+  <text x="1307" y="310" text-anchor="middle" class="node-title">Action Worker</text>
+  <text x="1307" y="340" text-anchor="middle" class="node-body">限流 · 重试 · 对账</text>
+
+  <rect x="1490" y="245" width="215" height="125" rx="8" class="node"/>
+  <rect x="1490" y="245" width="215" height="27" rx="8" fill="#475569"/><text x="1508" y="264" class="tag">EXTERNAL</text>
+  <text x="1597" y="310" text-anchor="middle" class="node-title">动作中心</text>
+  <text x="1597" y="340" text-anchor="middle" class="node-body">发券 / 消息 / 权益</text>
+
+  <path d="M1040 307 H1190" class="flow-orange"/><path d="M1425 307 H1490" class="flow-orange"/>
+  <text x="1115" y="290" text-anchor="middle" class="node-small">至少一次</text>
+  <text x="1458" y="290" text-anchor="middle" class="node-small">action_id</text>
+
+  <rect x="1190" y="455" width="515" height="120" rx="8" class="node"/>
+  <rect x="1190" y="455" width="515" height="27" rx="8" fill="#b45309"/><text x="1208" y="474" class="tag">UNKNOWN 处理</text>
+  <text x="1447" y="520" text-anchor="middle" class="node-title">超时 -> 使用原 action_id 查询 -> 安全重试或进入 DLQ</text>
+  <text x="1447" y="550" text-anchor="middle" class="node-small">不能用新随机键直接重试</text>
+  <path d="M1597 370 V455" class="flow-orange"/>
+
+  <path d="M1447 575 V665 H790 V420 H700 V395" class="flow-gray"/>
+  <text x="1080" y="650" text-anchor="middle" class="node-small">action-result 回流为 JourneyCommand，禁止 Worker 直接改 State</text>
+</svg>
